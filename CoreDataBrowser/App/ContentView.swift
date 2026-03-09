@@ -6,199 +6,153 @@
 //
 
 import SwiftUI
-import Combine
 
 struct ContentView: View {
-    @State private var viewModel = ViewModel()
+    @State private var simulatorViewModel: SimulatorViewModel
+    @State private var dbDataVM: DBDataViewModel
+    @State private var userDefaultsViewModel = UserDefaultsViewModel()
     @State private var searchVM = SearchViewModel()
-    @State private var selectedDevice: SimulatorDevice? = nil
-    @State private var selectedTable: CoreDataTable? = nil
-    @State private var selectedUserDefaultTable: UserDefaultsTable? = nil
-    @State private var searchedText: String = ""
+    @State private var pathManager = PathManager()
+    
+    init() {
+        let pathManager = PathManager()
+        self.pathManager = pathManager
+        self.simulatorViewModel = SimulatorViewModel(pathManager: pathManager)
+        self.dbDataVM = DBDataViewModel(pathManager: pathManager)
+    }
+    
     var body: some View {
-        NavigationSplitView{
-            createSimulatorList()
-                .onAppear { viewModel.loadSimulators() }
-                .searchable(text: $searchedText)
-                .onChange(of: searchedText) { _, newValue in
-                    searchVM.search(text: newValue, devices: viewModel.devices, tables: viewModel.tables)
-                }
-                .toolbar {
-                    ToolbarItem(placement: .automatic) {
-                        Button {
-                            viewModel
-                                .refresh(
-                                    selectedDevice: selectedDevice,
-                                    selectedTable: selectedTable,
-                                    selectedUserDefaultsTable: selectedUserDefaultTable
-                                )
-                        } label: {
-                            Image(systemName: "arrow.trianglehead.2.clockwise")
-                        }
-                        .help(Text("Refresh the list of simulators"))
-                    }
-                }
+        NavigationSplitView {
+            simulatorSection
         } content: {
-            HStack(spacing: 0) {
-                createCoreDataEntities()
-                createUserDefaultTables()
-            }
+            dataSourceSection
         } detail: {
-            VStack{
-                if let table = selectedTable {
-                    createTableContent(table: table)
-                }
-                
-                Divider()
-                
-                if let table = selectedUserDefaultTable {
-                    createUserDefaultTableContent(table: table)
-                }
-            }
+            detailSection
         }
-        .alert("Error", isPresented: $viewModel.shouldShowError, presenting: viewModel.currentError) { error in
-            Button("OK") { viewModel.shouldShowError = false }
-        } message: { error in
-            Text(error.errorDescription ?? "Unknown Error")
-        }
-    }
-    private func createSimulatorList() -> some View {
-        List(viewModel.devices) { device in
-            Button {
-                selectedDevice = device
-                viewModel.loadSimulatorApps(for: device)
-            } label: {
-                createSimulatorCell(device: device)
-            }
-        }
-        .frame(minWidth: 350, minHeight: 500)
-    }
-    
-    private func createSimulatorCell(device: SimulatorDevice) -> some View {
-        HStack{
-            VStack(alignment: .leading) {
-                searchVM.highlightMatch(in: device.name, searchText: searchedText)
-                    .font(.headline)
-                
-                searchVM.highlightMatch(in: viewModel.runTimeTextReplacing(device: device), searchText: searchedText)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-            Spacer()
-            Text(device.state)
-                .foregroundStyle(device.state == "Booted" ? .green : .gray)
-        }
-        .padding(.vertical, 4)
-    }
-    private func createUserDefaultTableContent(table: UserDefaultsTable) -> some View {
-        ScrollView([.vertical, .horizontal]) {
-            VStack(alignment: .leading, spacing: 0) {
-                // Header row
-                HStack {
-                    ForEach(Array(zip(table.columns, table.types)), id: \.0) { column, type in
-                        VStack(alignment: .leading, spacing: 0) {
-                            searchVM.highlightMatch(in: type, searchText: searchedText)
-                            
-                            searchVM.highlightMatch(in: column, searchText: searchedText)
-                        }
-                        .bold()
-                        .padding(.horizontal, 4)
-                        .frame(minWidth: 120, alignment: .leading)
-                    }
-                }
-                .padding(.bottom)
-                
-                // Data rows
-                ForEach(table.rows.indices, id: \.self) { rowIndex in
-                    let row = table.rows[rowIndex]
-                    HStack {
-                        ForEach(row.indices, id: \.self) { colIndex in
-                            searchVM.highlightMatch(in: row[colIndex], searchText: searchedText)
-                                .frame(minWidth: 120, alignment: .leading)
-                                .lineLimit(1)
-                                .truncationMode(.tail)
-                                .padding(.horizontal, 4)
-                        }
-                    }
-                    Divider()
-                }
-            }
-            .padding(.vertical, 4)
-        }
-        .frame(minWidth: 600, minHeight: 400)
-        .onReceive(NotificationCenter.default.publisher(for: .userDefaultsTableDidRefresh)) { notification in
-            if let updated = notification.object as? UserDefaultsTable {
-                self.selectedUserDefaultTable = updated
-            }
-        }
-    }
-    private func createTableContent(table: CoreDataTable) -> some View {
-        ScrollView([.vertical, .horizontal]) {
-            VStack(alignment: .leading, spacing: 0) {
-                // Header row
-                HStack {
-                    ForEach(Array(zip(table.columns, table.types)), id: \.0) { column, type in
-                        VStack(alignment: .leading, spacing: 0) {
-                            searchVM.highlightMatch(in: type, searchText: searchedText)
-                            
-                            searchVM.highlightMatch(in: column, searchText: searchedText)
-                        }
-                        .bold()
-                        .padding(.horizontal, 4)
-                        .frame(minWidth: 120, alignment: .leading)
-                    }
-                }
-                .padding(.bottom)
-                
-                // Data rows
-                ForEach(table.rows.indices, id: \.self) { rowIndex in
-                    let row = table.rows[rowIndex]
-                    HStack {
-                        ForEach(row.indices, id: \.self) { colIndex in
-                            searchVM.highlightMatch(in: row[colIndex], searchText: searchedText)
-                                .frame(minWidth: 120, alignment: .leading)
-                                .lineLimit(1)
-                                .truncationMode(.tail)
-                                .padding(.horizontal, 4)
-                        }
-                    }
-                    Divider()
-                }
-            }
-            .padding(.vertical, 4)
-        }
-        .frame(minWidth: 600, minHeight: 400)
         .onReceive(NotificationCenter.default.publisher(for: .tableDidRefresh)) { notification in
-            if let updated = notification.object as? CoreDataTable {
-                self.selectedTable = updated
-            }
+            updateSelectedTables(notification: notification)
         }
     }
+    @ViewBuilder
+    private var simulatorSection: some View {
+        if simulatorViewModel.isLoading {
+            ProgressView()
+        } else {
+            SimulatorListView()
+                .appEnvironment(simulator: simulatorViewModel, swiftData: dbDataVM, search: searchVM)
+                .navigationSplitViewColumnWidth(min: 340, ideal: 340, max: 340)
+                .toolbar {
+                    toolBarButton(placement: .navigation, icon: "arrow.trianglehead.2.clockwise") {
+                        refreshAllData()
+                    }
+                    
+                    toolBarButton(placement: .primaryAction, icon: "folder") {
+                        pathManager.isSheetPresented.toggle()
+                    }
+                }
+                .onChange(of: searchVM.searchedText) { _, newValue in
+                    searchVM.search(text: newValue, devices: simulatorViewModel.devices, tables: dbDataVM.coreDataTables)
+                }
+                .sheet(isPresented: Binding(get: {
+                    pathManager.isSheetPresented
+                }, set: {
+                    pathManager.isSheetPresented = $0
+                })) {
+                    AppFolderSheet(pathManager: pathManager)
+                }
+        }
+    }
+ 
+    @ViewBuilder
+    private var dataSourceSection: some View {
+        DataSourceView()
+            .appEnvironment(swiftData: dbDataVM, userDefaults: userDefaultsViewModel, search: searchVM)
+            .onChange(of: simulatorViewModel.selectedDevice) { _, device in
+                handleDeviceSelection(device)
+            }
+    }
     
-    private func createCoreDataEntities() -> some View {
-        List(viewModel.tables) { table in
+    @ViewBuilder
+    private var detailSection: some View {
+        Group {
+            if let coreDataTable = dbDataVM.selectedTable {
+                DetailContentView(
+                    table: coreDataTable,
+                    isLoading: dbDataVM.isLoading,
+                    title: "Core Data",
+                    icon: "cylinder.split.1x2",
+                    hasError: $dbDataVM.hasError,
+                    errorMessage: dbDataVM.error?.localizedDescription,
+                    onDismiss: { dbDataVM.selectedTable = nil },
+                    onErrorDismiss: { dbDataVM.hasError = false }
+                )
+            }
+            if let swiftDataTable = dbDataVM.secondaryTable {
+                DetailContentView(
+                    table: swiftDataTable,
+                    isLoading: dbDataVM.isLoading,
+                    title: "SwiftData",
+                    icon: "externaldrive.badge.checkmark",
+                    hasError: $dbDataVM.hasError,
+                    errorMessage: dbDataVM.error?.localizedDescription,
+                    onDismiss: { dbDataVM.secondaryTable = nil },
+                    onErrorDismiss: { dbDataVM.hasError = false }
+                )
+            }
+            
+            if let userDefaultTable = userDefaultsViewModel.selectedUserDefaultTable {
+                DetailContentView(
+                    table: userDefaultTable,
+                    isLoading: userDefaultsViewModel.isLoading,
+                    title: "User Defaults",
+                    icon: "gearshape.2",
+                    hasError: $userDefaultsViewModel.hasError,
+                    errorMessage: userDefaultsViewModel.error?.localizedDescription,
+                    onDismiss: { userDefaultsViewModel.selectedUserDefaultTable = nil },
+                    onErrorDismiss: { userDefaultsViewModel.hasError = false },
+                    isUserDefaultsDetail: true
+                )
+            }
+        }
+        .appEnvironment(search: searchVM)
+    }
+    
+    @ToolbarContentBuilder
+    private func toolBarButton(placement: ToolbarItemPlacement, icon: String, action: @escaping () -> Void) -> some ToolbarContent {
+        ToolbarItem(placement: placement) {
             Button {
-                selectedTable = table
+                action()
             } label: {
-                searchVM.highlightMatch(in: table.name, searchText: searchedText)
-            }
-        }
-    }
-    
-    private func createUserDefaultTables() -> some View {
-        List(viewModel.userDefaultsTable) { table in
-            Button(table.name) {
-                selectedUserDefaultTable = table
-            }
-        }
-        .onChange(of: selectedDevice) { oldValue, newValue in
-            if let device = newValue {
-                viewModel.loadUserDefaults(for: device)
+                Image(systemName: icon)
             }
         }
     }
 }
 
-#Preview {
-    ContentView()
+private extension ContentView {
+    private func refreshAllData() {
+        simulatorViewModel.loadSimulators()
+        dbDataVM.refresh(selectedDevice: simulatorViewModel.selectedDevice)
+        userDefaultsViewModel.refreshUserDefaults()
+    }
+    
+    private func updateSelectedTables(notification: Notification) {
+        if let updated = notification.object as? DBDataTable {
+            if dbDataVM.selectedTable?.id == updated.id {
+                dbDataVM.selectedTable = updated
+            }
+            if dbDataVM.secondaryTable?.id == updated.id {
+                dbDataVM.secondaryTable = updated
+            }
+            if userDefaultsViewModel.selectedUserDefaultTable?.id == updated.id {
+                userDefaultsViewModel.selectedUserDefaultTable = updated
+            }
+        }
+    }
+    
+    private func handleDeviceSelection(_ device: SimulatorDevice?) {
+        guard let device else { return }
+        userDefaultsViewModel.loadUserDefaults(for: device)
+        dbDataVM.loadSwiftData(for: device)
+    }
 }

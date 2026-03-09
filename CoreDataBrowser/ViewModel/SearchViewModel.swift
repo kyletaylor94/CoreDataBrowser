@@ -11,12 +11,13 @@ import Observation
 
 @Observable
 class SearchViewModel {
+    var searchedText: String = ""
     var searchedSimulator: [SimulatorDevice] = []
-    var searchedTables: [CoreDataTable] = []
+    var searchedTables: [DBDataTable] = []
     var searchedColumns: [String] = []
     var searchedRows: [String] = []
     
-    func search(text: String, devices: [SimulatorDevice], tables: [CoreDataTable]) {
+    func search(text: String, devices: [SimulatorDevice], tables: [DBDataTable]) {
         if text.isEmpty { return }
         searchedSimulator = devices.filter({ $0.name.contains(text.lowercased()) })
         
@@ -29,26 +30,25 @@ class SearchViewModel {
         }
     }
     
-    func highlightMatch(in text: String, searchText: String) -> Text {
-        guard !searchText.isEmpty else { return Text(text) }
+    func highlightMatch(in text: String) -> Text {
+        guard !searchedText.isEmpty else { return Text(text) }
         var attributed = AttributedString(text)
         
-        if let range = attributed.range(of: searchText, options: [.caseInsensitive]) {
+        if let range = attributed.range(of: searchedText, options: [.caseInsensitive]) {
             attributed[range].backgroundColor = .yellow
             attributed[range].foregroundColor = .black
         }
-        
         return Text(attributed)
     }
     
  
-    private func searchInTables(text: String, tables: [CoreDataTable]) {
+    private func searchInTables(text: String, tables: [DBDataTable]) {
         if text.isEmpty { return }
         searchedTables = tables.filter({ $0.columns.contains(where: { $0.contains(text.lowercased()) }) })
     }
     
     
-    private func searchInData(text: String, tables: [CoreDataTable]) {
+    private func searchInData(text: String, tables: [DBDataTable]) {
         if text.isEmpty { return }
         let columns = tables.flatMap { $0.columns }
         let rows = tables.flatMap { $0.rows }

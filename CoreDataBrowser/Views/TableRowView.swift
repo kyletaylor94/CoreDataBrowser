@@ -12,7 +12,6 @@ struct TableRowView: View {
     let table: DBDataTable
     let showHighlight: Bool
     let searchVM: SearchViewModel
-    
     var body: some View {
         HStack {
             tableNameText
@@ -22,7 +21,6 @@ struct TableRowView: View {
                 .foregroundStyle(.secondary)
         }
     }
-    
     @ViewBuilder
     private var tableNameText: some View {
         if showHighlight {

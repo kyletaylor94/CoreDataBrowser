@@ -29,21 +29,19 @@ enum SwiftDataError: Error {
     }
 }
 
+@MainActor
 @Observable
 class DBDataViewModel {
     var selectedTable: DBDataTable? = nil
     var secondaryTable: DBDataTable? = nil
     var swiftDataTables: [DBDataTable] = []
+    var coreDataTables: [DBDataTable] = []
+
     var isLoading = false
     var hasError = false
     var error: SwiftDataError? = nil
     
-    var coreDataTables: [DBDataTable] = []
-    
     private let fileManager = FileManager.default
-    private var db: OpaquePointer?
-    private var statement: OpaquePointer?
-    
     private let pathManager: PathManager
     
     init(pathManager: PathManager) {
@@ -62,7 +60,7 @@ class DBDataViewModel {
         coreDataTables.removeAll()
         loadDataStores(device: device, fileExtension: Constants.sqlite, storage: &coreDataTables, shouldExecuteCheckpoint: false)
     }
-        
+    
     private func refreshCoreDataTables() {
         if let selectedTable,
            let updated = coreDataTables.first(where: { $0.name == selectedTable.name }) {
@@ -70,7 +68,7 @@ class DBDataViewModel {
             NotificationCenter.default.post(name: .tableDidRefresh, object: updated)
         }
     }
-        
+    
     func loadSwiftData(for device: SimulatorDevice) {
         isLoading = true
         defer { isLoading = false }
@@ -203,7 +201,11 @@ class DBDataViewModel {
             
             if let bytes {
                 let data = Data(bytes: bytes, count: Int(length))
-                return data.map { String(format: "%02hhx", $0) }.joined()
+                
+                if let decoded = decodeCustomObject(from: data) {
+                    return decoded
+                }
+                return "BLOB (\(length) bytes)"
             }
             return "BLOB"
             
@@ -213,7 +215,7 @@ class DBDataViewModel {
     }
     
     private func createDBTable(tableName: String, indicesToKeep: [Int], columns: [String], rows: [[String]], types: [String], fileURL: URL) -> DBDataTable {
-        let fileSize = (try? FileManager.default.attributesOfItem(atPath: fileURL.path)[.size] as? Int64) ?? 0
+        let fileSize = (try? fileManager.attributesOfItem(atPath: fileURL.path)[.size] as? Int64) ?? 0
         return DBDataTable(
             name: tableName,
             columns: indicesToKeep.map { columns[$0] },
@@ -227,9 +229,8 @@ class DBDataViewModel {
         var results: [URL] = []
         
         for dir in directories {
-            guard FileManager.default.fileExists(atPath: dir.path) else { continue }
-            
-            if let contents = try? FileManager.default.contentsOfDirectory(at: dir, includingPropertiesForKeys: nil) {
+            guard fileManager.fileExists(atPath: dir.path) else { continue }
+            if let contents = try? fileManager.contentsOfDirectory(at: dir, includingPropertiesForKeys: nil) {
                 for file in contents where file.pathExtension == ext {
                     if !results.contains(file) {
                         results.append(file)
@@ -239,21 +240,19 @@ class DBDataViewModel {
         }
         return results
     }
-
+    
     private func loadDataStores(device: SimulatorDevice, fileExtension: String, storage: inout [DBDataTable], shouldExecuteCheckpoint: Bool = false) {
-       let appsPath = device.path.appendingPathComponent(Constants.SIMULATOR_APPS_PATH)
-        
-        guard let appFolders = try? FileManager.default.contentsOfDirectory(at: appsPath, includingPropertiesForKeys: nil) else {
+        let appsPath = device.path.appendingPathComponent(Constants.SIMULATOR_APPS_PATH)
+        guard let appFolders = try? fileManager.contentsOfDirectory(at: appsPath, includingPropertiesForKeys: nil) else {
             error = .cannotLoadApps(appsPath)
             hasError = true
             return
         }
         
         let dataPath = fileExtension == Constants.STORE ? pathManager.swiftDataPath : pathManager.coreDataPath
-                
+        
         for appFolder in appFolders {
             let appDataPath = appFolder.appendingPathComponent(Constants.DOCUMENTS)
-           // let libraryPath = appFolder.appendingPathComponent(Constants.LIBRARY_APPLICATIONSUPPORT_PATH)
             let libraryPath = appFolder.appendingPathComponent(dataPath)
             let storeFiles = findDataStores(in: [appDataPath, libraryPath], withExtension: fileExtension)
             
@@ -275,6 +274,62 @@ class DBDataViewModel {
                     }
                 }
             }
+        }
+    }
+    
+    private func decodeCustomObject(from data: Data) -> String? {
+        // try with NSKeyedUnarchiver(Core Data Transformable)
+        if let object = try? NSKeyedUnarchiver.unarchivedObject(ofClasses: [
+            NSString.self,
+            NSNumber.self,
+            NSArray.self,
+            NSDictionary.self,
+            NSData.self,
+            NSURL.self,
+            NSDate.self
+        ], from: data) {
+            return formatDecodedObject(object)
+        }
+        
+        // try to interpret as JSON
+        if let json = try? JSONSerialization.jsonObject(with: data),
+           let jsonData = try? JSONSerialization.data(withJSONObject: json, options: .prettyPrinted),
+           let jsonString = String(data: jsonData, encoding: .utf8) {
+            return jsonString
+        }
+        
+        //try to interpret as Property List
+        if let plist = try? PropertyListSerialization.propertyList(from: data, format: nil) {
+            return "\(plist)"
+        }
+        
+        //try to read as UTF-8 string
+        if let string = String(data: data, encoding: .utf8) {
+            return string
+        }
+        
+        return nil
+    }
+    
+    private func formatDecodedObject(_ object: Any) -> String {
+        switch object {
+        case let dict as [AnyHashable: Any]:
+            let pairs = dict.map { "\($0): \($1)" }.joined(separator: ", ")
+            return "{\(pairs)}"
+            
+        case let array as [Any]:
+            let items = array.map { "\($0)" }.joined(separator: ", ")
+            return "[\(items)]"
+            
+        case let date as Date:
+            let formatter = ISO8601DateFormatter()
+            return formatter.string(from: date)
+            
+        case let url as URL:
+            return url.absoluteString
+            
+        default:
+            return "\(object)"
         }
     }
 }

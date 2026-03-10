@@ -12,20 +12,24 @@ struct ContentView: View {
     @State private var dbDataVM: DBDataViewModel
     @State private var userDefaultsViewModel = UserDefaultsViewModel()
     @State private var searchVM = SearchViewModel()
-    @State private var pathManager = PathManager()
+    @State private var pathManager: PathManager
     
     init() {
-        let pathManager = PathManager()
-        self.pathManager = pathManager
-        self.simulatorViewModel = SimulatorViewModel(pathManager: pathManager)
-        self.dbDataVM = DBDataViewModel(pathManager: pathManager)
+        let pm = PathManager()
+        _pathManager = State(wrappedValue: pm)
+        _simulatorViewModel = State(wrappedValue: SimulatorViewModel(pathManager: pm))
+        _dbDataVM = State(wrappedValue: DBDataViewModel(pathManager: pm))
     }
     
     var body: some View {
         NavigationSplitView {
             simulatorSection
         } content: {
-            dataSourceSection
+            DataSourceView()
+                .appEnvironment(swiftData: dbDataVM, userDefaults: userDefaultsViewModel, search: searchVM)
+                .onChange(of: simulatorViewModel.selectedDevice) { _, device in
+                    handleDeviceSelection(device)
+                }
         } detail: {
             detailSection
         }
@@ -42,36 +46,21 @@ struct ContentView: View {
                 .appEnvironment(simulator: simulatorViewModel, swiftData: dbDataVM, search: searchVM)
                 .navigationSplitViewColumnWidth(min: 340, ideal: 340, max: 340)
                 .toolbar {
-                    toolBarButton(placement: .navigation, icon: "arrow.trianglehead.2.clockwise") {
-                        refreshAllData()
-                    }
-                    
-                    toolBarButton(placement: .primaryAction, icon: "folder") {
-                        pathManager.isSheetPresented.toggle()
-                    }
+                    toolBarButton(placement: .navigation, icon: "arrow.trianglehead.2.clockwise") { refreshAllData() }
+                    toolBarButton(placement: .primaryAction, icon: "gearshape") { pathManager.isSheetPresented.toggle() }
                 }
                 .onChange(of: searchVM.searchedText) { _, newValue in
                     searchVM.search(text: newValue, devices: simulatorViewModel.devices, tables: dbDataVM.coreDataTables)
                 }
-                .sheet(isPresented: Binding(get: {
-                    pathManager.isSheetPresented
-                }, set: {
-                    pathManager.isSheetPresented = $0
-                })) {
+                .sheet(isPresented: Binding(
+                    get: { pathManager.isSheetPresented },
+                    set: { pathManager.isSheetPresented = $0 }
+                )) {
                     AppFolderSheet(pathManager: pathManager)
                 }
         }
     }
  
-    @ViewBuilder
-    private var dataSourceSection: some View {
-        DataSourceView()
-            .appEnvironment(swiftData: dbDataVM, userDefaults: userDefaultsViewModel, search: searchVM)
-            .onChange(of: simulatorViewModel.selectedDevice) { _, device in
-                handleDeviceSelection(device)
-            }
-    }
-    
     @ViewBuilder
     private var detailSection: some View {
         Group {
@@ -116,17 +105,6 @@ struct ContentView: View {
         }
         .appEnvironment(search: searchVM)
     }
-    
-    @ToolbarContentBuilder
-    private func toolBarButton(placement: ToolbarItemPlacement, icon: String, action: @escaping () -> Void) -> some ToolbarContent {
-        ToolbarItem(placement: placement) {
-            Button {
-                action()
-            } label: {
-                Image(systemName: icon)
-            }
-        }
-    }
 }
 
 private extension ContentView {
@@ -154,5 +132,16 @@ private extension ContentView {
         guard let device else { return }
         userDefaultsViewModel.loadUserDefaults(for: device)
         dbDataVM.loadSwiftData(for: device)
+    }
+    
+    @ToolbarContentBuilder
+    private func toolBarButton(placement: ToolbarItemPlacement, icon: String, action: @escaping () -> Void) -> some ToolbarContent {
+        ToolbarItem(placement: placement) {
+            Button {
+                action()
+            } label: {
+                Image(systemName: icon)
+            }
+        }
     }
 }

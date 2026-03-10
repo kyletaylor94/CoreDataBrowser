@@ -35,13 +35,13 @@ enum CustomErrorTypes: LocalizedError {
 @Observable
 class SimulatorViewModel {
     var devices: [SimulatorDevice] = []
+    var selectedDevice: SimulatorDevice? = nil
+    
     var currentError: CustomErrorTypes? = nil
     var shouldShowError: Bool = false
-    var selectedDevice: SimulatorDevice? = nil
     var isLoading = false
     
     private let fileManager = FileManager.default
-    
     private let pathManager: PathManager
     
     init(pathManager: PathManager) {
@@ -52,7 +52,6 @@ class SimulatorViewModel {
         isLoading = true
         defer { isLoading = false }
         
-       // let basePath = fileManager.homeDirectoryForCurrentUser.appendingPathComponent(Constants.SIMULATOR_PATH)
         let basePath = fileManager.homeDirectoryForCurrentUser.appendingPathComponent(pathManager.simulatorPath)
         guard let contents = try? fileManager.contentsOfDirectory(at: basePath, includingPropertiesForKeys: nil) else {
             setError(.cannotAccessDevicesFolder)
@@ -71,7 +70,6 @@ class SimulatorViewModel {
                 guard let dict = plist as? [String: Any] else { continue }
                 
                 let (name, state, runtime) = checkKeys(dict: dict)
-                
                 guard state == "Booted" else { continue }
                 
                 loadedDevices.append(
@@ -119,7 +117,6 @@ class SimulatorViewModel {
         } else {
             state = "Unknown"
         }
-        
         return (name, state, runtime)
     }
 }

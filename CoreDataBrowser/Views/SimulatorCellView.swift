@@ -24,16 +24,8 @@ struct SimulatorCellView: View {
             }
             Spacer()
             Text(device.state)
-                .foregroundStyle(stateColor)
+                .foregroundStyle(.green)
         }
         .padding(.vertical, 4)
-    }
-    
-    private var stateColor: Color {
-        switch device.state.lowercased() {
-        case "booted": return .green
-        case "shutdown": return .red
-        default: return .secondary
-        }
     }
 }

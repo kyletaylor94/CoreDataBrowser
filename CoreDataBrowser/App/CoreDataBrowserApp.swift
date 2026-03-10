@@ -16,6 +16,6 @@ struct CoreDataBrowserApp: App {
     }
 }
 
-//TODO: - Add Gear Icon to the Toolbar and add a menu with the following options:
-// - Custom Datatype reading CoreData-SwiftData-Userdefaults
+//TODO: -
 // - Create DMG From the fresh app - maybe upload to Site to download the latest version of the app?
+// HomeBrew?

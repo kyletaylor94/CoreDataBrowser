@@ -28,10 +28,12 @@ enum UserDefaultsError: Error {
     }
 }
 
+@MainActor
 @Observable
 class UserDefaultsViewModel {
     var userDefaultsTable: [DBDataTable] = []
     var selectedUserDefaultTable: DBDataTable? = nil
+    
     var isLoading = false
     var hasError = false
     var error: UserDefaultsError? = nil
@@ -133,9 +135,31 @@ class UserDefaultsViewModel {
             return boolVaue ? "true" : "false"
         }
         
-        if let data = value as? String {
-            return "Data \(data.count) bytes"
-        }
+        if let data = value as? Data {
+            //try to decode as property list format
+              if let decodedObject = try? PropertyListSerialization.propertyList(from: data, format: nil) {
+                  return stringValue(for: decodedObject)
+              }
+              
+            //try to decode as JSON
+              if let jsonObject = try? JSONSerialization.jsonObject(with: data),
+                 let jsonData = try? JSONSerialization.data(withJSONObject: jsonObject, options: .prettyPrinted),
+                 let jsonString = String(data: jsonData, encoding: .utf8) {
+                  return jsonString
+              }
+              
+            //try to read as UTF-8 string
+              if let stringValue = String(data: data, encoding: .utf8) {
+                  return stringValue
+              }
+              
+            //if all else fails, show hex representation
+              return "Data (\(data.count) bytes): \(data.map { String(format: "%02x", $0) }.prefix(50).joined())\(data.count > 50 ? "..." : "")"
+          }
+        
+        if let string = value as? String {
+              return string
+          }
         
         if let numberValue = value as? NSNumber {
             if CFGetTypeID(numberValue) == CFBooleanGetTypeID() {

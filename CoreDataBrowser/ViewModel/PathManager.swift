@@ -15,36 +15,36 @@ class PathManager {
     var isSheetPresented: Bool = false
     
     var simulatorPath: String {
-          didSet {
-              UserDefaults.standard.set(simulatorPath, forKey: "simulatorPath")
-          }
-      }
-      
-      var coreDataPath: String {
-          didSet {
-              UserDefaults.standard.set(coreDataPath, forKey: "coreDataPath")
-          }
-      }
-      
-      var swiftDataPath: String {
-          didSet {
-              UserDefaults.standard.set(swiftDataPath, forKey: "swiftDataPath")
-          }
-      }
-      
-      var userDefaultsPath: String {
-          didSet {
-              UserDefaults.standard.set(userDefaultsPath, forKey: "userDefaultsPath")
-          }
-      }
-      
-      init() {
-          self.simulatorPath = UserDefaults.standard.string(forKey: "simulatorPath") ?? Constants.SIMULATOR_PATH
-          self.coreDataPath = UserDefaults.standard.string(forKey: "coreDataPath") ?? Constants.LIBRARY_APPLICATIONSUPPORT_PATH
-          self.swiftDataPath = UserDefaults.standard.string(forKey: "swiftDataPath") ?? Constants.LIBRARY_APPLICATIONSUPPORT_PATH
-          self.userDefaultsPath = UserDefaults.standard.string(forKey: "userDefaultsPath") ?? Constants.LIBRARY_PREFENCES_PATH
-      }
-        
+        didSet {
+            UserDefaults.standard.set(simulatorPath, forKey: "simulatorPath")
+        }
+    }
+    
+    var coreDataPath: String {
+        didSet {
+            UserDefaults.standard.set(coreDataPath, forKey: "coreDataPath")
+        }
+    }
+    
+    var swiftDataPath: String {
+        didSet {
+            UserDefaults.standard.set(swiftDataPath, forKey: "swiftDataPath")
+        }
+    }
+    
+    var userDefaultsPath: String {
+        didSet {
+            UserDefaults.standard.set(userDefaultsPath, forKey: "userDefaultsPath")
+        }
+    }
+    
+    init() {
+        self.simulatorPath = UserDefaults.standard.string(forKey: "simulatorPath") ?? Constants.SIMULATOR_PATH
+        self.coreDataPath = UserDefaults.standard.string(forKey: "coreDataPath") ?? Constants.LIBRARY_APPLICATIONSUPPORT_PATH
+        self.swiftDataPath = UserDefaults.standard.string(forKey: "swiftDataPath") ?? Constants.LIBRARY_APPLICATIONSUPPORT_PATH
+        self.userDefaultsPath = UserDefaults.standard.string(forKey: "userDefaultsPath") ?? Constants.LIBRARY_PREFENCES_PATH
+    }
+    
     func reset() {
         simulatorPath = Constants.SIMULATOR_PATH
         coreDataPath = Constants.LIBRARY_APPLICATIONSUPPORT_PATH
@@ -52,7 +52,7 @@ class PathManager {
         userDefaultsPath = Constants.LIBRARY_PREFENCES_PATH
     }
     
-     func selectFolder(for binding: Binding<String>) {
+    func selectFolder(for binding: Binding<String>) {
         let panel = NSOpenPanel()
         panel.canChooseFiles = false
         panel.canChooseDirectories = true

@@ -18,26 +18,47 @@ enum UserDefaultColumnEnum: String, CaseIterable , Identifiable {
 struct UserDefaultsTableView: View {
     @Environment(SearchViewModel.self) var searchVM
     let table: DBDataTable
+    @State private var showDetailSheet = false
+    @State private var selectedRow: UserDefaultsRow?
+    
     var body: some View {
         let rows = makeRows(from: table)
-        Table(rows) {
+        Table(of: UserDefaultsRow.self, selection: Binding(
+            get: { selectedRow.map { Set([$0.id]) } ?? [] },
+            set: { newSelection in
+                if let firstID = newSelection.first,
+                   let row = rows.first(where: { $0.id == firstID }) {
+                    selectedRow = row
+                    showDetailSheet = true
+                }
+            }
+        )) {
             TableColumnForEach(UserDefaultColumnEnum.allCases) { column in
                 TableColumn(column.rawValue) { row in
                     searchVM.highlightMatch(in: getText(for: column, from: row))
                 }
             }
+        } rows: {
+            ForEach(rows) { row in
+                TableRow(row)
+            }
+        }
+        .sheet(isPresented: $showDetailSheet) {
+            if let row = selectedRow {
+                UserDefaultDetailSheet(value: row.value)
+            }
         }
     }
     private func getText(for column: UserDefaultColumnEnum, from row: UserDefaultsRow) -> String {
-         switch column {
-         case .key:
-             return row.key
-         case .value:
-             return row.value
-         case .type:
-             return row.type
-         }
-     }
+        switch column {
+        case .key:
+            return row.key
+        case .value:
+            return row.value
+        case .type:
+            return row.type
+        }
+    }
     private func makeRows(from table: DBDataTable) -> [UserDefaultsRow] {
         table.rows.map { row in
             UserDefaultsRow(

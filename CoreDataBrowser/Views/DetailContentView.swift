@@ -22,27 +22,31 @@ struct DetailContentView: View {
         if isLoading {
             ProgressView()
         } else {
-            if isUserDefaultsDetail {
-                SectionHeaderView(title: "User Defaults", icon: "gearshape.2", action: onDismiss)
-                UserDefaultsTableView(table: table)
-                    .alert(isPresented: $hasError) {
-                        Alert(
-                            title: Text("Error!"),
-                            message: Text(errorMessage ?? "Unknown Error"),
-                            dismissButton: .default(Text("OK"), action: onErrorDismiss)
-                        )
-                    }
-            } else {
-                SectionHeaderView(title: title, icon: icon, action: onDismiss)
-                DBDetailsView(table: table)
-                    .alert(isPresented: $hasError) {
-                        Alert(
-                            title: Text("Error!"),
-                            message: Text(errorMessage ?? "Unknown Error"),
-                            dismissButton: .default(Text("OK"), action: onErrorDismiss)
-                        )
-                    }
-            }
+           chooseDetailView()
+        }
+    }
+    @ViewBuilder
+    private func chooseDetailView() -> some View {
+        if isUserDefaultsDetail {
+            SectionHeaderView(title: "User Defaults", icon: "gearshape.2", action: onDismiss)
+            UserDefaultsTableView(table: table)
+                .alert(isPresented: $hasError) {
+                    Alert(
+                        title: Text("Error!"),
+                        message: Text(errorMessage ?? "Unknown Error"),
+                        dismissButton: .default(Text("OK"), action: onErrorDismiss)
+                    )
+                }
+        } else {
+            SectionHeaderView(title: title, icon: icon, action: onDismiss)
+            DBDetailsView(table: table)
+                .alert(isPresented: $hasError) {
+                    Alert(
+                        title: Text("Error!"),
+                        message: Text(errorMessage ?? "Unknown Error"),
+                        dismissButton: .default(Text("OK"), action: onErrorDismiss)
+                    )
+                }
         }
     }
 }

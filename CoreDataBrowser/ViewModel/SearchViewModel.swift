@@ -9,6 +9,7 @@ import Foundation
 import SwiftUI
 import Observation
 
+@MainActor
 @Observable
 class SearchViewModel {
     var searchedText: String = ""

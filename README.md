@@ -76,3 +76,8 @@ While developing iOS applications it is often difficult to quickly inspect the l
 without needing to manually locate simulator folders or write custom debugging scripts.
 ## 🎥 Video
 https://github.com/user-attachments/assets/9035a5b8-e731-47a5-8ade-716bcfb21975
+
+---
+## 💸 Do you want to support me?
+<a href="https://www.buymeacoffee.com/kyletaylor94" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a>
+---

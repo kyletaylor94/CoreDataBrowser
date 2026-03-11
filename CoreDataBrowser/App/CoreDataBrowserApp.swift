@@ -15,7 +15,3 @@ struct CoreDataBrowserApp: App {
         }
     }
 }
-
-//TODO: -
-// - Create DMG From the fresh app - maybe upload to Site to download the latest version of the app?
-// HomeBrew?

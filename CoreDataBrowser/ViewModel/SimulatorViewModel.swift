@@ -8,7 +8,7 @@
 import Foundation
 import Observation
 
-enum CustomErrorTypes: LocalizedError {
+enum SimulatorError: LocalizedError {
     case cannotAccessDevicesFolder
     case cannotReadPlist(URL)
     case cannotOpenDatabase(URL)
@@ -37,7 +37,7 @@ class SimulatorViewModel {
     var devices: [SimulatorDevice] = []
     var selectedDevice: SimulatorDevice? = nil
     
-    var currentError: CustomErrorTypes? = nil
+    var currentError: SimulatorError? = nil
     var shouldShowError: Bool = false
     var isLoading = false
     
@@ -94,7 +94,7 @@ class SimulatorViewModel {
             with: "")
     }
     
-    private func setError(_ error: CustomErrorTypes) {
+    private func setError(_ error: SimulatorError) {
         self.currentError = error
         self.shouldShowError = true
         print("\(error.localizedDescription)")

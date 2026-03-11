@@ -20,7 +20,8 @@ struct UserDefaultsTableView: View {
     let table: DBDataTable
     @State private var showDetailSheet = false
     @State private var selectedRow: UserDefaultsRow?
-    
+    @State private var isLoadingSheet: Bool = false
+
     var body: some View {
         let rows = makeRows(from: table)
         Table(of: UserDefaultsRow.self, selection: Binding(
@@ -29,7 +30,12 @@ struct UserDefaultsTableView: View {
                 if let firstID = newSelection.first,
                    let row = rows.first(where: { $0.id == firstID }) {
                     selectedRow = row
-                    showDetailSheet = true
+                    isLoadingSheet = true
+                    Task {
+                        try? await Task.sleep(nanoseconds: 100_000_000)
+                        isLoadingSheet = false
+                        showDetailSheet = true
+                    }
                 }
             }
         )) {
@@ -41,6 +47,19 @@ struct UserDefaultsTableView: View {
         } rows: {
             ForEach(rows) { row in
                 TableRow(row)
+            }
+        }
+        .overlay {
+            if isLoadingSheet {
+                ZStack {
+                    Color.black.opacity(0.3)
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                        .scaleEffect(1.5)
+                        .padding()
+                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 10))
+                }
+                .ignoresSafeArea()
             }
         }
         .sheet(isPresented: $showDetailSheet) {

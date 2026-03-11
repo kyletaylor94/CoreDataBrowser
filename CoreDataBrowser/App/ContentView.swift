@@ -33,6 +33,16 @@ struct ContentView: View {
         } detail: {
             detailSection
         }
+        .task {
+            if simulatorViewModel.devices.isEmpty {
+                refreshAllData()
+            }
+        }
+        .navigationSplitViewColumnWidth(min: 340, ideal: 340, max: 340)
+        .toolbar {
+            toolBarButton(placement: .navigation, icon: "arrow.trianglehead.2.clockwise") { refreshAllData() }
+            toolBarButton(placement: .primaryAction, icon: "gearshape") { pathManager.isSheetPresented.toggle() }
+        }
         .onReceive(NotificationCenter.default.publisher(for: .tableDidRefresh)) { notification in
             updateSelectedTables(notification: notification)
         }
@@ -41,14 +51,15 @@ struct ContentView: View {
     private var simulatorSection: some View {
         if simulatorViewModel.isLoading {
             ProgressView()
+        } else if simulatorViewModel.devices.isEmpty && !simulatorViewModel.isLoading {
+            ContentUnavailableView(
+                "No Simulators Found",
+                systemImage: "iphone.slash",
+                description: Text("No simulator devices are available. Please check your Xcode installation or start a simulator.")
+            )
         } else {
             SimulatorListView()
                 .appEnvironment(simulator: simulatorViewModel, swiftData: dbDataVM, search: searchVM)
-                .navigationSplitViewColumnWidth(min: 340, ideal: 340, max: 340)
-                .toolbar {
-                    toolBarButton(placement: .navigation, icon: "arrow.trianglehead.2.clockwise") { refreshAllData() }
-                    toolBarButton(placement: .primaryAction, icon: "gearshape") { pathManager.isSheetPresented.toggle() }
-                }
                 .onChange(of: searchVM.searchedText) { _, newValue in
                     searchVM.search(text: newValue, devices: simulatorViewModel.devices, tables: dbDataVM.coreDataTables)
                 }
@@ -111,7 +122,7 @@ private extension ContentView {
     private func refreshAllData() {
         simulatorViewModel.loadSimulators()
         dbDataVM.refresh(selectedDevice: simulatorViewModel.selectedDevice)
-        userDefaultsViewModel.refreshUserDefaults()
+        handleDeviceSelection(simulatorViewModel.selectedDevice)
     }
     
     private func updateSelectedTables(notification: Notification) {
@@ -145,3 +156,4 @@ private extension ContentView {
         }
     }
 }
+

@@ -13,6 +13,7 @@ struct DBDetailsView: View {
     let table: DBDataTable
     @State private var selectedRow: DBDataRow?
     @State private var isMoreDetailSheetPresented: Bool = false
+    @State private var isLoadingSheet: Bool = false
     
     var body: some View {
         let rows = makeTableRows(from: table)
@@ -22,7 +23,12 @@ struct DBDetailsView: View {
                 if let firstID = newSelection.first,
                    let row = rows.first(where: { $0.id == firstID }) {
                     selectedRow = row
-                    isMoreDetailSheetPresented = true
+                    isLoadingSheet = true
+                    Task {
+                        try? await Task.sleep(nanoseconds: 100_000_000)
+                        isLoadingSheet = false
+                        isMoreDetailSheetPresented = true
+                    }
                 }
             }
         )) {
@@ -35,6 +41,19 @@ struct DBDetailsView: View {
         } rows: {
             ForEach(rows) { row in
                 TableRow(row)
+            }
+        }
+        .overlay {
+            if isLoadingSheet {
+                ZStack {
+                    Color.black.opacity(0.3)
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                        .scaleEffect(1.5)
+                        .padding()
+                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 10))
+                }
+                .ignoresSafeArea()
             }
         }
         .sheet(isPresented: $isMoreDetailSheetPresented) {

@@ -9,7 +9,7 @@ import Foundation
 import Observation
 import SQLite3
 
-enum SwiftDataError: Error {
+enum DBError: Error {
     case cannotLoadApps(URL)
     case cannotOpenDatabase(URL)
     case queryFailed(String)
@@ -39,7 +39,7 @@ class DBDataViewModel {
 
     var isLoading = false
     var hasError = false
-    var error: SwiftDataError? = nil
+    var error: DBError? = nil
     
     private let fileManager = FileManager.default
     private let pathManager: PathManager
@@ -49,6 +49,8 @@ class DBDataViewModel {
     }
     
     func refresh(selectedDevice: SimulatorDevice?) {
+        isLoading = true
+        defer { isLoading = false }
         guard let selectedDevice else { return }
         loadSimulatorApps(for: selectedDevice)
         refreshCoreDataTables()

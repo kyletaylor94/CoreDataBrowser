@@ -18,10 +18,13 @@ for any installed **iOS Simulator device**.
 
 ## 🚀 Features
 
-- Browse installed **iOS Simulators**
+- Browse booted **iOS Simulators**
 - Inspect **Core Data databases**
 - View **SwiftData storage**
 - Read **UserDefaults values**
+- Manually select **custom paths** for databases or storage locations
+- Built-in **search** functionality across displayed data
+- Matching results are highlighted with a **yellow background** for easier visibility
 - Native **macOS UI**
 - Simple and lightweight
 
@@ -29,7 +32,7 @@ for any installed **iOS Simulator device**.
 
 ## 📦 Installation
 
-CoreDataBrowser can be installed using **Homebrew**.
+CoreDataBrowser can be installed using **[Homebrew](https://brew.sh/)**, the popular package manager for macOS.
 
 ### Open your terminal, and paste it:
 
@@ -71,3 +74,5 @@ While developing iOS applications it is often difficult to quickly inspect the l
 - **UserDefaults** values  
 
 without needing to manually locate simulator folders or write custom debugging scripts.
+## 🎥 Video
+https://github.com/user-attachments/assets/9035a5b8-e731-47a5-8ade-716bcfb21975

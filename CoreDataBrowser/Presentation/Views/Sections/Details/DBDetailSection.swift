@@ -29,13 +29,14 @@ struct DBDetailSection: View {
             if let swiftDataTable = dbDataViewModel.secondaryTable {
                 DetailContentView(
                     table: swiftDataTable,
-                    isLoading: dbDataViewModel.isLoading,
+                    isLoading: dbDataViewModel.isLoadingSwiftData,
                     title: "SwiftData",
                     icon: "externaldrive.badge.checkmark",
                     hasError: dbDataHasError,
                     errorMessage: dbDataViewModel.error?.localizedDescription,
                     onDismiss: { dbDataViewModel.secondaryTable = nil },
-                    onErrorDismiss: { dbDataViewModel.hasError = false }
+                    onErrorDismiss: { dbDataViewModel.hasError = false },
+                    isSwiftDataContent: true
                 )
             }
             

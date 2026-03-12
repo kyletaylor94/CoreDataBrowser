@@ -12,6 +12,7 @@ struct DBDetailsView: View {
     @Environment(DBDataViewModel.self) var dbDataViewModel
     @Environment(SearchViewModel.self) var searchVM
     let table: DBDataTable
+    let isSwiftDataContent: Bool
     
     var body: some View {
         let rows = makeTableRows(from: table)
@@ -21,10 +22,18 @@ struct DBDetailsView: View {
                 if let firstID = newSelection.first,
                    let row = rows.first(where: { $0.id == firstID }) {
                     dbDataViewModel.selectedRow = row
-                    dbDataViewModel.isLoadingSheet = true
+                    if isSwiftDataContent == true {
+                        dbDataViewModel.isLoadingSwiftDataSheet = true
+                    } else {
+                        dbDataViewModel.isLoadingCoreDataSheet = true
+                    }
                     Task {
                         try? await Task.sleep(nanoseconds: 100_000_000)
-                        dbDataViewModel.isLoadingSheet = false
+                        if isSwiftDataContent == true {
+                            dbDataViewModel.isLoadingSwiftDataSheet = false
+                        } else {
+                            dbDataViewModel.isLoadingCoreDataSheet = false
+                        }
                         dbDataViewModel.isMoreDetailSheetPresented = true
                     }
                 }
@@ -42,7 +51,8 @@ struct DBDetailsView: View {
             }
         }
         .overlay {
-            if dbDataViewModel.isLoadingSheet {
+            if (isSwiftDataContent && dbDataViewModel.isLoadingSwiftDataSheet) ||
+                (!isSwiftDataContent && dbDataViewModel.isLoadingCoreDataSheet) {
                 createModifiedProgressView()
             }
         }

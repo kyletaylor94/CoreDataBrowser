@@ -18,6 +18,7 @@ struct DetailContentView: View {
     let onDismiss: () -> Void
     let onErrorDismiss: () -> Void
     var isUserDefaultsDetail: Bool = false
+    var isSwiftDataContent: Bool = false
     var body: some View {
         if isLoading {
             ProgressView()
@@ -33,7 +34,7 @@ struct DetailContentView: View {
             UserDefaultsTableView(table: table)
         } else {
             SectionHeaderView(title: title, icon: icon, action: onDismiss)
-            DBDetailsView(table: table)
+            DBDetailsView(table: table, isSwiftDataContent: isSwiftDataContent)
         }
     }
 }

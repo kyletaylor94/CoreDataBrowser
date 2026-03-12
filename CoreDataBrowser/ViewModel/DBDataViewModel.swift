@@ -18,12 +18,14 @@ class DBDataViewModel {
     var coreDataTables: [DBDataTable] = []
 
     var isLoading = false
+    var isLoadingSwiftData = false
     var hasError = false
     var error: DBError? = nil
     
     var selectedRow: DBDataRow?
     var isMoreDetailSheetPresented = false
-    var isLoadingSheet = false
+    var isLoadingCoreDataSheet = false
+    var isLoadingSwiftDataSheet = false
     
     private let fileManager = FileManager.default
     private let pathManager: PathManagerImpl
@@ -34,7 +36,11 @@ class DBDataViewModel {
     
     func refresh(selectedDevice: SimulatorDevice?) {
         isLoading = true
-        defer { isLoading = false }
+        isLoadingSwiftData = true
+        defer {
+            isLoading = false
+            isLoadingSwiftData = true
+        }
         guard let selectedDevice else { return }
         loadSimulatorApps(for: selectedDevice)
         refreshCoreDataTables()
@@ -57,8 +63,8 @@ class DBDataViewModel {
     }
     
     func loadSwiftData(for device: SimulatorDevice) {
-        isLoading = true
-        defer { isLoading = false }
+        isLoadingSwiftData = true
+        defer { isLoadingSwiftData = false }
         swiftDataTables.removeAll()
         loadDataStores(device: device, fileExtension: DatabaseConstants.store, storage: &swiftDataTables, shouldExecuteCheckpoint: true)
     }

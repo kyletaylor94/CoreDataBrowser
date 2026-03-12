@@ -23,10 +23,6 @@ struct TableRowView: View {
     }
     @ViewBuilder
     private var tableNameText: some View {
-        if showHighlight {
-            searchVM.highlightMatch(in: table.name)
-        } else {
-            Text(table.name)
-        }
+        showHighlight ? searchVM.highlightMatch(in: table.name) : Text(table.name)
     }
 }

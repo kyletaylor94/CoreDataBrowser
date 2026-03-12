@@ -18,17 +18,19 @@ class SearchViewModel {
     var searchedColumns: [String] = []
     var searchedRows: [String] = []
     
+    private let useCase: SearchUseCase
+    
+    init(useCase: SearchUseCase) {
+        self.useCase = useCase
+    }
+    
     func search(text: String, devices: [SimulatorDevice], tables: [DBDataTable]) {
-        if text.isEmpty { return }
-        searchedSimulator = devices.filter({ $0.name.contains(text.lowercased()) })
+        let result = useCase.execute(text: text, devices: devices, tables: tables)
         
-        if searchedSimulator.isEmpty {
-            searchInTables(text: text, tables: tables)
-        }
-        
-        if searchedSimulator.isEmpty && searchedTables.isEmpty {
-            searchInData(text: text, tables: tables)
-        }
+        self.searchedSimulator = result.simulators
+        self.searchedTables = result.tables
+        self.searchedColumns = result.columns
+        self.searchedRows = result.rows
     }
     
     func highlightMatch(in text: String) -> Text {
@@ -40,26 +42,5 @@ class SearchViewModel {
             attributed[range].foregroundColor = .black
         }
         return Text(attributed)
-    }
-    
- 
-    private func searchInTables(text: String, tables: [DBDataTable]) {
-        if text.isEmpty { return }
-        searchedTables = tables.filter({ $0.columns.contains(where: { $0.contains(text.lowercased()) }) })
-    }
-    
-    
-    private func searchInData(text: String, tables: [DBDataTable]) {
-        if text.isEmpty { return }
-        let columns = tables.flatMap { $0.columns }
-        let rows = tables.flatMap { $0.rows }
-        self.searchedColumns = columns.filter({ $0.contains(text.lowercased()) })
-        
-        let filteredRows = rows.filter { row in
-            row.contains { cell in
-                cell.lowercased().contains(text.lowercased())
-            }
-        }
-        self.searchedRows = filteredRows.flatMap { $0 }
     }
 }

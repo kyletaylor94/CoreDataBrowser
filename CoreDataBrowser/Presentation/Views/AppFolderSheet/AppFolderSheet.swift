@@ -14,17 +14,17 @@ enum PathType: CaseIterable, Hashable {
     var attributes: (title: String, placeholder: String) {
         switch self {
         case .simulator:
-            return (title: "Simulators Path", placeholder: Constants.SIMULATOR_PATH)
+            return (title: "Simulators Path", placeholder: PathConstants.simulatorPath)
         case .coreData:
-            return (title: "CoreData Path", placeholder: Constants.LIBRARY_APPLICATIONSUPPORT_PATH)
+            return (title: "CoreData Path", placeholder: PathConstants.libraryApplicationSupportPath)
         case .swiftData:
-            return (title: "SwiftData Path", placeholder: Constants.LIBRARY_APPLICATIONSUPPORT_PATH)
+            return (title: "SwiftData Path", placeholder: PathConstants.libraryApplicationSupportPath)
         case .userDefaults:
-            return (title: "UserDefaults Path", placeholder: Constants.LIBRARY_PREFENCES_PATH)
+            return (title: "UserDefaults Path", placeholder: PathConstants.libraryPreferencesPath)
         }
     }
     
-    func binding(from pathManager: PathManager) -> Binding<String> {
+    func binding(from pathManager: PathManagerImpl) -> Binding<String> {
         switch self {
         case .simulator:
             return Binding(
@@ -51,7 +51,7 @@ enum PathType: CaseIterable, Hashable {
 }
 
 struct AppFolderSheet: View {
-    @Bindable var pathManager: PathManager
+    @Bindable var pathManager: PathManagerImpl
     @FocusState private var focusedField: PathType?
     
     var body: some View {

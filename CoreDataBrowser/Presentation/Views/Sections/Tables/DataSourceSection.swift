@@ -8,7 +8,7 @@
 import Foundation
 import SwiftUI
 
-struct DataSourceView: View {
+struct DataSourceSection: View {
     @Environment(SearchViewModel.self) var searchVM
     @Environment(UserDefaultsViewModel.self) var userDefaultsVM
     @Environment(DBDataViewModel.self) var dbDataVM

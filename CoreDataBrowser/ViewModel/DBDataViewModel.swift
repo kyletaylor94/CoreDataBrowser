@@ -9,26 +9,6 @@ import Foundation
 import Observation
 import SQLite3
 
-enum DBError: Error {
-    case cannotLoadApps(URL)
-    case cannotOpenDatabase(URL)
-    case queryFailed(String)
-    case invalidData(URL)
-    
-    var localizedDescription: String {
-        switch self {
-        case .cannotLoadApps(let url):
-            return "Cannot load apps from: \(url.path)"
-        case .cannotOpenDatabase(let url):
-            return "Cannot open SwiftData database at: \(url.path)"
-        case .queryFailed(let query):
-            return "Query failed: \(query)"
-        case .invalidData(let url):
-            return "Invalid SwiftData store at: \(url.path)"
-        }
-    }
-}
-
 @MainActor
 @Observable
 class DBDataViewModel {
@@ -42,9 +22,9 @@ class DBDataViewModel {
     var error: DBError? = nil
     
     private let fileManager = FileManager.default
-    private let pathManager: PathManager
+    private let pathManager: PathManagerImpl
     
-    init(pathManager: PathManager) {
+    init(pathManager: PathManagerImpl) {
         self.pathManager = pathManager
     }
     
@@ -56,13 +36,7 @@ class DBDataViewModel {
         refreshCoreDataTables()
     }
     
-    func loadSimulatorApps(for device: SimulatorDevice) {
-        isLoading = true
-        defer { isLoading = false }
-        coreDataTables.removeAll()
-        loadDataStores(device: device, fileExtension: Constants.sqlite, storage: &coreDataTables, shouldExecuteCheckpoint: false)
-    }
-    
+
     private func refreshCoreDataTables() {
         if let selectedTable,
            let updated = coreDataTables.first(where: { $0.name == selectedTable.name }) {
@@ -71,17 +45,24 @@ class DBDataViewModel {
         }
     }
     
+    func loadSimulatorApps(for device: SimulatorDevice) {
+        isLoading = true
+        defer { isLoading = false }
+        coreDataTables.removeAll()
+        loadDataStores(device: device, fileExtension: DatabaseConstants.sqlite, storage: &coreDataTables, shouldExecuteCheckpoint: false)
+    }
+    
     func loadSwiftData(for device: SimulatorDevice) {
         isLoading = true
         defer { isLoading = false }
         swiftDataTables.removeAll()
-        loadDataStores(device: device, fileExtension: Constants.STORE, storage: &swiftDataTables, shouldExecuteCheckpoint: true)
+        loadDataStores(device: device, fileExtension: DatabaseConstants.store, storage: &swiftDataTables, shouldExecuteCheckpoint: true)
     }
     
     private func filteredTableName(file: URL) -> [String] {
         let tableNames = fetchEntities(in: file)
-            .filter { !Constants.excludedTables.contains($0.uppercased()) }
-            .filter { !$0.lowercased().contains(Constants.sqliteSequence) }
+            .filter { !DatabaseConstants.excludedTables.contains($0.uppercased()) }
+            .filter { !$0.lowercased().contains(DatabaseConstants.sqliteSequence) }
         return tableNames
     }
     
@@ -95,7 +76,7 @@ class DBDataViewModel {
     }
     
     private func fetchEntities(in databaseURL: URL) -> [String] {
-        return executeSQLiteMultiple(at: databaseURL, query: Constants.ENTITY_QUERY) { statement in
+        return executeSQLiteMultiple(at: databaseURL, query: DatabaseConstants.entityQuery) { statement in
             if let cString = sqlite3_column_text(statement, 0) {
                 return String(cString: cString)
             }
@@ -141,8 +122,7 @@ class DBDataViewModel {
     
     private func fetchDatabaseContent(from databaseURL: URL, table: String, limit: Int = 50) -> (columns: [String], types: [String], rows: [[String]]) {
         let (columns, types) = fetchColumnsWithTypes(databaseURL: databaseURL, table: table)
-        let rows = fetchRows(at: databaseURL, query: Constants.databaseContentQuery(table: table, limit: limit))
-        
+        let rows = fetchRows(at: databaseURL, query: DatabaseConstants.databaseContentQuery(table: table, limit: limit))
         return (columns, types, rows)
     }
     
@@ -150,7 +130,7 @@ class DBDataViewModel {
         var columns: [String] = []
         var types: [String] = []
         
-        let results = executeSQLiteMultiple(at: databaseURL, query: Constants.fetchColumnTypeQuery(table: table)) { statement -> (String, String)? in
+        let results = executeSQLiteMultiple(at: databaseURL, query: DatabaseConstants.fetchColumnTypeQuery(table: table)) { statement -> (String, String)? in
             guard let name = sqlite3_column_text(statement, 1),
                   let type = sqlite3_column_text(statement, 2) else {
                 return nil
@@ -244,29 +224,29 @@ class DBDataViewModel {
     }
     
     private func loadDataStores(device: SimulatorDevice, fileExtension: String, storage: inout [DBDataTable], shouldExecuteCheckpoint: Bool = false) {
-        let appsPath = device.path.appendingPathComponent(Constants.SIMULATOR_APPS_PATH)
+        let appsPath = device.path.appendingPathComponent(PathConstants.simulatorAppsPath)
         guard let appFolders = try? fileManager.contentsOfDirectory(at: appsPath, includingPropertiesForKeys: nil) else {
             error = .cannotLoadApps(appsPath)
             hasError = true
             return
         }
         
-        let dataPath = fileExtension == Constants.STORE ? pathManager.swiftDataPath : pathManager.coreDataPath
+        let dataPath = fileExtension == DatabaseConstants.store ? pathManager.swiftDataPath : pathManager.coreDataPath
         
         for appFolder in appFolders {
-            let appDataPath = appFolder.appendingPathComponent(Constants.DOCUMENTS)
+            let appDataPath = appFolder.appendingPathComponent(DatabaseConstants.documents)
             let libraryPath = appFolder.appendingPathComponent(dataPath)
             let storeFiles = findDataStores(in: [appDataPath, libraryPath], withExtension: fileExtension)
             
             for file in storeFiles {
                 if shouldExecuteCheckpoint {
-                    executeSQLite(at: file, query: Constants.VAL_CHECKPOINT_QUERY) { _ in }
+                    executeSQLite(at: file, query: DatabaseConstants.walCheckpointQuery) { _ in }
                 }
                 
                 for tableName in filteredTableName(file: file) {
                     let (columns, types, rows) = fetchDatabaseContent(from: file, table: tableName)
                     let indicesToKeep = columns.enumerated()
-                        .filter { !Constants.excludedColumns.contains($0.element.uppercased()) }
+                        .filter { !DatabaseConstants.excludedColumns.contains($0.element.uppercased()) }
                         .map { $0.offset }
                     
                     let table = createDBTable(tableName: tableName, indicesToKeep: indicesToKeep, columns: columns, rows: rows, types: types, fileURL: file)

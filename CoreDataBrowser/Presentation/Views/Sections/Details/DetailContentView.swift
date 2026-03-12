@@ -22,7 +22,8 @@ struct DetailContentView: View {
         if isLoading {
             ProgressView()
         } else {
-           chooseDetailView()
+            chooseDetailView()
+                .createAlert(isPresented: $hasError, errorMessage: errorMessage, onDismiss: onErrorDismiss)
         }
     }
     @ViewBuilder
@@ -30,23 +31,10 @@ struct DetailContentView: View {
         if isUserDefaultsDetail {
             SectionHeaderView(title: "User Defaults", icon: "gearshape.2", action: onDismiss)
             UserDefaultsTableView(table: table)
-                .alert(isPresented: $hasError) {
-                    Alert(
-                        title: Text("Error!"),
-                        message: Text(errorMessage ?? "Unknown Error"),
-                        dismissButton: .default(Text("OK"), action: onErrorDismiss)
-                    )
-                }
         } else {
             SectionHeaderView(title: title, icon: icon, action: onDismiss)
             DBDetailsView(table: table)
-                .alert(isPresented: $hasError) {
-                    Alert(
-                        title: Text("Error!"),
-                        message: Text(errorMessage ?? "Unknown Error"),
-                        dismissButton: .default(Text("OK"), action: onErrorDismiss)
-                    )
-                }
         }
     }
 }
+

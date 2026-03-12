@@ -1,12 +1,11 @@
 //
-//  Extensions.swift
+//  FormattingHelper.swift
 //  CoreDataBrowser
 //
-//  Created by Turdesan Csaba on 2026. 03. 09..
+//  Created by Turdesan Csaba on 2026. 03. 12..
 //
 
 import Foundation
-import SwiftUI
 
 enum FormattingHelper {
     private static let bytesPerKB = 1024.0
@@ -24,21 +23,5 @@ enum FormattingHelper {
         } else {
             return "\(bytes) bytes"
         }
-    }
-}
-
-extension Notification.Name {
-    static let tableDidRefresh = Notification.Name(Constants.tableDidRefresh)
-}
-
-extension Alert {
-     func createAlert(message: String?, action: @escaping () -> Void) -> Alert {
-        Alert(
-            title: Text("Error!"),
-            message: Text(message ?? "Unknown Error"),
-            dismissButton: .default(Text("OK")) {
-                action()
-            }
-        )
     }
 }

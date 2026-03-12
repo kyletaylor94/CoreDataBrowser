@@ -51,15 +51,7 @@ struct UserDefaultsTableView: View {
         }
         .overlay {
             if isLoadingSheet {
-                ZStack {
-                    Color.black.opacity(0.3)
-                    ProgressView()
-                        .progressViewStyle(.circular)
-                        .scaleEffect(1.5)
-                        .padding()
-                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 10))
-                }
-                .ignoresSafeArea()
+                createModifiedProgressView()
             }
         }
         .sheet(isPresented: $showDetailSheet) {

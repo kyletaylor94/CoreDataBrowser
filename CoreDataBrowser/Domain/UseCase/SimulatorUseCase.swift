@@ -1,0 +1,65 @@
+//
+//  SimulatorUseCase.swift
+//  CoreDataBrowser
+//
+//  Created by Turdesan Csaba on 2026. 03. 12..
+//
+
+import Foundation
+
+protocol SimulatorUseCase {
+    func execute() async throws -> [SimulatorDevice]
+}
+
+class SimulatorUseCaseImpl: SimulatorUseCase {
+    private let repository: SimulatorRepository
+    
+    init(repository: SimulatorRepository) {
+        self.repository = repository
+    }
+    
+    func execute() async throws -> [SimulatorDevice] {
+        let directories = try repository.getDeviceDirectories()
+        var devices: [SimulatorDevice] = []
+        
+        for deviceURL in directories {
+            do {
+                let dict = try repository.readDevicePlist(at: deviceURL)
+                let (name, state, runtime) = parseDeviceInfo(from: dict)
+                
+                guard state == "Booted" else { continue }
+                
+                devices.append(
+                    SimulatorDevice(
+                        id: UUID(),
+                        name: name,
+                        state: state,
+                        runTime: runtime,
+                        path: deviceURL
+                    )
+                )
+            } catch {
+                throw SimulatorError.cannotReadPlist(deviceURL)
+            }
+        }
+        
+        return Array(Set(devices)).sorted(by: { $0.name < $1.name })
+    }
+    
+    private func parseDeviceInfo(from dict: [String: Any]) -> (String, String, String) {
+        let safeDict = dict.compactMapValues { $0 as? String }
+        let name = safeDict["name"] ?? "N/A"
+        let runtime = safeDict["runtime"] ?? "Unknown"
+        
+        let state: String
+        if let s = safeDict["state"] {
+            state = s
+        } else if let n = dict["state"] as? Int {
+            state = (n == 1) ? "Shutdown" : "Booted"
+        } else {
+            state = "Unknown"
+        }
+        return (name, state, runtime)
+    }
+}
+

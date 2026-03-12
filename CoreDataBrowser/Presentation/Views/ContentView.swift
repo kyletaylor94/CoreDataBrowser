@@ -9,32 +9,30 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var simulatorViewModel: SimulatorViewModel
-    @State private var dbDataVM: DBDataViewModel
+    @State private var dbDataViewModel: DBDataViewModel
     @State private var userDefaultsViewModel = UserDefaultsViewModel(repository: UserDefaultsRepositoryImpl())
-    @State private var searchVM = SearchViewModelFactory.make()
+    @State private var searchViewModel = SearchViewModelFactory.make()
     @State private var pathManager: PathManagerImpl
     
     init() {
         let pm = PathManagerImpl()
         _pathManager = State(wrappedValue: pm)
         _simulatorViewModel = State(wrappedValue: SimulatorViewModel(useCase: SimulatorUseCaseImpl(repository: SimulatorRepositoryImpl(pathManager: pm))))
-        _dbDataVM = State(wrappedValue: DBDataViewModel(pathManager: pm))
+        _dbDataViewModel = State(wrappedValue: DBDataViewModel(pathManager: pm))
     }
     
     var body: some View {
         NavigationSplitView {
             SimulatorSection()
-                .appEnvironment(simulator: simulatorViewModel, swiftData: dbDataVM, search: searchVM)
         } content: {
             DataSourceSection()
-                .appEnvironment(swiftData: dbDataVM, userDefaults: userDefaultsViewModel, search: searchVM)
                 .onChange(of: simulatorViewModel.selectedDevice) { _, device in
                     Task { await handleDeviceSelection(device) }
                 }
         } detail: {
             DBDetailSection()
-                .appEnvironment(swiftData: dbDataVM, userDefaults: userDefaultsViewModel, search: searchVM)
         }
+        .appEnvironment(simulatorViewModel: simulatorViewModel, dbDataViewModel: dbDataViewModel, userDefaultsViewModel: userDefaultsViewModel, searchViewModel: searchViewModel)
         .navigationSplitViewColumnWidth(min: 340, ideal: 340, max: 340)
         .task { await refreshAllData() }
         .toolbar {
@@ -54,18 +52,18 @@ private extension ContentView {
     private func refreshAllData() async {
         if simulatorViewModel.devices.isEmpty {
             await simulatorViewModel.loadSimulators()
-            dbDataVM.refresh(selectedDevice: simulatorViewModel.selectedDevice)
+            dbDataViewModel.refresh(selectedDevice: simulatorViewModel.selectedDevice)
             await handleDeviceSelection(simulatorViewModel.selectedDevice)
         }
     }
     
     private func updateSelectedTables(notification: Notification) {
         if let updated = notification.object as? DBDataTable {
-            if dbDataVM.selectedTable?.id == updated.id {
-                dbDataVM.selectedTable = updated
+            if dbDataViewModel.selectedTable?.id == updated.id {
+                dbDataViewModel.selectedTable = updated
             }
-            if dbDataVM.secondaryTable?.id == updated.id {
-                dbDataVM.secondaryTable = updated
+            if dbDataViewModel.secondaryTable?.id == updated.id {
+                dbDataViewModel.secondaryTable = updated
             }
             if userDefaultsViewModel.selectedUserDefaultTable?.id == updated.id {
                 userDefaultsViewModel.selectedUserDefaultTable = updated
@@ -76,7 +74,7 @@ private extension ContentView {
     private func handleDeviceSelection(_ device: SimulatorDevice?) async {
         guard let device else { return }
         await userDefaultsViewModel.loadUserDefaults(for: device)
-        dbDataVM.loadSwiftData(for: device)
+        dbDataViewModel.loadSwiftData(for: device)
     }
     
     @ToolbarContentBuilder

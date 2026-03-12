@@ -10,13 +10,13 @@ import SwiftUI
 
 struct EnvironmentSetup: ViewModifier {
     let simulatorViewModel: SimulatorViewModel?
-    let swiftDataVM: DBDataViewModel?
+    let dbDataViewModel: DBDataViewModel?
     let userDefaultsViewModel: UserDefaultsViewModel?
     let searchVM: SearchViewModel?
     
     func body(content: Content) -> some View {
         content
-            .environment(swiftDataVM)
+            .environment(dbDataViewModel)
             .environment(userDefaultsViewModel)
             .environment(searchVM)
             .environment(simulatorViewModel)
@@ -38,12 +38,12 @@ extension View {
         }
     }
     
-    func appEnvironment(simulator: SimulatorViewModel? = nil, swiftData: DBDataViewModel? = nil, userDefaults: UserDefaultsViewModel? = nil, search: SearchViewModel) -> some View {
+    func appEnvironment(simulatorViewModel: SimulatorViewModel? = nil, dbDataViewModel: DBDataViewModel? = nil, userDefaultsViewModel: UserDefaultsViewModel? = nil, searchViewModel: SearchViewModel) -> some View {
         modifier(EnvironmentSetup(
-            simulatorViewModel: simulator,
-            swiftDataVM: swiftData,
-            userDefaultsViewModel: userDefaults,
-            searchVM: search
+            simulatorViewModel: simulatorViewModel,
+            dbDataViewModel: dbDataViewModel,
+            userDefaultsViewModel: userDefaultsViewModel,
+            searchVM: searchViewModel
         ))
     }
     

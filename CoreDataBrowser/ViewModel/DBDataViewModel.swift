@@ -21,6 +21,10 @@ class DBDataViewModel {
     var hasError = false
     var error: DBError? = nil
     
+    var selectedRow: DBDataRow?
+    var isMoreDetailSheetPresented = false
+    var isLoadingSheet = false
+    
     private let fileManager = FileManager.default
     private let pathManager: PathManagerImpl
     

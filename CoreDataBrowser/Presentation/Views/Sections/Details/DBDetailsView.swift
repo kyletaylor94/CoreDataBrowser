@@ -9,25 +9,23 @@ import Foundation
 import SwiftUI
 
 struct DBDetailsView: View {
+    @Environment(DBDataViewModel.self) var dbDataViewModel
     @Environment(SearchViewModel.self) var searchVM
     let table: DBDataTable
-    @State private var selectedRow: DBDataRow?
-    @State private var isMoreDetailSheetPresented: Bool = false
-    @State private var isLoadingSheet: Bool = false
     
     var body: some View {
         let rows = makeTableRows(from: table)
         Table(of: DBDataRow.self, selection: Binding(
-            get: { selectedRow.map { Set([$0.id]) } ?? [] },
+            get: { dbDataViewModel.selectedRow.map { Set([$0.id]) } ?? [] },
             set: { newSelection in
                 if let firstID = newSelection.first,
                    let row = rows.first(where: { $0.id == firstID }) {
-                    selectedRow = row
-                    isLoadingSheet = true
+                    dbDataViewModel.selectedRow = row
+                    dbDataViewModel.isLoadingSheet = true
                     Task {
                         try? await Task.sleep(nanoseconds: 100_000_000)
-                        isLoadingSheet = false
-                        isMoreDetailSheetPresented = true
+                        dbDataViewModel.isLoadingSheet = false
+                        dbDataViewModel.isMoreDetailSheetPresented = true
                     }
                 }
             }
@@ -44,12 +42,12 @@ struct DBDetailsView: View {
             }
         }
         .overlay {
-            if isLoadingSheet {
+            if dbDataViewModel.isLoadingSheet {
                 createModifiedProgressView()
             }
         }
-        .sheet(isPresented: $isMoreDetailSheetPresented) {
-            if let row = selectedRow {
+        .sheet(isPresented: bindingIsMoreDetailsSheet) {
+            if let row = dbDataViewModel.selectedRow {
                 DBMoreDetailSheetView(row: row, columns: table.formattedColumns)
             }
         }
@@ -59,5 +57,12 @@ struct DBDetailsView: View {
         table.rows.map { row in
             DBDataRow(values: row)
         }
+    }
+    
+    private var bindingIsMoreDetailsSheet: Binding<Bool> {
+        Binding(
+            get: { dbDataViewModel.isMoreDetailSheetPresented },
+            set: { dbDataViewModel.isMoreDetailSheetPresented = $0 }
+        )
     }
 }

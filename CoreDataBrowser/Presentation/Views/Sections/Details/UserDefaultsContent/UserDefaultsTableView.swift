@@ -16,32 +16,30 @@ enum UserDefaultColumnEnum: String, CaseIterable , Identifiable {
 }
 
 struct UserDefaultsTableView: View {
-    @Environment(SearchViewModel.self) var searchVM
+    @Environment(SearchViewModel.self) var searchViewModel
+    @Environment(UserDefaultsViewModel.self) var userDefaultsViewModel
     let table: DBDataTable
-    @State private var showDetailSheet = false
-    @State private var selectedRow: UserDefaultsRow?
-    @State private var isLoadingSheet: Bool = false
-
+    
     var body: some View {
         let rows = makeRows(from: table)
         Table(of: UserDefaultsRow.self, selection: Binding(
-            get: { selectedRow.map { Set([$0.id]) } ?? [] },
+            get: { userDefaultsViewModel.selectedRow.map { Set([$0.id]) } ?? [] },
             set: { newSelection in
                 if let firstID = newSelection.first,
                    let row = rows.first(where: { $0.id == firstID }) {
-                    selectedRow = row
-                    isLoadingSheet = true
+                    userDefaultsViewModel.selectedRow = row
+                    userDefaultsViewModel.isLoadingSheet = true
                     Task {
                         try? await Task.sleep(nanoseconds: 100_000_000)
-                        isLoadingSheet = false
-                        showDetailSheet = true
+                        userDefaultsViewModel.isLoadingSheet = false
+                        userDefaultsViewModel.showDetailSheet = true
                     }
                 }
             }
         )) {
             TableColumnForEach(UserDefaultColumnEnum.allCases) { column in
                 TableColumn(column.rawValue) { row in
-                    searchVM.highlightMatch(in: getText(for: column, from: row))
+                    searchViewModel.highlightMatch(in: getText(for: column, from: row))
                 }
             }
         } rows: {
@@ -50,12 +48,12 @@ struct UserDefaultsTableView: View {
             }
         }
         .overlay {
-            if isLoadingSheet {
+            if userDefaultsViewModel.isLoadingSheet {
                 createModifiedProgressView()
             }
         }
-        .sheet(isPresented: $showDetailSheet) {
-            if let row = selectedRow {
+        .sheet(isPresented: bindingUserDefaultsDetailSheet) {
+            if let row = userDefaultsViewModel.selectedRow {
                 UserDefaultDetailSheet(value: row.value)
             }
         }
@@ -78,5 +76,11 @@ struct UserDefaultsTableView: View {
                 type: row.count > 2 ? row[2] : ""
             )
         }
+    }
+    private var bindingUserDefaultsDetailSheet: Binding<Bool> {
+        Binding(
+            get: { userDefaultsViewModel.showDetailSheet },
+            set: { userDefaultsViewModel.showDetailSheet = $0 }
+        )
     }
 }

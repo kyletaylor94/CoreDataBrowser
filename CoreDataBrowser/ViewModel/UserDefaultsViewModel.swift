@@ -18,6 +18,10 @@ final class UserDefaultsViewModel {
     var hasError = false
     var error: UserDefaultsError? = nil
     
+    var showDetailSheet = false
+    var selectedRow: UserDefaultsRow?
+    var isLoadingSheet: Bool = false
+    
     private let repository: UserDefaultsRepository
     
     init(repository: UserDefaultsRepository) {

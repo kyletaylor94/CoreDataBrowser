@@ -33,7 +33,7 @@ class SimulatorViewModel {
         } catch let error as SimulatorError {
             setError(error)
         } catch {
-            setError(SimulatorError.unknown(error))
+            setError(SimulatorError.invalidPlistFormat)
         }
     }
     

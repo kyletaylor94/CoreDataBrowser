@@ -31,10 +31,7 @@ final class UserDefaultsViewModel {
     func refreshUserDefaults() {
         if let selectedUserDefaultTable,
            let updated = userDefaultsTable.first(where: { $0.name == selectedUserDefaultTable.name }) {
-            DispatchQueue.main.async { [weak self] in
-                self?.userDefaultsTable = self?.userDefaultsTable ?? []
-                NotificationCenter.default.post(name: .tableDidRefresh, object: updated)
-            }
+            NotificationCenter.default.post(name: .tableDidRefresh, object: updated)
         }
     }
     

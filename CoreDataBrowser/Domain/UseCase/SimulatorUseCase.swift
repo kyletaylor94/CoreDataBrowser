@@ -38,8 +38,8 @@ class SimulatorUseCaseImpl: SimulatorUseCase {
                         path: deviceURL
                     )
                 )
-            } catch {
-                throw SimulatorError.cannotReadPlist(deviceURL)
+            } catch let error as SimulatorError {
+                throw SimulatorError.cannotReadPlist(underlyingError: error)
             }
         }
         

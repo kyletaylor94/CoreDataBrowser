@@ -48,7 +48,11 @@ class PathManagerImpl: PathManager {
     }
     
     private let panel = NSOpenPanel()
-    private let fileManager = FileManager.default
+    private let fileManager: FileManager
+    
+    init(fileManager: FileManager) {
+        self.fileManager = fileManager
+    }
     
     func reset() {
         simulatorPath = PathConstants.simulatorPath

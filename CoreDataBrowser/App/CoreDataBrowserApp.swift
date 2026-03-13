@@ -11,7 +11,7 @@ import SwiftUI
 struct CoreDataBrowserApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            DIContainer.shared.makeContentView()
         }
     }
 }

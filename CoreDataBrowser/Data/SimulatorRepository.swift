@@ -13,10 +13,11 @@ protocol SimulatorRepository {
 }
 
 class SimulatorRepositoryImpl: SimulatorRepository {
-    private let fileManager = FileManager.default
-    private let pathManager: PathManagerImpl
+    private let fileManager: FileManager
+    private let pathManager: PathManager
     
-    init(pathManager: PathManagerImpl) {
+    init(fileManager: FileManager, pathManager: PathManager) {
+        self.fileManager = fileManager
         self.pathManager = pathManager
     }
     
@@ -24,31 +25,39 @@ class SimulatorRepositoryImpl: SimulatorRepository {
         let basePath = fileManager.homeDirectoryForCurrentUser
             .appendingPathComponent(pathManager.simulatorPath)
         
-        guard let contents = try? fileManager.contentsOfDirectory(
-            at: basePath,
-            includingPropertiesForKeys: nil
-        ) else {
-            throw SimulatorError.cannotAccessDevicesFolder
-        }
-        
-        return contents.filter { url in
-            let plistURL = url.appendingPathComponent(PathConstants.devicePlist)
-            return fileManager.fileExists(atPath: plistURL.path)
+        do {
+            let contents = try fileManager.contentsOfDirectory(
+                at: basePath,
+                includingPropertiesForKeys: nil
+            )
+            
+            return contents.filter { url in
+                let plistURL = url.appendingPathComponent(PathConstants.devicePlist)
+                return fileManager.fileExists(atPath: plistURL.path)
+            }
+        } catch {
+            throw SimulatorError.cannotAccessDevicesFolder(underlyingError: error)
         }
     }
     
     func readDevicePlist(at url: URL) throws -> [String: Any] {
         let plistURL = url.appendingPathComponent(PathConstants.devicePlist)
-        let data = try Data(contentsOf: plistURL)
-        let plist = try PropertyListSerialization.propertyList(
-            from: data,
-            options: [],
-            format: nil
-        )
-        
-        guard let dict = plist as? [String: Any] else {
-            throw SimulatorError.cannotReadPlist(plistURL)
+        do {
+            let data = try Data(contentsOf: plistURL)
+            let plist = try PropertyListSerialization.propertyList(
+                from: data,
+                options: [],
+                format: nil
+            )
+            
+            guard let dict = plist as? [String: Any] else {
+                throw SimulatorError.invalidPlistFormat
+            }
+            return dict
+        } catch let error as SimulatorError {
+            throw error
+        } catch {
+            throw SimulatorError.cannotReadPlist(underlyingError: error)
         }
-        return dict
     }
 }

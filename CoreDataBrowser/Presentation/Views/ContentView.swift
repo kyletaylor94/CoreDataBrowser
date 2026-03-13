@@ -10,15 +10,22 @@ import SwiftUI
 struct ContentView: View {
     @State private var simulatorViewModel: SimulatorViewModel
     @State private var dbDataViewModel: DBDataViewModel
-    @State private var userDefaultsViewModel = UserDefaultsViewModel(repository: UserDefaultsRepositoryImpl())
-    @State private var searchViewModel = SearchViewModelFactory.make()
+    @State private var userDefaultsViewModel: UserDefaultsViewModel
+    @State private var searchViewModel: SearchViewModel
     @State private var pathManager: PathManagerImpl
     
-    init() {
-        let pm = PathManagerImpl()
-        _pathManager = State(wrappedValue: pm)
-        _simulatorViewModel = State(wrappedValue: SimulatorViewModel(useCase: SimulatorUseCaseImpl(repository: SimulatorRepositoryImpl(pathManager: pm))))
-        _dbDataViewModel = State(wrappedValue: DBDataViewModel(pathManager: pm))
+    init(
+        simulatorViewModel: SimulatorViewModel,
+        dbDataViewModel: DBDataViewModel,
+        userDefaultsViewModel: UserDefaultsViewModel,
+        searchViewModel: SearchViewModel,
+        pathManager: PathManagerImpl
+    ) {
+        _simulatorViewModel = State(wrappedValue: simulatorViewModel)
+        _dbDataViewModel = State(wrappedValue: dbDataViewModel)
+        _userDefaultsViewModel = State(wrappedValue: userDefaultsViewModel)
+        _searchViewModel = State(wrappedValue: searchViewModel)
+        _pathManager = State(wrappedValue: pathManager)
     }
     
     var body: some View {

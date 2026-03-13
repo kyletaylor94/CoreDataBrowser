@@ -16,7 +16,11 @@ protocol UserDefaultsRepository {
 }
 
 final class UserDefaultsRepositoryImpl: UserDefaultsRepository {
-    private let fileManager = FileManager.default
+    private let fileManager: FileManager
+    
+    init(fileManager: FileManager) {
+        self.fileManager = fileManager
+    }
     
     func loadUserDefaults(for device: SimulatorDevice) async throws -> [DBDataTable] {
         let preferencesPath = device.path

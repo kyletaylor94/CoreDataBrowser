@@ -8,24 +8,22 @@
 import Foundation
 
 enum SimulatorError: LocalizedError {
-    case cannotAccessDevicesFolder
-    case cannotReadPlist(URL)
-    case cannotOpenDatabase(URL)
-    case cannotLoadApps(URL)
-    case unknown(Error)
+    case cannotAccessDevicesFolder(underlyingError: Error? = nil)
+    case cannotReadPlist(underlyingError: Error)
+    case invalidPlistFormat
     
-    var errorDescription: String {
+    var errorDescription: String? {
         switch self {
-        case .cannotAccessDevicesFolder:
-            return "Cannot access CoreSimulator devices folder."
-        case .cannotReadPlist(let url):
-            return "Failed to read device.plist at: \(url.lastPathComponent)"
-        case .cannotOpenDatabase(let url):
-            return "Failed to open database: \(url.lastPathComponent)"
-        case .cannotLoadApps(let url):
-            return "Failed to load apps for simulator: \(url.lastPathComponent)"
-        case .unknown(let error):
-            return "Unexpected error: \(error.localizedDescription)"
+        case .cannotAccessDevicesFolder(let error):
+            let base = "Cannot access CoreSimulator devices folder."
+            if let error {
+                return "\(base) Reason: \(error.localizedDescription)"
+            }
+            return base
+        case .cannotReadPlist(let error):
+            return "Cannot read device plist. Reason: \(error.localizedDescription)"
+        case .invalidPlistFormat:
+            return "Device plist has invalid format."
         }
     }
 }

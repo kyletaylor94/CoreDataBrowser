@@ -9,6 +9,21 @@ import Foundation
 import Observation
 import SQLite3
 
+protocol TableRefreshable {
+    var selectedTable: DBDataTable? { get }
+    var tables: [DBDataTable] { get set }
+}
+
+extension TableRefreshable {
+    func refreshSelectedTable() {
+        guard let selectedTable,
+              let updated = tables.first(where: { $0.name == selectedTable.name }) else {
+            return
+        }
+        NotificationCenter.default.post(name: .tableDidRefresh, object: updated)
+    }
+}
+
 @MainActor
 @Observable
 class DBDataViewModel {
@@ -27,10 +42,11 @@ class DBDataViewModel {
     var isLoadingCoreDataSheet = false
     var isLoadingSwiftDataSheet = false
     
-    private let fileManager = FileManager.default
-    private let pathManager: PathManagerImpl
+    private let fileManager: FileManager
+    private let pathManager: PathManager
     
-    init(pathManager: PathManagerImpl) {
+    init(fileManager: FileManager, pathManager: PathManager) {
+        self.fileManager = fileManager
         self.pathManager = pathManager
     }
     
@@ -39,20 +55,19 @@ class DBDataViewModel {
         isLoadingSwiftData = true
         defer {
             isLoading = false
-            isLoadingSwiftData = true
+            isLoadingSwiftData = false
         }
         guard let selectedDevice else { return }
         loadSimulatorApps(for: selectedDevice)
         refreshCoreDataTables()
     }
     
-
     private func refreshCoreDataTables() {
-        if let selectedTable,
-           let updated = coreDataTables.first(where: { $0.name == selectedTable.name }) {
-            self.coreDataTables = self.coreDataTables
-            NotificationCenter.default.post(name: .tableDidRefresh, object: updated)
+        guard let selectedTable,
+              let updated = coreDataTables.first(where: { $0.name == selectedTable.name }) else {
+            return
         }
+        NotificationCenter.default.post(name: .tableDidRefresh, object: updated)
     }
     
     func loadSimulatorApps(for device: SimulatorDevice) {

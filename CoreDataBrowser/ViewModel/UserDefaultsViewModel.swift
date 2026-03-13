@@ -10,7 +10,7 @@ import Observation
 
 @MainActor
 @Observable
-final class UserDefaultsViewModel {
+final class UserDefaultsViewModel: TableRefreshable {
     var userDefaultsTable: [DBDataTable] = []
     var selectedUserDefaultTable: DBDataTable? = nil
     
@@ -22,17 +22,28 @@ final class UserDefaultsViewModel {
     var selectedRow: UserDefaultsRow?
     var isLoadingSheet: Bool = false
     
-    private let repository: UserDefaultsRepository
+    private let useCase: UserDefaultsUseCase
     
-    init(repository: UserDefaultsRepository) {
-        self.repository = repository
+    init(useCase: UserDefaultsUseCase) {
+        self.useCase = useCase
     }
     
+    var selectedTable: DBDataTable? {
+        selectedUserDefaultTable
+    }
+    
+    var tables: [DBDataTable] {
+        get { userDefaultsTable }
+        set { userDefaultsTable = newValue }
+    }
+    
+    
     func refreshUserDefaults() {
-        if let selectedUserDefaultTable,
-           let updated = userDefaultsTable.first(where: { $0.name == selectedUserDefaultTable.name }) {
-            NotificationCenter.default.post(name: .tableDidRefresh, object: updated)
-        }
+        //        if let selectedUserDefaultTable,
+        //           let updated = userDefaultsTable.first(where: { $0.name == selectedUserDefaultTable.name }) {
+        //            NotificationCenter.default.post(name: .tableDidRefresh, object: updated)
+        //        }
+        refreshSelectedTable()
     }
     
     func loadUserDefaults(for device: SimulatorDevice) async {
@@ -40,7 +51,7 @@ final class UserDefaultsViewModel {
         defer { isLoading = false }
         
         do {
-            userDefaultsTable = try await repository.loadUserDefaults(for: device)
+            userDefaultsTable = try await useCase.execute(for: device)
         } catch {
             self.error = .cannotLoadApps(device.path)
             self.hasError = true

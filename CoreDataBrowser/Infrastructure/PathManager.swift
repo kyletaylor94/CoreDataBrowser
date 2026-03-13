@@ -62,25 +62,37 @@ class PathManagerImpl: PathManager {
     }
     
     func selectFolder(for binding: Binding<String>) {
+        configureFolderPanel()
+        setInitialDirectory(from: binding.wrappedValue)
+        
+        if panel.runModal() == .OK, let url = panel.url {
+            // Convert absolute path to relative path from home directory
+            binding.wrappedValue = convertToRelativePath(url)
+        }
+    }
+    
+    private func configureFolderPanel() {
         panel.canChooseFiles = false
         panel.canChooseDirectories = true
         panel.allowsMultipleSelection = false
         panel.canCreateDirectories = false
+    }
+    
+    private func setInitialDirectory(from path: String) {
+        guard !path.isEmpty else { return }
+        let homeDir = fileManager.homeDirectoryForCurrentUser
+        let fullPath = homeDir.appendingPathComponent(path)
         
-        // Set the initial directory to the current path
-        let currentPath = binding.wrappedValue
-        if !currentPath.isEmpty {
-            let homeDir = fileManager.homeDirectoryForCurrentUser
-            let fullPath = homeDir.appendingPathComponent(currentPath)
-            
-            // If path doesn't exist, go to parent directory
-            fileManager.fileExists(atPath: fullPath.path()) ? (panel.directoryURL = fullPath) : (panel.directoryURL = fullPath.deletingLastPathComponent())
+        panel.directoryURL = fileManager.fileExists(atPath: fullPath.path())
+        ? fullPath
+        : fullPath.deletingLastPathComponent()
+    }
+    
+    private func convertToRelativePath(_ url: URL) -> String {
+        let homeDir = fileManager.homeDirectoryForCurrentUser
+        guard url.path.hasPrefix(homeDir.path) else {
+            return url.path
         }
-        
-        if panel.runModal() == .OK, let url = panel.url {
-            // Convert absolute path to relative path from home directory
-            let homeDir = FileManager.default.homeDirectoryForCurrentUser
-            url.path.hasPrefix(homeDir.path) ? (binding.wrappedValue = String(url.path.dropFirst(homeDir.path.count + 1))) : (binding.wrappedValue = url.path)
-        }
+        return String(url.path.dropFirst(homeDir.path.count + 1))
     }
 }

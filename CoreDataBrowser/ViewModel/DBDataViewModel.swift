@@ -24,6 +24,19 @@ extension TableRefreshable {
     }
 }
 
+private struct CoreDataTablesRefreshable: TableRefreshable {
+    let viewModel: DBDataViewModel
+    
+    var selectedTable: DBDataTable? {
+        viewModel.selectedTable
+    }
+    
+    var tables: [DBDataTable] {
+        get { viewModel.coreDataTables }
+        set { viewModel.coreDataTables = newValue }
+    }
+}
+
 @MainActor
 @Observable
 class DBDataViewModel {
@@ -63,11 +76,7 @@ class DBDataViewModel {
     }
     
     private func refreshCoreDataTables() {
-        guard let selectedTable,
-              let updated = coreDataTables.first(where: { $0.name == selectedTable.name }) else {
-            return
-        }
-        NotificationCenter.default.post(name: .tableDidRefresh, object: updated)
+        CoreDataTablesRefreshable(viewModel: self).refreshSelectedTable()
     }
     
     func loadSimulatorApps(for device: SimulatorDevice) {

@@ -41,7 +41,8 @@ final class DIContainer {
     
     private func makeUserDefaultsViewModel() -> UserDefaultsViewModel {
         let repo = UserDefaultsRepositoryImpl(fileManager: fileManager)
-        return UserDefaultsViewModel(repository: repo)
+        let useCase = UserDefaultsUseCaseImpl(repository: repo)
+        return UserDefaultsViewModel(useCase: useCase)
     }
     
     private func makeSearchViewModel() -> SearchViewModel {

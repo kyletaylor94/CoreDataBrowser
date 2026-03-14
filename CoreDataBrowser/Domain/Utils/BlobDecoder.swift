@@ -8,6 +8,9 @@
 import Foundation
 
 final class BlobDecoder {
+    /// Decodes the given data into a human-readable string representation.
+    /// - Parameter data: The binary data to decode.
+    /// - Returns: A `String` representing the decoded data, or `nil` if the data could not be decoded.
     func decode(from data: Data) -> String? {
         if let object = try? NSKeyedUnarchiver.unarchivedObject(ofClasses: [
             NSString.self,
@@ -38,6 +41,9 @@ final class BlobDecoder {
         return nil
     }
     
+    /// Formats a decoded object into a human-readable string representation.
+    /// - Parameter object: The decoded object to format.
+    /// - Returns: A `String` representing the formatted object.
     private func formatDecodedObject(_ object: Any) -> String {
         switch object {
         case let dict as [AnyHashable: Any]:

@@ -11,6 +11,9 @@ enum FormattingHelper {
     private static let bytesPerKB = 1024.0
     private static let bytesPerMB = bytesPerKB * 1024.0
     
+    /// Formats a file size in bytes into a human-readable string with appropriate units (bytes, KB, MB).
+    /// - Parameter bytes: The file size in bytes.
+    /// - Returns: A string representing the formatted file size with appropriate units.
     static func formattedFileSize(_ bytes: Int64) -> String {
         let bytesDouble = Double(bytes)
         let kb = bytesDouble / bytesPerKB

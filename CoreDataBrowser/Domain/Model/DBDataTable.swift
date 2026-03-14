@@ -15,6 +15,8 @@ struct DBDataTable: Identifiable, Hashable {
     let types: [String]
     let fileSize: Int64
     
+    /// Computed property to format columns with their types. Removes the "Z" prefix from column names if present and formats them as "ColumnName (Type)"
+    /// Example: "ZNAME (TEXT)", "ZAGE (INTEGER)"
     var formattedColumns: [String] {
         zip(columns, types).map { column, type in
             let cleanColumn = removeZPrefix(from: column)
@@ -22,6 +24,8 @@ struct DBDataTable: Identifiable, Hashable {
         }
     }
     
+    /// Helper method to remove "Z" prefix from column names if it exists and is followed by an uppercase letter
+    /// Example: "ZNAME" becomes "NAME", but "Zname" remains "Zname"
     private func removeZPrefix(from column: String) -> String {
         guard column.count >= 2,
               column.first == "Z",

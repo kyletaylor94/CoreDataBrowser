@@ -38,6 +38,13 @@ extension View {
         }
     }
     
+    /// Applies the necessary environment objects to the view.
+    /// - Parameters:
+    ///   - simulatorViewModel: The vm for managing simulator data.
+    ///   - dbDataViewModel: The vm for managing database data.
+    ///   - userDefaultsViewModel: The vm for managing UserDefaults data.
+    ///   - searchViewModel: The vm for managing search functionality.
+    ///   - Returns: A view with the specified environment objects applied.
     func appEnvironment(simulatorViewModel: SimulatorViewModel? = nil, dbDataViewModel: DBDataViewModel? = nil, userDefaultsViewModel: UserDefaultsViewModel? = nil, searchViewModel: SearchViewModel) -> some View {
         modifier(EnvironmentSetup(
             simulatorViewModel: simulatorViewModel,
@@ -61,6 +68,11 @@ extension View {
 }
 
 extension Binding {
+    /// Creates a binding to a property of an object.
+    /// - Parameters:
+    ///  - root: The object containing the property.
+    ///  - keyPath: The key path to the property.
+    ///  - Returns: A binding to the specified property.
     static func from<Root>(_ root: Root, keyPath: ReferenceWritableKeyPath<Root, Value>) -> Binding<Value> where Root: AnyObject {
         Binding(get: { root[keyPath: keyPath] }, set: { root[keyPath: keyPath] = $0 })
     }

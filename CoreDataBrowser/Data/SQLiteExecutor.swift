@@ -15,6 +15,9 @@ final class SQLiteExecutor {
         self.blobDecoder = blobDecoder
     }
     
+    /// Fetches the names of all entities (tables) in the SQLite database located at the given URL.
+    /// - Parameter databaseURL: The URL of the SQLite database file.
+    /// - Returns: An array of entity (table) names present in the database.
     func fetchEntities(in databaseURL: URL) -> [String] {
         return executeMultiple(at: databaseURL, query: DatabaseConstants.entityQuery) { statement in
             if let cString = sqlite3_column_text(statement, 0) {
@@ -24,6 +27,11 @@ final class SQLiteExecutor {
         }.filter { !$0.isEmpty }
     }
     
+    /// Fetches the column names and their corresponding data types for a specified table in the SQLite database.
+    /// - Parameters:
+    ///  - databaseURL: The URL of the SQLite database file.
+    ///  - table: The name of the table for which to fetch column information.
+    ///  - Returns: A tuple containing two arrays: the first array contains the column names, and the second array contains the corresponding data types for those columns.
     func fetchColumnsWithTypes(databaseURL: URL, table: String) -> ([String], [String]) {
         var columns: [String] = []
         var types: [String] = []
@@ -45,6 +53,11 @@ final class SQLiteExecutor {
         return (columns, types)
     }
     
+    /// Fetches all rows of data from a specified table in the SQLite database.
+    /// - Parameters:
+    /// - databaseURL: The URL of the SQLite database file.
+    /// - query: The SQL query to execute for fetching the rows (e.g., "SELECT * FROM tableName").
+    /// - Returns: An array of rows, where each row is represented as an array of strings corresponding to the column values.
     func fetchRows(at databaseURL: URL, query: String) -> [[String]] {
         var rows: [[String]] = []
         execute(at: databaseURL, query: query) { statement in
@@ -59,6 +72,12 @@ final class SQLiteExecutor {
         return rows
     }
     
+    /// Executes a given SQL query on the SQLite database located at the specified URL and processes the resulting statement using a provided closure.
+    /// - Parameters:
+    /// - databaseURL: The URL of the SQLite database file.
+    ///  - query: The SQL query to execute.
+    ///  - process: A closure that takes an `OpaquePointer` to the prepared statement
+    ///  and returns a value of type `T` after processing the statement (e.g., fetching rows, extracting column information).
     func execute<T>(at databaseURL: URL, query: String, process: (OpaquePointer) -> T) -> T? {
         var db: OpaquePointer?
         var statement: OpaquePointer?
@@ -80,6 +99,12 @@ final class SQLiteExecutor {
         return result
     }
     
+    /// Executes a given SQL query on the SQLite database located at the specified URL and processes multiple rows of results using a provided closure.
+    /// - Parameters:
+    /// - databaseURL: The URL of the SQLite database file.
+    ///  - query: The SQL query to execute.
+    ///   - processRow: A closure that takes an `OpaquePointer` to the prepared statement and returns a value of type `T` after processing each row of the result set.
+    ///   - Returns: An array of values of type `T`, where each value corresponds to a processed row from the result set of the executed query.
     func executeMultiple<T>(at databaseURL: URL, query: String, processRow: (OpaquePointer) -> T) -> [T] {
         var results: [T] = []
         execute(at: databaseURL, query: query) { statement in
@@ -90,6 +115,11 @@ final class SQLiteExecutor {
         return results
     }
     
+    /// Extracts the value of a column from a SQLite statement at a specified index and converts it to a string representation based on the column's data type.
+    /// - Parameters:
+    /// - statement: An `OpaquePointer` to the prepared SQLite statement from which to extract the column value.
+    /// - index: The index of the column from which to extract the value.
+    /// - Returns: A string representation of the column value, formatted according to its data type (e.g., integer, float, text, blob). If the value is null or cannot be decoded, it returns a default string indicating the type or null status.
     private func extractColumnValue(from statement: OpaquePointer, at index: Int32) -> String {
         let type = sqlite3_column_type(statement, index)
         

@@ -19,14 +19,28 @@ final class DBUseCaseImpl: DBUseCase {
         self.repository = repository
     }
     
+    /// Executes the use case for Core Data databases, fetching tables and their content without executing a checkpoint.
+    /// - Parameter device: The simulator device for which to fetch the Core Data tables.
+    /// - Returns: An array of `DBDataTable` representing the tables found in the Core Data databases of the specified device.
+    /// - Note: Core Data databases do not require a checkpoint execution before fetching tables and their content, as they are typically in a consistent state when accessed.
     func executeCoreData(for device: SimulatorDevice) -> [DBDataTable] {
         fetchTables(for: device, fileExtension: DatabaseConstants.sqlite, shouldExecuteCheckpoint: false)
     }
     
+    /// Executes the use case for SwiftData databases, fetching tables and their content while executing a checkpoint to ensure data consistency.
+    /// - Parameter device: The simulator device for which to fetch the SwiftData tables.
+    /// - Returns: An array of `DBDataTable` representing the tables found in the
+    /// - Note: The checkpoint execution is necessary for SwiftData databases to ensure that the data is in a consistent state before fetching the tables and their content.
     func executeSwiftData(for device: SimulatorDevice) -> [DBDataTable] {
         fetchTables(for: device, fileExtension: DatabaseConstants.store, shouldExecuteCheckpoint: true)
     }
-        
+    
+    /// Fetches tables from the specified device based on the provided file extension and checkpoint execution flag.
+    /// - Parameters:
+    ///   - device: The simulator device from which to fetch the tables.
+    ///   - fileExtension: The file extension to filter the database files (e.g.,sqlite for Core Data, .store for SwiftData).
+    ///   - shouldExecuteCheckpoint: A boolean flag indicating whether to execute a checkpoint before fetching the tables (true for SwiftData, false for Core Data).
+    ///   - Returns: An array of `DBDataTable` representing the tables found in the specified device based on the given criteria.
     private func fetchTables(for device: SimulatorDevice, fileExtension: String, shouldExecuteCheckpoint: Bool) -> [DBDataTable] {
         var tables: [DBDataTable] = []
         let databaseFiles = repository.getDatabaseFiles(for: device, fileExtension: fileExtension)
@@ -54,16 +68,26 @@ final class DBUseCaseImpl: DBUseCase {
                 }
             }
         }
-        
         return tables
     }
     
+    /// Filters out unwanted table names based on predefined exclusion criteria, such as specific table names or patterns that are commonly used for internal SQLite management.
+    /// - Parameter names: An array of table names to be filtered.
+    /// - Returns: An array of table names that have been filtered to exclude unwanted entries, ensuring that only relevant tables are included in the results.
     private func filterTableNames(_ names: [String]) -> [String] {
         names
             .filter { !DatabaseConstants.excludedTables.contains($0.uppercased()) }
             .filter { !$0.lowercased().contains(DatabaseConstants.sqliteSequence) }
     }
     
+    /// Builds a `DBDataTable` instance by filtering out unwanted columns and their corresponding types and rows based on predefined exclusion criteria, ensuring that only relevant data is included in the resulting table.
+    /// - Parameters:
+    ///  - name: The name of the table.
+    ///  - columns: An array of column names from the database table.
+    ///  - types: An array of data types corresponding to each column in the database table
+    ///  - rows: A two-dimensional array representing the rows of data from the database table, where each inner array corresponds to a single row of data.
+    ///  - fileURL: The URL of the database file from which the table was fetched
+    ///  - Returns: A `DBDataTable` instance containing the filtered columns, types, and rows, along with the file size of the database file, providing a structured representation of the table's content while excluding irrelevant data.
     private func buildTable(name: String, columns: [String], types: [String], rows: [[String]], fileURL: URL) -> DBDataTable {
         let indicesToKeep = filterColumnIndices(columns: columns)
         return DBDataTable(
@@ -75,12 +99,21 @@ final class DBUseCaseImpl: DBUseCase {
         )
     }
     
+    /// Filters out unwanted column indices based on predefined exclusion criteria, such as specific column names that are commonly used for internal SQLite management or metadata.
+    /// - Parameter columns: An array of column names to be filtered.
+    /// - Returns: An array of integer indices representing the positions of the columns that have been filtered to exclude unwanted entries, ensuring that only relevant columns are included in the results when building the `DBDataTable` instances.
     private func filterColumnIndices(columns: [String]) -> [Int] {
         columns.enumerated()
             .filter { !DatabaseConstants.excludedColumns.contains($0.element.uppercased()) }
             .map { $0.offset }
     }
     
+    /// Filters the rows of data based on the specified indices to keep, ensuring that only the relevant columns are included in the resulting rows while excluding unwanted data.
+    /// - Parameters:
+    ///  - rows: A two-dimensional array representing the rows of data from the database table
+    ///  - indicesToKeep: An array of integer indices representing the positions of the columns that should be included in the resulting rows, based on predefined exclusion criteria.
+    ///  - Returns: A two-dimensional array of strings representing the filtered rows of data, where each inner array corresponds to a single row of data that includes only the relevant columns based on the specified indices to keep.
+    ///  - Note: The method uses `compactMap` to ensure that only valid indices are included in the resulting rows, preventing any out-of-bounds errors when accessing the columns of each row.
     private func filteredRows(rows: [[String]], indicesToKeep: [Int]) -> [[String]] {
         rows.map { row in
             indicesToKeep.compactMap { index in

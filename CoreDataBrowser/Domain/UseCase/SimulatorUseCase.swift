@@ -18,6 +18,9 @@ final class SimulatorUseCaseImpl: SimulatorUseCase {
         self.repository = repository
     }
     
+    /// Fetches all booted simulator devices by reading their plist files.
+    /// - Returns: An array of `SimulatorDevice` representing the booted simulators.
+    /// - Throws: `SimulatorError` if there are issues accessing the devices folder or reading plist files.
     func execute() async throws -> [SimulatorDevice] {
         let directories = try repository.getDeviceDirectories()
         var devices: [SimulatorDevice] = []
@@ -42,10 +45,13 @@ final class SimulatorUseCaseImpl: SimulatorUseCase {
                 throw SimulatorError.cannotReadPlist(underlyingError: error)
             }
         }
-        
         return Array(Set(devices)).sorted(by: { $0.name < $1.name })
     }
     
+    /// Parses the device information from a given dictionary, extracting the name, state, and runtime.
+    /// - Parameter dict: A dictionary containing the device information from the plist file.
+    /// - Returns: A tuple containing the device name, state, and runtime.
+    /// - Note: The method handles both string and integer representations of the state, ensuring robust parsing.
     private func parseDeviceInfo(from dict: [String: Any]) -> (String, String, String) {
         let safeDict = dict.compactMapValues { $0 as? String }
         let name = safeDict["name"] ?? "N/A"

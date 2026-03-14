@@ -18,6 +18,11 @@ final class UserDefaultsUseCaseImpl: UserDefaultsUseCase {
         self.repository = repository
     }
     
+    /// Executes the use case to fetch and parse UserDefaults data for a given simulator device.
+    /// - Parameter device: The `SimulatorDevice` for which to fetch UserDefaults data.
+    /// - Returns: An array of `DBDataTable` containing the parsed UserDefaults data
+    /// - Throws: `UserDefaultsError` if there are issues accessing the UserDefaults files or parsing their contents.
+    /// - Note: The method retrieves the UserDefaults files for the specified device, reads their contents, and creates `DBDataTable` instances for each file. It handles errors gracefully by throwing appropriate exceptions when issues arise during file access or data parsing.
     func execute(for device: SimulatorDevice) async throws -> [DBDataTable] {
         let plistFiles = try await repository.loadPlistFiles(for: device)
         var tables: [DBDataTable] = []
@@ -33,6 +38,11 @@ final class UserDefaultsUseCaseImpl: UserDefaultsUseCase {
         return tables
     }
     
+    /// Creates a `DBDataTable` from a given plist file and its contents.
+    /// - Parameters:
+    ///  - file: The `URL` of the plist file containing UserDefaults data.
+    ///  - dict: A dictionary representing the key
+    /// - Returns: A `DBDataTable` instance containing the parsed UserDefaults data from the specified file.
     private func createTable(from file: URL, dict: [String: Any]) -> DBDataTable {
         let rows = extractRows(from: dict)
         let fileSize = repository.getFileSize(at: file)
@@ -46,12 +56,18 @@ final class UserDefaultsUseCaseImpl: UserDefaultsUseCase {
         )
     }
     
+    /// Extracts rows of data from a given dictionary, where each row represents a key-value pair along with its type description.
+    /// - Parameter dict: A dictionary containing the key-value pairs to be extracted.
+    /// - Returns: An array of rows, where each row is an array of strings representing the key, value, and type description of each entry in the dictionary.
     private func extractRows(from dict: [String: Any]) -> [[String]] {
         dict.map { key, value in
             [key, stringValue(for: value), typeDescription(for: value)]
         }
     }
     
+    /// Determines the type description for a given value, returning a string representation of the value's type.
+    /// - Parameter value: The value for which to determine the type description.
+    /// - Returns: A string representing the type of the value, such as "String", "Int", "Bool", "Array", "Dictionary", etc.
     private func typeDescription(for value: Any) -> String {
         if let number = value as? NSNumber {
             return CFGetTypeID(number) == CFBooleanGetTypeID() ? "Bool" : "Int"
@@ -69,6 +85,9 @@ final class UserDefaultsUseCaseImpl: UserDefaultsUseCase {
         }
     }
     
+    /// Converts a given value to its string representation, handling various types such as booleans, data, strings, numbers, arrays, and dictionaries.
+    /// - Parameter value: The value to be converted to a string representation.
+    /// - Returns: A string representing the value, formatted appropriately based on its type. For example, booleans are represented as "true" or "false", data is formatted as a hex string or decoded if possible, and arrays/dictionaries are represented in a readable format.
     private func stringValue(for value: Any) -> String {
         if let boolValue = value as? Bool {
             return boolValue ? "true" : "false"
@@ -100,6 +119,10 @@ final class UserDefaultsUseCaseImpl: UserDefaultsUseCase {
         return String(describing: value)
     }
     
+    
+    /// Formats a `Data` object into a readable string representation. The method attempts to decode the data as a property list or JSON, and if those attempts fail, it returns a hex string representation of the data.
+    /// - Parameter data: The `Data` object to be formatted.
+    /// - Returns: A string representing the formatted data. If the data can be decoded as a property list or JSON, it returns the decoded string; otherwise, it returns a hex string representation of the data with a byte count.
     private func formatDataValue(_ data: Data) -> String {
         if let decodedObject = try? PropertyListSerialization.propertyList(from: data, format: nil) {
             return stringValue(for: decodedObject)
@@ -118,4 +141,3 @@ final class UserDefaultsUseCaseImpl: UserDefaultsUseCase {
         return "Data (\(data.count) bytes): \(data.map { String(format: "%02x", $0) }.prefix(50).joined())\(data.count > 50 ? "..." : "")"
     }
 }
-

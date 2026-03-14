@@ -23,6 +23,7 @@ protocol PathManager {
 class PathManagerImpl: PathManager {
     var isSheetPresented: Bool = false
     
+    /// Paths are stored as relative to the user's home directory for better readability and portability. When retrieving, they are converted back to absolute paths.
     var simulatorPath: String = UserDefaults.standard.string(forKey: "simulatorPath") ?? PathConstants.simulatorPath {
         didSet {
             UserDefaults.standard.set(simulatorPath, forKey: "simulatorPath")
@@ -54,6 +55,7 @@ class PathManagerImpl: PathManager {
         self.fileManager = fileManager
     }
     
+    /// Resets all paths to their default values.
     func resetPaths() {
         simulatorPath = PathConstants.simulatorPath
         coreDataPath = PathConstants.libraryApplicationSupportPath
@@ -61,16 +63,19 @@ class PathManagerImpl: PathManager {
         userDefaultsPath = PathConstants.libraryPreferencesPath
     }
     
+    /// Presents a folder selection dialog and updates the binding with the selected folder's relative path.
+    /// - Parameter binding: A binding to the path string that should be updated with the selected folder's relative path.
+    /// The method configures the NSOpenPanel to allow only folder selection, sets the initial directory based on the current value of the binding, and upon successful selection, converts the absolute path to a relative path from the user's home directory before updating the binding.
     func selectFolder(for binding: Binding<String>) {
         configureFolderPanel()
         setInitialDirectory(from: binding.wrappedValue)
         
         if panel.runModal() == .OK, let url = panel.url {
-            // Convert absolute path to relative path from home directory
             binding.wrappedValue = convertToRelativePath(url)
         }
     }
     
+    /// Configures the NSOpenPanel to allow only folder selection, disallowing file selection and multiple selections.
     private func configureFolderPanel() {
         panel.canChooseFiles = false
         panel.canChooseDirectories = true
@@ -78,6 +83,8 @@ class PathManagerImpl: PathManager {
         panel.canCreateDirectories = false
     }
     
+    /// Sets the initial directory of the NSOpenPanel based on the provided path. If the path is valid, it will be used as the initial directory; otherwise, the panel will default to the user's home directory.
+    /// - Parameter path: The relative path from the user's home directory to set as the initial directory for the NSOpenPanel.
     private func setInitialDirectory(from path: String) {
         guard !path.isEmpty else { return }
         let homeDir = fileManager.homeDirectoryForCurrentUser
@@ -88,6 +95,8 @@ class PathManagerImpl: PathManager {
         : fullPath.deletingLastPathComponent()
     }
     
+    /// Converts an absolute URL to a relative path from the user's home directory. If the URL does not reside within the home directory, it returns the absolute path.
+    /// - Parameter url: The absolute URL to convert.
     private func convertToRelativePath(_ url: URL) -> String {
         let homeDir = fileManager.homeDirectoryForCurrentUser
         guard url.path.hasPrefix(homeDir.path) else {

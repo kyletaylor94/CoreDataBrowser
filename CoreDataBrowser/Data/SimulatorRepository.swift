@@ -21,6 +21,10 @@ final class SimulatorRepositoryImpl: SimulatorRepository {
         self.pathManager = pathManager
     }
     
+    /// Retrieves the directories of all simulators by accessing the CoreSimulator devices folder.
+    /// - Returns: An array of `URL` objects representing the directories of each simulator device
+    /// - Throws: `SimulatorError` if there are issues accessing the devices folder or if the expected plist file is missing.
+    /// - Note: The method filters the contents of the devices folder to include only those directories that contain a valid `device.plist` file, ensuring that only actual simulator devices are processed.
     func getDeviceDirectories() throws -> [URL] {
         let basePath = fileManager.homeDirectoryForCurrentUser
             .appendingPathComponent(pathManager.simulatorPath)
@@ -40,6 +44,9 @@ final class SimulatorRepositoryImpl: SimulatorRepository {
         }
     }
     
+    /// Reads the `device.plist` file for a given simulator device directory and parses its contents into a dictionary.
+    /// - Parameter url: The `URL` of the simulator device directory containing the `device.plist` file.
+    /// - Returns: A dictionary containing the key-value pairs from the `device.plist` file.
     func readDevicePlist(at url: URL) throws -> [String: Any] {
         let plistURL = url.appendingPathComponent(PathConstants.devicePlist)
         do {

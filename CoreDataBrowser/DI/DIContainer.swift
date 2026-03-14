@@ -13,6 +13,8 @@ final class DIContainer {
     
     private lazy var fileManager = FileManager.default
     private lazy var pathManagerImpl = PathManagerImpl(fileManager: fileManager)
+    private let blobDecoder = BlobDecoder()
+    private lazy var sqliteExecutorImpl = SQLiteExecutor(blobDecoder: blobDecoder)
     
     var pathManager: PathManager {
         pathManagerImpl
@@ -35,8 +37,9 @@ final class DIContainer {
     }
     
     private func makeDBDataViewModel() -> DBDataViewModel {
-        //let repo = DBDataRepositoryImpl(fileManager: fileManager)
-        return DBDataViewModel(fileManager: fileManager, pathManager: pathManager)
+        let repo = DBRepositoryImpl(fileManager: fileManager, pathManager: pathManager, sqliteExecutor: sqliteExecutorImpl)
+        let useCase = DBUseCaseImpl(repository: repo)
+        return DBDataViewModel(useCase: useCase)
     }
     
     private func makeUserDefaultsViewModel() -> UserDefaultsViewModel {

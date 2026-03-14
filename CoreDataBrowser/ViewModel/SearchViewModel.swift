@@ -24,13 +24,17 @@ class SearchViewModel {
         self.useCase = useCase
     }
     
+    var searchBinding: Binding<String> {
+        Binding(get: { self.searchedText }, set: { self.searchedText = $0 })
+    }
+    
     func search(text: String, devices: [SimulatorDevice], tables: [DBDataTable]) {
         let result = useCase.execute(text: text, devices: devices, tables: tables)
         
-        self.searchedSimulator = result.simulators
-        self.searchedTables = result.tables
-        self.searchedColumns = result.columns
-        self.searchedRows = result.rows
+        searchedSimulator = result.simulators
+        searchedTables = result.tables
+        searchedColumns = result.columns
+        searchedRows = result.rows
     }
     
     func highlightMatch(in text: String) -> Text {

@@ -30,12 +30,30 @@ struct DetailContentView: View {
     @ViewBuilder
     private func chooseDetailView() -> some View {
         if isUserDefaultsDetail {
-            SectionHeaderView(title: "User Defaults", icon: "gearshape.2", action: onDismiss)
+            sourceHeaderView(icon: "gearshape.2", title: "UserDefaults", action: onDismiss)
             UserDefaultsTableView(table: table)
         } else {
-            SectionHeaderView(title: title, icon: icon, action: onDismiss)
+            sourceHeaderView(icon: icon, title: title, action: onDismiss)
             DBDetailsView(table: table, isSwiftDataContent: isSwiftDataContent)
         }
+    }
+    @ViewBuilder
+    private func sourceHeaderView(icon: String, title: String, action: @escaping () -> Void) -> some View {
+        HStack {
+            Image(systemName: icon)
+                .font(.title2)
+                .foregroundStyle(.secondary)
+            Text(title)
+                .font(.largeTitle)
+                .fontWeight(.bold)
+            Button("Remove from the board") {
+                action()
+            }
+            Spacer()
+        }
+        .padding()
+        .background(Color(nsColor: .controlBackgroundColor))
+        Divider()
     }
 }
 

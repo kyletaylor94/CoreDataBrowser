@@ -32,7 +32,6 @@ struct DataSourceSection: View {
             }
         }
     }
-    
     @ViewBuilder
     private var swiftDataSection: some View {
         if !dbDataVM.swiftDataTables.isEmpty {
@@ -47,7 +46,6 @@ struct DataSourceSection: View {
             }
         }
     }
-    
     @ViewBuilder
     private var userDefaultsSection: some View {
         if !userDefaultsVM.userDefaultsTable.isEmpty {
@@ -62,7 +60,6 @@ struct DataSourceSection: View {
             }
         }
     }
-    
     @ViewBuilder
     private func createListView(title: String, tables: [DBDataTable], selectedTable: DBDataTable?, showHighlight: Bool = true, action: @escaping (DBDataTable) -> Void) -> some View {
         VStack {

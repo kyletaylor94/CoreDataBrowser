@@ -20,7 +20,7 @@ struct DBDetailSection: View {
                     isLoading: dbDataViewModel.isLoading,
                     title: "Core Data",
                     icon: "cylinder.split.1x2",
-                    hasError: dbDataHasError,
+                    hasError: dbDataViewModel.dbDataHasError,
                     errorMessage: dbDataViewModel.error?.localizedDescription,
                     onDismiss: { dbDataViewModel.selectedTable = nil },
                     onErrorDismiss: { dbDataViewModel.hasError = false }
@@ -32,7 +32,7 @@ struct DBDetailSection: View {
                     isLoading: dbDataViewModel.isLoadingSwiftData,
                     title: "SwiftData",
                     icon: "externaldrive.badge.checkmark",
-                    hasError: dbDataHasError,
+                    hasError: dbDataViewModel.dbDataHasError,
                     errorMessage: dbDataViewModel.error?.localizedDescription,
                     onDismiss: { dbDataViewModel.secondaryTable = nil },
                     onErrorDismiss: { dbDataViewModel.hasError = false },
@@ -46,7 +46,7 @@ struct DBDetailSection: View {
                     isLoading: userDefaultsViewModel.isLoading,
                     title: "User Defaults",
                     icon: "gearshape.2",
-                    hasError: userDefaultsHasError,
+                    hasError: userDefaultsViewModel.userDefaultsHasError,
                     errorMessage: userDefaultsViewModel.error?.localizedDescription,
                     onDismiss: { userDefaultsViewModel.selectedUserDefaultTable = nil },
                     onErrorDismiss: { userDefaultsViewModel.hasError = false },
@@ -54,18 +54,5 @@ struct DBDetailSection: View {
                 )
             }
         }
-    }
-    private var dbDataHasError: Binding<Bool> {
-        Binding(
-            get: { dbDataViewModel.hasError },
-            set: { dbDataViewModel.hasError = $0 }
-        )
-    }
-    
-    private var userDefaultsHasError: Binding<Bool> {
-        Binding(
-            get: { userDefaultsViewModel.hasError },
-            set: { userDefaultsViewModel.hasError = $0 }
-        )
     }
 }

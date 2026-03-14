@@ -7,13 +7,13 @@
 
 import Foundation
 import Observation
+import SwiftUI
 
 @MainActor
 @Observable
 class SimulatorViewModel {
     var devices: [SimulatorDevice] = []
     var selectedDevice: SimulatorDevice? = nil
-    
     var currentError: SimulatorError? = nil
     var shouldShowError: Bool = false
     var isLoading = false
@@ -22,6 +22,10 @@ class SimulatorViewModel {
     
     init(useCase: SimulatorUseCase) {
         self.useCase = useCase
+    }
+    
+    var errorBinding: Binding<Bool> {
+        Binding(get: { self.shouldShowError }, set: { self.shouldShowError = $0 })
     }
     
     func loadSimulators() async {
@@ -38,10 +42,7 @@ class SimulatorViewModel {
     }
     
     func runTimeTextReplacing(device: SimulatorDevice) -> String {
-        return device.runTime.replacingOccurrences(
-            of: AppConstants.runtimeReplacing,
-            with: ""
-        )
+        return device.runTime.replacingOccurrences(of: AppConstants.runtimeReplacing, with: "")
     }
     
     private func setError(_ error: SimulatorError) {

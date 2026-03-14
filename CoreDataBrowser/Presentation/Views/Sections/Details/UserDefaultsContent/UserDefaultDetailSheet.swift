@@ -20,12 +20,14 @@ struct UserDefaultDetailSheet: View {
                     .padding()
             }
             .navigationTitle("Value")
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") {
-                        dismiss()
-                    }
-                }
+            .toolbar { doneButton() }
+        }
+    }
+    @ToolbarContentBuilder
+    private func doneButton() -> some ToolbarContent {
+        ToolbarItem(placement: .confirmationAction) {
+            Button("Done") {
+                dismiss()
             }
         }
     }

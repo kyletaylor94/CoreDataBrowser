@@ -7,6 +7,7 @@
 
 import Foundation
 import Observation
+import SwiftUI
 
 @MainActor
 @Observable
@@ -21,6 +22,10 @@ final class UserDefaultsViewModel: TableRefreshable {
     var showDetailSheet = false
     var selectedRow: UserDefaultsRow?
     var isLoadingSheet: Bool = false
+    
+    var userDefaultsHasError: Binding<Bool> {
+        Binding(get: { self.hasError }, set: { self.hasError = $0 })
+    }
     
     private let useCase: UserDefaultsUseCase
     
@@ -37,12 +42,7 @@ final class UserDefaultsViewModel: TableRefreshable {
         set { userDefaultsTable = newValue }
     }
     
-    
     func refreshUserDefaults() {
-        //        if let selectedUserDefaultTable,
-        //           let updated = userDefaultsTable.first(where: { $0.name == selectedUserDefaultTable.name }) {
-        //            NotificationCenter.default.post(name: .tableDidRefresh, object: updated)
-        //        }
         refreshSelectedTable()
     }
     
@@ -55,6 +55,31 @@ final class UserDefaultsViewModel: TableRefreshable {
         } catch {
             self.error = .cannotLoadApps(device.path)
             self.hasError = true
+        }
+    }
+    
+    var bindingUserDefaultsDetailSheet: Binding<Bool> {
+        Binding( get: { self.showDetailSheet }, set: { self.showDetailSheet = $0 } )
+    }
+    
+    func getText(for column: UserDefaultColumnEnum, from row: UserDefaultsRow) -> String {
+        switch column {
+        case .key:
+            return row.key
+        case .value:
+            return row.value
+        case .type:
+            return row.type
+        }
+    }
+    
+    func makeRows(from table: DBDataTable) -> [UserDefaultsRow] {
+        table.rows.map { row in
+            UserDefaultsRow(
+                key: row.count > 0 ? row[0] : "",
+                value: row.count > 1 ? row[1] : "",
+                type: row.count > 2 ? row[2] : ""
+            )
         }
     }
 }

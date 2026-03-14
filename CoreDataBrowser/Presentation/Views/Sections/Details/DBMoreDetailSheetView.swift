@@ -26,9 +26,7 @@ struct DBMoreDetailSheetView: View {
                 .padding()
             }
             .navigationTitle("Row Details")
-            .toolbar {
-                toolBarButton
-            }
+            .toolbar { toolBarButton }
         }
     }
     private func createCell(columns: [String], row: DBDataRow, index: Int) -> some View {

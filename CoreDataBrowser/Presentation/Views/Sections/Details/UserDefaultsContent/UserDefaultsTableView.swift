@@ -21,7 +21,7 @@ struct UserDefaultsTableView: View {
     let table: DBDataTable
     
     var body: some View {
-        let rows = makeRows(from: table)
+        let rows = userDefaultsViewModel.makeRows(from: table)
         Table(of: UserDefaultsRow.self, selection: Binding(
             get: { userDefaultsViewModel.selectedRow.map { Set([$0.id]) } ?? [] },
             set: { newSelection in
@@ -39,7 +39,7 @@ struct UserDefaultsTableView: View {
         )) {
             TableColumnForEach(UserDefaultColumnEnum.allCases) { column in
                 TableColumn(column.rawValue) { row in
-                    searchViewModel.highlightMatch(in: getText(for: column, from: row))
+                    searchViewModel.highlightMatch(in: userDefaultsViewModel.getText(for: column, from: row))
                 }
             }
         } rows: {
@@ -52,35 +52,10 @@ struct UserDefaultsTableView: View {
                 createModifiedProgressView()
             }
         }
-        .sheet(isPresented: bindingUserDefaultsDetailSheet) {
+        .sheet(isPresented: userDefaultsViewModel.bindingUserDefaultsDetailSheet) {
             if let row = userDefaultsViewModel.selectedRow {
                 UserDefaultDetailSheet(value: row.value)
             }
         }
-    }
-    private func getText(for column: UserDefaultColumnEnum, from row: UserDefaultsRow) -> String {
-        switch column {
-        case .key:
-            return row.key
-        case .value:
-            return row.value
-        case .type:
-            return row.type
-        }
-    }
-    private func makeRows(from table: DBDataTable) -> [UserDefaultsRow] {
-        table.rows.map { row in
-            UserDefaultsRow(
-                key: row.count > 0 ? row[0] : "",
-                value: row.count > 1 ? row[1] : "",
-                type: row.count > 2 ? row[2] : ""
-            )
-        }
-    }
-    private var bindingUserDefaultsDetailSheet: Binding<Bool> {
-        Binding(
-            get: { userDefaultsViewModel.showDetailSheet },
-            set: { userDefaultsViewModel.showDetailSheet = $0 }
-        )
     }
 }

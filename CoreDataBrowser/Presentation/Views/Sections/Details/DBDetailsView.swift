@@ -51,12 +51,11 @@ struct DBDetailsView: View {
             }
         }
         .overlay {
-            if (isSwiftDataContent && dbDataViewModel.isLoadingSwiftDataSheet) ||
-                (!isSwiftDataContent && dbDataViewModel.isLoadingCoreDataSheet) {
+            if dbDataViewModel.checkIsSwiftDataContent(isSwiftDataContent: isSwiftDataContent) {
                 createModifiedProgressView()
             }
         }
-        .sheet(isPresented: bindingIsMoreDetailsSheet) {
+        .sheet(isPresented: dbDataViewModel.bindingIsMoreDetailsSheet) {
             if let row = dbDataViewModel.selectedRow {
                 DBMoreDetailSheetView(row: row, columns: table.formattedColumns)
             }
@@ -67,12 +66,5 @@ struct DBDetailsView: View {
         table.rows.map { row in
             DBDataRow(values: row)
         }
-    }
-    
-    private var bindingIsMoreDetailsSheet: Binding<Bool> {
-        Binding(
-            get: { dbDataViewModel.isMoreDetailSheetPresented },
-            set: { dbDataViewModel.isMoreDetailSheetPresented = $0 }
-        )
     }
 }

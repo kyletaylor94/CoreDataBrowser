@@ -11,7 +11,7 @@ protocol SimulatorUseCase {
     func execute() async throws -> [SimulatorDevice]
 }
 
-class SimulatorUseCaseImpl: SimulatorUseCase {
+final class SimulatorUseCaseImpl: SimulatorUseCase {
     private let repository: SimulatorRepository
     
     init(repository: SimulatorRepository) {

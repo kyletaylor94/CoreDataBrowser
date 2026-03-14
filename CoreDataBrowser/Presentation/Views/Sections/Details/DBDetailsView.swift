@@ -15,30 +15,8 @@ struct DBDetailsView: View {
     let isSwiftDataContent: Bool
     
     var body: some View {
-        let rows = makeTableRows(from: table)
-        Table(of: DBDataRow.self, selection: Binding(
-            get: { dbDataViewModel.selectedRow.map { Set([$0.id]) } ?? [] },
-            set: { newSelection in
-                if let firstID = newSelection.first,
-                   let row = rows.first(where: { $0.id == firstID }) {
-                    dbDataViewModel.selectedRow = row
-                    if isSwiftDataContent == true {
-                        dbDataViewModel.isLoadingSwiftDataSheet = true
-                    } else {
-                        dbDataViewModel.isLoadingCoreDataSheet = true
-                    }
-                    Task {
-                        try? await Task.sleep(nanoseconds: 100_000_000)
-                        if isSwiftDataContent == true {
-                            dbDataViewModel.isLoadingSwiftDataSheet = false
-                        } else {
-                            dbDataViewModel.isLoadingCoreDataSheet = false
-                        }
-                        dbDataViewModel.isMoreDetailSheetPresented = true
-                    }
-                }
-            }
-        )) {
+        let rows = dbDataViewModel.makeTableRows(from: table)
+        Table(of: DBDataRow.self, selection: dbDataViewModel.bindingRowSelection(rows: rows, isSwiftDataContent: isSwiftDataContent)) {
             TableColumnForEach(table.formattedColumns.indices, id: \.self) { index in
                 TableColumn(table.formattedColumns[index]) { row in
                     let cellValue = row.values.count > index ? row.values[index] : ""
@@ -55,16 +33,10 @@ struct DBDetailsView: View {
                 createModifiedProgressView()
             }
         }
-        .sheet(isPresented: dbDataViewModel.bindingIsMoreDetailsSheet) {
+        .sheet(isPresented: Binding.from(dbDataViewModel, keyPath: \.isMoreDetailSheetPresented)) {
             if let row = dbDataViewModel.selectedRow {
                 DBMoreDetailSheetView(row: row, columns: table.formattedColumns)
             }
-        }
-    }
-    
-    private func makeTableRows(from table: DBDataTable) -> [DBDataRow] {
-        table.rows.map { row in
-            DBDataRow(values: row)
         }
     }
 }

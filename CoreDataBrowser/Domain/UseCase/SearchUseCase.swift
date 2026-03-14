@@ -15,7 +15,7 @@ protocol SearchUseCase {
     func emptyResults() -> SearchResult
 }
 
-class SearchUseCaseImpl: SearchUseCase {
+final class SearchUseCaseImpl: SearchUseCase {
     private let repository: SearchRepository
     
     init(repository: SearchRepository) {

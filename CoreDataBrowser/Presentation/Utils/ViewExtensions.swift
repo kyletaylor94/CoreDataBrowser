@@ -59,3 +59,9 @@ extension View {
         .ignoresSafeArea()
     }
 }
+
+extension Binding {
+    static func from<Root>(_ root: Root, keyPath: ReferenceWritableKeyPath<Root, Value>) -> Binding<Value> where Root: AnyObject {
+        Binding(get: { root[keyPath: keyPath] }, set: { root[keyPath: keyPath] = $0 })
+    }
+}

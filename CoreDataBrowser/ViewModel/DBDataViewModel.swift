@@ -33,15 +33,7 @@ class DBDataViewModel {
     init(useCase: DBUseCase) {
         self.useCase = useCase
     }
-    
-    var dbDataHasError: Binding<Bool> {
-        Binding(get: { self.hasError }, set: { self.hasError = $0 })
-    }
-    
-    var bindingIsMoreDetailsSheet: Binding<Bool> {
-        Binding(get: { self.isMoreDetailSheetPresented }, set: { self.isMoreDetailSheetPresented = $0 })
-    }
-    
+        
     func checkIsSwiftDataContent(isSwiftDataContent: Bool) -> Bool {
         return (isSwiftDataContent && isLoadingSwiftDataSheet) || (!isSwiftDataContent && isLoadingCoreDataSheet)
     }
@@ -72,6 +64,45 @@ class DBDataViewModel {
     
     private func refreshCoreDataTables() {
         CoreDataTablesRefreshable(viewModel: self).refreshSelectedTable()
+    }
+    
+    func bindingRowSelection(rows: [DBDataRow], isSwiftDataContent: Bool) -> Binding<Set<UUID>> {
+        Binding(get: { self.transformSelectedRow() }, set: { newSelection in self.handleRowSelectionChange(newSelection: newSelection, rows: rows, isSwiftDataContent: isSwiftDataContent) })
+    }
+    
+    func makeTableRows(from table: DBDataTable) -> [DBDataRow] {
+        table.rows.map { row in
+            DBDataRow(values: row)
+        }
+    }
+    
+    private func handleRowSelectionChange(newSelection: Set<UUID>, rows: [DBDataRow], isSwiftDataContent: Bool) {
+        if let firstID = newSelection.first,
+           let row = rows.first(where: { $0.id == firstID }) {
+            selectedRow = row
+            setLoadingStates(isSwiftDataContent: isSwiftDataContent)
+        }
+    }
+    
+    private func transformSelectedRow() -> Set<UUID> {
+        selectedRow.map { Set([$0.id]) } ?? []
+    }
+    
+    private func setLoadingStates(isSwiftDataContent: Bool) {
+        if isSwiftDataContent == true {
+            isLoadingSwiftDataSheet = true
+        } else {
+            isLoadingCoreDataSheet = true
+        }
+        Task {
+            try? await Task.sleep(nanoseconds: 100_000_000)
+            if isSwiftDataContent == true {
+                isLoadingSwiftDataSheet = false
+            } else {
+                isLoadingCoreDataSheet = false
+            }
+            isMoreDetailSheetPresented = true
+        }
     }
 }
 

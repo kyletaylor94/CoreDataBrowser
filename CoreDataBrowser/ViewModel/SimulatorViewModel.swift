@@ -24,10 +24,6 @@ class SimulatorViewModel {
         self.useCase = useCase
     }
     
-    var errorBinding: Binding<Bool> {
-        Binding(get: { self.shouldShowError }, set: { self.shouldShowError = $0 })
-    }
-    
     func loadSimulators() async {
         isLoading = true
         defer { isLoading = false }

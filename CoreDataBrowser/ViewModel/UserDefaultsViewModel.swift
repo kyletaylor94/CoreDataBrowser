@@ -23,10 +23,6 @@ final class UserDefaultsViewModel: TableRefreshable {
     var selectedRow: UserDefaultsRow?
     var isLoadingSheet: Bool = false
     
-    var userDefaultsHasError: Binding<Bool> {
-        Binding(get: { self.hasError }, set: { self.hasError = $0 })
-    }
-    
     private let useCase: UserDefaultsUseCase
     
     init(useCase: UserDefaultsUseCase) {
@@ -57,12 +53,8 @@ final class UserDefaultsViewModel: TableRefreshable {
             self.hasError = true
         }
     }
-    
-    var bindingUserDefaultsDetailSheet: Binding<Bool> {
-        Binding( get: { self.showDetailSheet }, set: { self.showDetailSheet = $0 } )
-    }
-    
-    func getText(for column: UserDefaultColumnEnum, from row: UserDefaultsRow) -> String {
+        
+    func getText(for column: UserDefaultColumn, from row: UserDefaultsRow) -> String {
         switch column {
         case .key:
             return row.key
@@ -71,6 +63,31 @@ final class UserDefaultsViewModel: TableRefreshable {
         case .type:
             return row.type
         }
+    }
+    
+    func setLoadingStates() {
+        isLoadingSheet = true
+        Task {
+            try? await Task.sleep(nanoseconds: 100_000_000)
+            isLoadingSheet = false
+            showDetailSheet = true
+        }
+    }
+    
+    private func transFormSelectedRow() -> Set<UUID> {
+        selectedRow.map { Set([$0.id]) } ?? []
+    }
+    
+    private func handleSelectionChange(newSelection: Set<UUID>, rows: [UserDefaultsRow]) {
+        if let firstID = newSelection.first,
+           let row = rows.first(where: { $0.id == firstID }) {
+            selectedRow = row
+            setLoadingStates()
+        }
+    }
+    
+    func bindingRowSelection(rows: [UserDefaultsRow]) -> Binding<Set<UUID>> {
+        Binding(get: { self.transFormSelectedRow() }, set: { newSelection in self.handleSelectionChange(newSelection: newSelection, rows: rows) })
     }
     
     func makeRows(from table: DBDataTable) -> [UserDefaultsRow] {

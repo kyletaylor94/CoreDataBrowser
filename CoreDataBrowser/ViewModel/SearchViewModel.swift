@@ -24,10 +24,6 @@ class SearchViewModel {
         self.useCase = useCase
     }
     
-    var searchBinding: Binding<String> {
-        Binding(get: { self.searchedText }, set: { self.searchedText = $0 })
-    }
-    
     func search(text: String, devices: [SimulatorDevice], tables: [DBDataTable]) {
         let result = useCase.execute(text: text, devices: devices, tables: tables)
         

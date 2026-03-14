@@ -15,7 +15,7 @@ protocol PathManager {
     var swiftDataPath: String { get set }
     var userDefaultsPath: String { get set }
     func selectFolder(for binding: Binding<String>)
-    func reset()
+    func resetPaths()
 }
 
 @MainActor
@@ -54,7 +54,7 @@ class PathManagerImpl: PathManager {
         self.fileManager = fileManager
     }
     
-    func reset() {
+    func resetPaths() {
         simulatorPath = PathConstants.simulatorPath
         coreDataPath = PathConstants.libraryApplicationSupportPath
         swiftDataPath = PathConstants.libraryApplicationSupportPath

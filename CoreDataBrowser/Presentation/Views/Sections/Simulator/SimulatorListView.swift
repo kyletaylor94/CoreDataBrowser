@@ -24,8 +24,8 @@ struct SimulatorListView: View {
         }
         .frame(minWidth: 350, minHeight: 500)
         .task { await simulatorViewModel.loadSimulators() }
-        .searchable(text: searchVM.searchBinding)
-        .createAlert(isPresented: simulatorViewModel.errorBinding, errorMessage: simulatorViewModel.currentError?.errorDescription, onDismiss: {
+        .searchable(text: Binding.from(searchVM, keyPath: \.searchedText))
+        .createAlert(isPresented: Binding.from(simulatorViewModel, keyPath: \.shouldShowError), errorMessage: simulatorViewModel.currentError?.errorDescription, onDismiss: {
             simulatorViewModel.shouldShowError = false
         })
     }

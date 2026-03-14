@@ -66,14 +66,12 @@ final class DBUseCaseImpl: DBUseCase {
     
     private func buildTable(name: String, columns: [String], types: [String], rows: [[String]], fileURL: URL) -> DBDataTable {
         let indicesToKeep = filterColumnIndices(columns: columns)
-        let fileSize = repository.getFileSize(at: fileURL)
-        
         return DBDataTable(
             name: name,
             columns: indicesToKeep.map { columns[$0] },
             rows: filteredRows(rows: rows, indicesToKeep: indicesToKeep),
             types: indicesToKeep.map { types[$0] },
-            fileSize: fileSize
+            fileSize: repository.getFileSize(at: fileURL)
         )
     }
     

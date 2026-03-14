@@ -14,7 +14,7 @@ protocol SearchRepository {
     func searchRows(with text: String, in tables: [DBDataTable]) -> [String]
 }
 
-class SearchRepositoryImpl: SearchRepository {
+final class SearchRepositoryImpl: SearchRepository {
     func searchDevices(with text: String, in devices: [SimulatorDevice]) -> [SimulatorDevice] {
         devices.filter { $0.name.lowercased().contains(text.lowercased()) }
     }

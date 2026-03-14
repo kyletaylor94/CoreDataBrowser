@@ -12,7 +12,7 @@ protocol SimulatorRepository {
     func readDevicePlist(at url: URL) throws -> [String : Any]
 }
 
-class SimulatorRepositoryImpl: SimulatorRepository {
+final class SimulatorRepositoryImpl: SimulatorRepository {
     private let fileManager: FileManager
     private let pathManager: PathManager
     

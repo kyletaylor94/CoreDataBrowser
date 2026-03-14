@@ -23,29 +23,12 @@ enum PathType: CaseIterable, Hashable {
             return (title: "UserDefaults Path", placeholder: PathConstants.libraryPreferencesPath)
         }
     }
-    
     func binding(from pathManager: PathManagerImpl) -> Binding<String> {
         switch self {
-        case .simulator:
-            return Binding(
-                get: { pathManager.simulatorPath },
-                set: { pathManager.simulatorPath = $0 }
-            )
-        case .coreData:
-            return Binding(
-                get: { pathManager.coreDataPath },
-                set: { pathManager.coreDataPath = $0 }
-            )
-        case .swiftData:
-            return Binding(
-                get: { pathManager.swiftDataPath },
-                set: { pathManager.swiftDataPath = $0 }
-            )
-        case .userDefaults:
-            return Binding(
-                get: { pathManager.userDefaultsPath },
-                set: { pathManager.userDefaultsPath = $0 }
-            )
+        case .simulator: return Binding.from(pathManager, keyPath: \.simulatorPath)
+        case .coreData: return Binding.from(pathManager, keyPath: \.coreDataPath)
+        case .swiftData: return Binding.from(pathManager, keyPath: \.swiftDataPath)
+        case .userDefaults: return Binding.from(pathManager, keyPath: \.userDefaultsPath)
         }
     }
 }

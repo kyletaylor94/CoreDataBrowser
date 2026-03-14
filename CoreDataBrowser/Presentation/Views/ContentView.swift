@@ -39,7 +39,12 @@ struct ContentView: View {
         } detail: {
             DBDetailSection()
         }
-        .appEnvironment(simulatorViewModel: simulatorViewModel, dbDataViewModel: dbDataViewModel, userDefaultsViewModel: userDefaultsViewModel, searchViewModel: searchViewModel)
+        .appEnvironment(
+            simulatorViewModel: simulatorViewModel,
+            dbDataViewModel: dbDataViewModel,
+            userDefaultsViewModel: userDefaultsViewModel,
+            searchViewModel: searchViewModel
+        )
         .navigationSplitViewColumnWidth(min: 340, ideal: 340, max: 340)
         .task { await refreshAllData() }
         .toolbar {
@@ -49,7 +54,7 @@ struct ContentView: View {
         .onReceive(NotificationCenter.default.publisher(for: .tableDidRefresh)) { notification in
             updateSelectedTables(notification: notification)
         }
-        .sheet(isPresented: pathManagerBinding) {
+        .sheet(isPresented: .from(pathManager, keyPath: \.isSheetPresented)) {
             AppFolderSheet(pathManager: pathManager)
         }
     }
@@ -94,12 +99,4 @@ private extension ContentView {
             }
         }
     }
-    
-    var pathManagerBinding: Binding<Bool> {
-        Binding(
-            get: { pathManager.isSheetPresented },
-            set: { pathManager.isSheetPresented = $0 }
-        )
-    }
 }
-

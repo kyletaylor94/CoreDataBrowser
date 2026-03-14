@@ -46,12 +46,11 @@ struct AppFolderSheet: View {
             }
         }
     }
-    
     var buttonSection: some View {
         HStack {
             Button("Reset to Defaults") {
                 focusedField = nil
-                pathManager.reset()
+                pathManager.resetPaths()
             }
             Spacer()
             Button("Cancel") {

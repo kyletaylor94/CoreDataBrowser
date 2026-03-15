@@ -75,7 +75,8 @@ final class UserDefaultsViewModel: TableRefreshable {
     
     func setLoadingStates() {
         isLoadingSheet = true
-        Task {
+        Task { [weak self] in
+            guard let self else { return }
             try? await Task.sleep(nanoseconds: 100_000_000)
             isLoadingSheet = false
             showDetailSheet = true

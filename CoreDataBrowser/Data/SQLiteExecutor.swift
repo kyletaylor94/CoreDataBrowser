@@ -81,7 +81,6 @@ final class SQLiteExecutor {
     func execute<T>(at databaseURL: URL, query: String, process: (OpaquePointer) -> T) -> T? {
         var db: OpaquePointer?
         var statement: OpaquePointer?
-        var result: T?
         
         guard sqlite3_open(databaseURL.path, &db) == SQLITE_OK,
               let db = db else {
@@ -89,14 +88,15 @@ final class SQLiteExecutor {
             return nil
         }
         
-        if sqlite3_prepare_v2(db, query, -1, &statement, nil) == SQLITE_OK,
-           let statement = statement {
-            result = process(statement)
-            sqlite3_finalize(statement)
-        }
+        defer { sqlite3_close(db) }
         
-        sqlite3_close(db)
-        return result
+        guard sqlite3_prepare_v2(db, query, -1, &statement, nil) == SQLITE_OK,
+               let statement = statement else {
+             return nil
+         }
+        
+        defer { sqlite3_finalize(statement) }
+        return process(statement)
     }
     
     /// Executes a given SQL query on the SQLite database located at the specified URL and processes multiple rows of results using a provided closure.

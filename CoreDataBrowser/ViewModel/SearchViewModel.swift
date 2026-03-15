@@ -13,6 +13,8 @@ import Observation
 @Observable
 class SearchViewModel {
     private var highlightCache: [String: Text] = [:]
+    private let cacheLimit = 100
+    
     var searchedSimulator: [SimulatorDevice] = []
     var searchedTables: [DBDataTable] = []
     var searchedColumns: [String] = []
@@ -38,6 +40,10 @@ class SearchViewModel {
         searchedTables = result.tables
         searchedColumns = result.columns
         searchedRows = result.rows
+        
+        if highlightCache.count > cacheLimit {
+            highlightCache.removeAll(keepingCapacity: true)
+        }
     }
     
     private func highlightAllMatches(in text: String) -> Text {

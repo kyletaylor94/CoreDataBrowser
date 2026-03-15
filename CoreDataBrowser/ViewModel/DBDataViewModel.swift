@@ -138,7 +138,8 @@ class DBDataViewModel {
         } else {
             isLoadingCoreDataSheet = true
         }
-        Task {
+        Task { [weak self] in
+            guard let self else { return }
             try? await Task.sleep(nanoseconds: 100_000_000)
             if isSwiftDataContent {
                 isLoadingSwiftDataSheet = false

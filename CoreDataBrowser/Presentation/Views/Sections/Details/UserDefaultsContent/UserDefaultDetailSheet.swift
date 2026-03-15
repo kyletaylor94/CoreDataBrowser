@@ -13,18 +13,25 @@ struct UserDefaultDetailSheet: View {
     @Environment(\.dismiss) var dismiss
     
     var body: some View {
-        NavigationStack {
-            ScrollView {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Value")
+                    .font(.headline)
                 Text(value)
                     .textSelection(.enabled)
                     .padding()
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color.secondary.opacity(0.1))
+                    .cornerRadius(8)
             }
-            .navigationTitle("Value")
-            .toolbar { doneButton() }
+            .padding()
         }
+        .navigationTitle("Value Details")
+        .toolbar { toolBarButton }
     }
+    
     @ToolbarContentBuilder
-    private func doneButton() -> some ToolbarContent {
+    var toolBarButton: some ToolbarContent {
         ToolbarItem(placement: .confirmationAction) {
             Button("Done") {
                 dismiss()

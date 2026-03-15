@@ -6,8 +6,19 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXContainerItemProxy section */
+		98F31A702F67409D0053A431 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 985280C22EB2A0A700F61A81 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 985280C92EB2A0A700F61A81;
+			remoteInfo = CoreDataBrowser;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		985280CA2EB2A0A700F61A81 /* CoreDataBrowser.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CoreDataBrowser.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		98F31A6C2F67409D0053A431 /* CoreDataBrowserTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CoreDataBrowserTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -16,10 +27,22 @@
 			path = CoreDataBrowser;
 			sourceTree = "<group>";
 		};
+		98F31A6D2F67409D0053A431 /* CoreDataBrowserTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = CoreDataBrowserTests;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		985280C72EB2A0A700F61A81 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		98F31A692F67409D0053A431 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -33,6 +56,7 @@
 			isa = PBXGroup;
 			children = (
 				985280CC2EB2A0A700F61A81 /* CoreDataBrowser */,
+				98F31A6D2F67409D0053A431 /* CoreDataBrowserTests */,
 				985280CB2EB2A0A700F61A81 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -41,6 +65,7 @@
 			isa = PBXGroup;
 			children = (
 				985280CA2EB2A0A700F61A81 /* CoreDataBrowser.app */,
+				98F31A6C2F67409D0053A431 /* CoreDataBrowserTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -70,6 +95,29 @@
 			productReference = 985280CA2EB2A0A700F61A81 /* CoreDataBrowser.app */;
 			productType = "com.apple.product-type.application";
 		};
+		98F31A6B2F67409D0053A431 /* CoreDataBrowserTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 98F31A742F67409D0053A431 /* Build configuration list for PBXNativeTarget "CoreDataBrowserTests" */;
+			buildPhases = (
+				98F31A682F67409D0053A431 /* Sources */,
+				98F31A692F67409D0053A431 /* Frameworks */,
+				98F31A6A2F67409D0053A431 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				98F31A712F67409D0053A431 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				98F31A6D2F67409D0053A431 /* CoreDataBrowserTests */,
+			);
+			name = CoreDataBrowserTests;
+			packageProductDependencies = (
+			);
+			productName = CoreDataBrowserTests;
+			productReference = 98F31A6C2F67409D0053A431 /* CoreDataBrowserTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -77,11 +125,15 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 2600;
+				LastSwiftUpdateCheck = 2630;
 				LastUpgradeCheck = 2630;
 				TargetAttributes = {
 					985280C92EB2A0A700F61A81 = {
 						CreatedOnToolsVersion = 26.0.1;
+					};
+					98F31A6B2F67409D0053A431 = {
+						CreatedOnToolsVersion = 26.3;
+						TestTargetID = 985280C92EB2A0A700F61A81;
 					};
 				};
 			};
@@ -100,12 +152,20 @@
 			projectRoot = "";
 			targets = (
 				985280C92EB2A0A700F61A81 /* CoreDataBrowser */,
+				98F31A6B2F67409D0053A431 /* CoreDataBrowserTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		985280C82EB2A0A700F61A81 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		98F31A6A2F67409D0053A431 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -122,7 +182,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		98F31A682F67409D0053A431 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		98F31A712F67409D0053A431 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 985280C92EB2A0A700F61A81 /* CoreDataBrowser */;
+			targetProxy = 98F31A702F67409D0053A431 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		985280D32EB2A0A900F61A81 /* Debug */ = {
@@ -313,6 +388,48 @@
 			};
 			name = Release;
 		};
+		98F31A722F67409D0053A431 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = KB835FKYB4;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.csaba.turdesan.CoreDataBrowserTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/CoreDataBrowser.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/CoreDataBrowser";
+			};
+			name = Debug;
+		};
+		98F31A732F67409D0053A431 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = KB835FKYB4;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.csaba.turdesan.CoreDataBrowserTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/CoreDataBrowser.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/CoreDataBrowser";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -330,6 +447,15 @@
 			buildConfigurations = (
 				985280D62EB2A0A900F61A81 /* Debug */,
 				985280D72EB2A0A900F61A81 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		98F31A742F67409D0053A431 /* Build configuration list for PBXNativeTarget "CoreDataBrowserTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				98F31A722F67409D0053A431 /* Debug */,
+				98F31A732F67409D0053A431 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

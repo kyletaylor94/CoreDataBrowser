@@ -53,18 +53,42 @@ class DBDataViewModel {
         refreshSwiftDataTables()
     }
     
-    /// Loads the simulator apps for a given device. This method sets the `isLoading` flag to true while loading and uses the provided `useCase` to execute the loading of CoreData tables for the specified device. After the loading process is complete, it updates the `coreDataTables` property with the loaded data and resets the `isLoading` flag to false.
-    /// - Parameter device: The `SimulatorDevice` for which to load the simulator apps.
+
     func loadSimulatorApps(for device: SimulatorDevice) {
         isLoading = true
         defer { isLoading = false }
-        coreDataTables = useCase.executeCoreData(for: device)
+        
+        do {
+            coreDataTables = try useCase.executeCoreData(for: device)
+            hasError = false
+            error = nil
+        } catch let dbError as DBError {
+            hasError = true
+            error = dbError
+            coreDataTables = []
+        } catch {
+            hasError = true
+            self.error = .queryFailed("Unknown error: \(error.localizedDescription)")
+            coreDataTables = []
+        }
     }
     
     func loadSwiftData(for device: SimulatorDevice) {
         isLoadingSwiftData = true
         defer { isLoadingSwiftData = false }
-        swiftDataTables = useCase.executeSwiftData(for: device)
+        do {
+            swiftDataTables = try useCase.executeSwiftData(for: device)
+            hasError = false
+            error = nil
+        } catch let dbError as DBError {
+            hasError = true
+            error = dbError
+            swiftDataTables = []
+        } catch {
+            hasError = true
+            self.error = .queryFailed("Unknown error: \(error.localizedDescription)")
+            swiftDataTables = []
+        }
     }
     
     func refreshCoreDataTables() {

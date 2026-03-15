@@ -30,10 +30,7 @@ final class SimulatorRepositoryImpl: SimulatorRepository {
             .appendingPathComponent(pathManager.simulatorPath)
         
         do {
-            let contents = try fileManager.contentsOfDirectory(
-                at: basePath,
-                includingPropertiesForKeys: nil
-            )
+            let contents = try fileManager.contentsOfDirectory(at: basePath, includingPropertiesForKeys: nil)
             
             return contents.filter { url in
                 let plistURL = url.appendingPathComponent(PathConstants.devicePlist)
@@ -51,11 +48,7 @@ final class SimulatorRepositoryImpl: SimulatorRepository {
         let plistURL = url.appendingPathComponent(PathConstants.devicePlist)
         do {
             let data = try Data(contentsOf: plistURL)
-            let plist = try PropertyListSerialization.propertyList(
-                from: data,
-                options: [],
-                format: nil
-            )
+            let plist = try PropertyListSerialization.propertyList(from: data,options: [],format: nil)
             
             guard let dict = plist as? [String: Any] else {
                 throw SimulatorError.invalidPlistFormat

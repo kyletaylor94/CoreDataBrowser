@@ -12,7 +12,7 @@ import Observation
 @MainActor
 @Observable
 class SearchViewModel {
-    var searchedText: String = ""
+    private var highlightCache: [String: Text] = [:]
     var searchedSimulator: [SimulatorDevice] = []
     var searchedTables: [DBDataTable] = []
     var searchedColumns: [String] = []
@@ -22,6 +22,12 @@ class SearchViewModel {
     
     init(useCase: SearchUseCase) {
         self.useCase = useCase
+    }
+    
+    var searchedText: String = "" {
+        didSet {
+            highlightCache.removeAll()
+        }
     }
     
     /// Executes the search based on the current `searchedText` and updates the results.
@@ -34,18 +40,30 @@ class SearchViewModel {
         searchedRows = result.rows
     }
     
-    /// Highlights the matched text in the given string using `AttributedString`.
-    /// - Parameter text: The original text to search within.
-    /// - Returns: A `Text` view with the matched text highlighted.
-    /// - Note: This function uses `AttributedString` to apply background and foreground colors to the matched text. It performs a case-insensitive search and highlights the first occurrence of the `searchedText` within the provided `text`.
-    func highlightMatch(in text: String) -> Text {
+    private func highlightAllMatches(in text: String) -> Text {
         guard !searchedText.isEmpty else { return Text(text) }
         var attributed = AttributedString(text)
+        var searchIndex = attributed.startIndex
         
-        if let range = attributed.range(of: searchedText, options: [.caseInsensitive]) {
-            attributed[range].backgroundColor = .yellow
-            attributed[range].foregroundColor = .black
+        while searchIndex < attributed.endIndex {
+            if let range = attributed[searchIndex...].range(of: searchedText.lowercased(),options: [.caseInsensitive]) {
+                attributed[range].backgroundColor = .yellow
+                attributed[range].foregroundColor = .black
+                searchIndex = range.upperBound
+            } else {
+                break
+            }
         }
         return Text(attributed)
+    }
+    
+    func highlightMatch(in text: String) -> Text {
+        if let cached = highlightCache[text] {
+            return cached
+        }
+        
+        let highlighted = highlightAllMatches(in: text)
+        highlightCache[text] = highlighted
+        return highlighted
     }
 }

@@ -51,7 +51,12 @@ struct ContentView: View {
             searchViewModel: searchViewModel
         )
         .navigationSplitViewColumnWidth(min: 340, ideal: 340, max: 340)
-        .task { await refreshAllData() }
+        .task {
+            if isLoadingRefresh {
+                return
+            }
+            await refreshAllData()
+        }
         .toolbar {
             toolBarButton(placement: .navigation, icon: "arrow.trianglehead.2.clockwise") { Task { await refreshAllData() } }
             toolBarButton(placement: .primaryAction, icon: "gearshape") { pathManager.isSheetPresented.toggle() }

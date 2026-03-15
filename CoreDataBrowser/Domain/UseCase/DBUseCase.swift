@@ -8,8 +8,8 @@
 import Foundation
 
 protocol DBUseCase {
-    func executeCoreData(for device: SimulatorDevice) -> [DBDataTable]
-    func executeSwiftData(for device: SimulatorDevice) -> [DBDataTable]
+    func executeCoreData(for device: SimulatorDevice) throws -> [DBDataTable]
+    func executeSwiftData(for device: SimulatorDevice) throws -> [DBDataTable]
 }
 
 final class DBUseCaseImpl: DBUseCase {
@@ -19,31 +19,33 @@ final class DBUseCaseImpl: DBUseCase {
         self.repository = repository
     }
     
-    /// Executes the use case for Core Data databases, fetching tables and their content without executing a checkpoint.
-    /// - Parameter device: The simulator device for which to fetch the Core Data tables.
-    /// - Returns: An array of `DBDataTable` representing the tables found in the Core Data databases of the specified device.
-    /// - Note: Core Data databases do not require a checkpoint execution before fetching tables and their content, as they are typically in a consistent state when accessed.
-    func executeCoreData(for device: SimulatorDevice) -> [DBDataTable] {
-        fetchTables(for: device, fileExtension: DatabaseConstants.sqlite, shouldExecuteCheckpoint: false)
+   
+    /// Executes the fetching of Core Data database tables for a given simulator device by invoking the `fetchTables` method with the appropriate parameters, including the file extension for SQLite databases and the flag to skip checkpoint execution, which is not necessary for Core Data databases.
+    /// - Parameter device: The `SimulatorDevice` for which to fetch the Core Data database
+    /// - Returns: An array of `DBDataTable` instances representing the fetched Core Data database tables, with filtered columns and rows based on predefined exclusion criteria, providing a structured representation of the relevant data from the Core Data databases.
+    /// - Throws: An error if there are issues fetching the database tables, such as problems accessing the database files or executing checkpoints.
+    func executeCoreData(for device: SimulatorDevice) throws -> [DBDataTable] {
+        try fetchTables(for: device, fileExtension: DatabaseConstants.sqlite, shouldExecuteCheckpoint: false)
     }
     
-    /// Executes the use case for SwiftData databases, fetching tables and their content while executing a checkpoint to ensure data consistency.
-    /// - Parameter device: The simulator device for which to fetch the SwiftData tables.
-    /// - Returns: An array of `DBDataTable` representing the tables found in the
-    /// - Note: The checkpoint execution is necessary for SwiftData databases to ensure that the data is in a consistent state before fetching the tables and their content.
-    func executeSwiftData(for device: SimulatorDevice) -> [DBDataTable] {
-        fetchTables(for: device, fileExtension: DatabaseConstants.store, shouldExecuteCheckpoint: true)
+    
+    /// Executes the fetching of SwiftData database tables for a given simulator device by invoking the `fetchTables` method with the appropriate parameters, including the file extension for SwiftData databases and the flag to execute checkpoints, which is necessary to ensure data consistency when working with SwiftData databases.
+    /// - Parameter device: The `SimulatorDevice` for which to fetch the SwiftData database
+    /// - Returns: An array of `DBDataTable` instances representing the fetched SwiftData database tables, with filtered columns and rows based on predefined exclusion criteria, providing a structured representation of the relevant data from the SwiftData databases.
+    /// - Throws: An error if there are issues fetching the database tables, such as problems accessing the database files or executing checkpoints.
+    func executeSwiftData(for device: SimulatorDevice) throws -> [DBDataTable] {
+       try fetchTables(for: device, fileExtension: DatabaseConstants.store, shouldExecuteCheckpoint: true)
     }
     
-    /// Fetches tables from the specified device based on the provided file extension and checkpoint execution flag.
+    /// Fetches database tables for a given simulator device based on the specified file extension and checkpoint execution flag. The method retrieves database files, optionally executes checkpoints, and constructs `DBDataTable` instances while filtering out unwanted tables and columns based on predefined criteria.
     /// - Parameters:
-    ///   - device: The simulator device from which to fetch the tables.
-    ///   - fileExtension: The file extension to filter the database files (e.g.,sqlite for Core Data, .store for SwiftData).
-    ///   - shouldExecuteCheckpoint: A boolean flag indicating whether to execute a checkpoint before fetching the tables (true for SwiftData, false for Core Data).
-    ///   - Returns: An array of `DBDataTable` representing the tables found in the specified device based on the given criteria.
-    private func fetchTables(for device: SimulatorDevice, fileExtension: String, shouldExecuteCheckpoint: Bool) -> [DBDataTable] {
+    /// - device: The `SimulatorDevice` for which to fetch the database tables.
+    /// - fileExtension: The file extension to filter the database files.
+    /// - shouldExecuteCheckpoint: A boolean flag indicating whether to execute a checkpoint on the database files before fetching the tables, which is necessary for SwiftData databases to ensure data consistency.
+    /// - Returns: An array of `DBDataTable` instances representing the fetched database tables, with filtered columns and rows based on predefined exclusion criteria, providing a structured representation of the relevant data
+    private func fetchTables(for device: SimulatorDevice, fileExtension: String, shouldExecuteCheckpoint: Bool) throws -> [DBDataTable] {
         var tables: [DBDataTable] = []
-        let databaseFiles = repository.getDatabaseFiles(for: device, fileExtension: fileExtension)
+        let databaseFiles = try repository.getDatabaseFiles(for: device, fileExtension: fileExtension)
         
         for file in databaseFiles {
             if shouldExecuteCheckpoint {
@@ -68,6 +70,7 @@ final class DBUseCaseImpl: DBUseCase {
                 }
             }
         }
+        
         return tables
     }
     

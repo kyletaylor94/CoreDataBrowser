@@ -8,7 +8,7 @@
 import Foundation
 
 protocol DBRepository {
-    func getDatabaseFiles(for device: SimulatorDevice, fileExtension: String) -> [URL]
+    func getDatabaseFiles(for device: SimulatorDevice, fileExtension: String) throws -> [URL]
     func getTableNames(from databaseURL: URL) -> [String]
     func getTableContent(from databaseURL: URL, table: String, limit: Int) -> (columns: [String], types: [String], rows: [[String]])
     func getFileSize(at url: URL) -> Int64
@@ -26,29 +26,30 @@ final class DBRepositoryImpl: DBRepository {
         self.sqliteExecutor = sqliteExecutor
     }
     
-    /// Retrieves database files for a given simulator device based on the specified file extension (e.g., "sqlite" for Core Data or "store" for SwiftData).
+    /// Retrieves the database files for a given simulator device based on the specified file extension.
     /// - Parameters:
-    ///  - device: The `SimulatorDevice` for which to retrieve database files.
-    ///  - fileExtension: The file extension to filter database files (e.g., "sqlite" or "store").
-    /// - Returns: An array of `URL` objects representing the paths to the database files found within the specified simulator device's app directories.
-    /// - Note: The method constructs the paths to the app directories within the simulator device's file structure and searches for database files in both the "Documents" and "Library" subdirectories, depending on the specified file extension. It uses a helper method `findDataStores` to perform the actual search for files with the given extension.
-    func getDatabaseFiles(for device: SimulatorDevice, fileExtension: String) -> [URL] {
+    /// - device: The `SimulatorDevice` for which to retrieve database files.
+    /// - fileExtension: The file extension to filter database files
+    /// - Returns: An array of `URL` objects representing the paths to the database files found for the specified simulator device. The method constructs the path to the simulator's apps directory, iterates through each app folder, and searches for database files in both the Documents and Library directories based on the provided file extension. If any issues arise while accessing the apps directory or reading its contents, a `DBError.cannotLoadApps` error is thrown with the relevant path information.
+    func getDatabaseFiles(for device: SimulatorDevice, fileExtension: String) throws -> [URL] {
         let appsPath = device.path.appendingPathComponent(PathConstants.simulatorAppsPath)
-        guard let appFolders = try? fileManager.contentsOfDirectory(at: appsPath, includingPropertiesForKeys: nil) else {
-            return []
+        let appFolders: [URL]
+        
+        do {
+            appFolders = try fileManager.contentsOfDirectory(at: appsPath, includingPropertiesForKeys: nil)
+            let dataPath = fileExtension == DatabaseConstants.store ? pathManager.swiftDataPath : pathManager.coreDataPath
+            var allFiles: [URL] = []
+            
+            for appFolder in appFolders {
+                let appDataPath = appFolder.appendingPathComponent(DatabaseConstants.documents)
+                let libraryPath = appFolder.appendingPathComponent(dataPath)
+                let files = findDataStores(in: [appDataPath, libraryPath], withExtension: fileExtension)
+                allFiles.append(contentsOf: files)
+            }
+            return allFiles
+        } catch {
+            throw DBError.cannotLoadApps(appsPath)
         }
-        
-        let dataPath = fileExtension == DatabaseConstants.store ? pathManager.swiftDataPath : pathManager.coreDataPath
-        var allFiles: [URL] = []
-        
-        for appFolder in appFolders {
-            let appDataPath = appFolder.appendingPathComponent(DatabaseConstants.documents)
-            let libraryPath = appFolder.appendingPathComponent(dataPath)
-            let files = findDataStores(in: [appDataPath, libraryPath], withExtension: fileExtension)
-            allFiles.append(contentsOf: files)
-        }
-        
-        return allFiles
     }
     
     /// Retrieves the names of all tables in the specified database.

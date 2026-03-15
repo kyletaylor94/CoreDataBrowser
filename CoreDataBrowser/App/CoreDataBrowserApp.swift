@@ -9,9 +9,10 @@ import SwiftUI
 
 @main
 struct CoreDataBrowserApp: App {
+    private let container = DIContainer()
     var body: some Scene {
         WindowGroup {
-            DIContainer.shared.makeContentView()
+            container.makeContentView()
         }
     }
 }

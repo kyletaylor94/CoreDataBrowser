@@ -7,10 +7,7 @@
 
 import Foundation
 
-@MainActor
 final class DIContainer {
-    static let shared = DIContainer()
-    
     private lazy var fileManager = FileManager.default
     private lazy var pathManagerImpl = PathManagerImpl(fileManager: fileManager)
     private let blobDecoder = BlobDecoder()
@@ -19,7 +16,7 @@ final class DIContainer {
     var pathManager: PathManager {
         pathManagerImpl
     }
-    
+  
     func makeContentView() -> ContentView {
         ContentView(
             simulatorViewModel: makeSimulatorViewModel(),

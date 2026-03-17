@@ -78,70 +78,70 @@ struct SimulatorRepositoryTests {
     
     
     @Test("readDevicePlist throws error for invalid plist format")
-     func readDevicePlistThrowsErrorForInvalidFormat() throws {
-         let mockFileManager = MockFileManager()
-         let mockPathManager = MockPathManager()
-         
-         let deviceDir = URL(fileURLWithPath: "/Users/test/device1")
-         
-         mockFileManager.plistData = try PropertyListSerialization.data(fromPropertyList: ["item1", "item2"], format: .xml, options: 0)
-         
-         let repository = TestableSimulatorRepository(
-             fileManager: mockFileManager,
-             pathManager: mockPathManager,
-             dataLoader: { _ in
-                 guard let data = mockFileManager.plistData else {
-                     throw NSError(domain: "test", code: -1)
-                 }
-                 return data
-             }
-         )
-         
-         do {
-             _ = try repository.readDevicePlist(at: deviceDir)
-             Issue.record("Expected invalidPlistFormat error")
-         } catch let error as SimulatorError {
-             switch error {
-             case .invalidPlistFormat:
-                 break
-             default:
-                 Issue.record("Unexpected error type: \(error)")
-             }
-         }
-     }
-     
-     @Test("readDevicePlist throws error when plist file does not exist")
-     func readDevicePlistThrowsErrorWhenFileNotExists() throws {
-         let mockFileManager = MockFileManager()
-         let mockPathManager = MockPathManager()
-         
-         let deviceDir = URL(fileURLWithPath: "/Users/test/nonexistent")
-         
-         mockFileManager.shouldThrowDataError = true
-         
-         let repository = TestableSimulatorRepository(
-             fileManager: mockFileManager,
-             pathManager: mockPathManager,
-             dataLoader: { _ in
-                 if mockFileManager.shouldThrowDataError {
-                     throw NSError(domain: "test", code: -1)
-                 }
-                 throw NSError(domain: "test", code: -1)
-             }
-         )
-         
-         do {
-             _ = try repository.readDevicePlist(at: deviceDir)
-             Issue.record("Expected cannotReadPlist error")
-         } catch let error as SimulatorError {
-             switch error {
-             case .cannotReadPlist:
-                 break
-             default:
-                 Issue.record("Unexpected error type: \(error)")
-             }
-         }
-     }
+    func readDevicePlistThrowsErrorForInvalidFormat() throws {
+        let mockFileManager = MockFileManager()
+        let mockPathManager = MockPathManager()
+        
+        let deviceDir = URL(fileURLWithPath: "/Users/test/device1")
+        
+        mockFileManager.plistData = try PropertyListSerialization.data(fromPropertyList: ["item1", "item2"], format: .xml, options: 0)
+        
+        let repository = TestableSimulatorRepository(
+            fileManager: mockFileManager,
+            pathManager: mockPathManager,
+            dataLoader: { _ in
+                guard let data = mockFileManager.plistData else {
+                    throw NSError(domain: "test", code: -1)
+                }
+                return data
+            }
+        )
+        
+        do {
+            _ = try repository.readDevicePlist(at: deviceDir)
+            Issue.record("Expected invalidPlistFormat error")
+        } catch let error as SimulatorError {
+            switch error {
+            case .invalidPlistFormat:
+                break
+            default:
+                Issue.record("Unexpected error type: \(error)")
+            }
+        }
+    }
+    
+    @Test("readDevicePlist throws error when plist file does not exist")
+    func readDevicePlistThrowsErrorWhenFileNotExists() throws {
+        let mockFileManager = MockFileManager()
+        let mockPathManager = MockPathManager()
+        
+        let deviceDir = URL(fileURLWithPath: "/Users/test/nonexistent")
+        
+        mockFileManager.shouldThrowDataError = true
+        
+        let repository = TestableSimulatorRepository(
+            fileManager: mockFileManager,
+            pathManager: mockPathManager,
+            dataLoader: { _ in
+                if mockFileManager.shouldThrowDataError {
+                    throw NSError(domain: "test", code: -1)
+                }
+                throw NSError(domain: "test", code: -1)
+            }
+        )
+        
+        do {
+            _ = try repository.readDevicePlist(at: deviceDir)
+            Issue.record("Expected cannotReadPlist error")
+        } catch let error as SimulatorError {
+            switch error {
+            case .cannotReadPlist:
+                break
+            default:
+                Issue.record("Unexpected error type: \(error)")
+            }
+        }
+    }
     
     @Test("readDevicePlist successfully reads valid plist")
     func readDevicePlistReadsValidPlist() throws {
@@ -178,6 +178,8 @@ final class MockFileManager: FileManager {
     var shouldThrowError = false
     var shouldThrowDataError = false
     var plistData: Data?
+    var mockDirectoryContents: [URL: [URL]] = [:]
+    
     
     override var homeDirectoryForCurrentUser: URL {
         return URL(fileURLWithPath: "/Users/test")
@@ -186,6 +188,10 @@ final class MockFileManager: FileManager {
     override func contentsOfDirectory(at url: URL, includingPropertiesForKeys keys: [URLResourceKey]?, options mask: FileManager.DirectoryEnumerationOptions = []) throws -> [URL] {
         if shouldThrowError {
             throw NSError(domain: "test", code: -1)
+        }
+        
+        if let contents = mockDirectoryContents[url] {
+            return contents
         }
         return mockContents
     }

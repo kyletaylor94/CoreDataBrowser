@@ -23,21 +23,36 @@ final class SimulatorRepositoryImpl: SimulatorRepository {
     
     /// Retrieves the directories of all simulators by accessing the CoreSimulator devices folder.
     /// - Returns: An array of `URL` objects representing the directories of each simulator device
-    /// - Throws: `SimulatorError` if there are issues accessing the devices folder or if the expected plist file is missing.
-    /// - Note: The method filters the contents of the devices folder to include only those directories that contain a valid `device.plist` file, ensuring that only actual simulator devices are processed.
+    /// - Throws: `SimulatorError` if there are issues accessing the devices folder, if the user has not (yet) granted access, or if the expected plist file is missing.
+    /// - Note: Access to the Simulator "Devices" folder is granted by the user via a security-scoped bookmark (`PathManager.resolveSimulatorRootURL()`), which is required under App Sandbox. On first launch, or whenever access hasn't been granted yet, the user is prompted automatically to select the folder. The method then filters the contents of the folder to include only those directories that contain a valid `device.plist` file, ensuring that only actual simulator devices are processed.
     func getDeviceDirectories() throws -> [URL] {
-        let basePath = fileManager.homeDirectoryForCurrentUser
-            .appendingPathComponent(pathManager.simulatorPath)
-        
+        let basePath: URL
         do {
-            let contents = try fileManager.contentsOfDirectory(at: basePath, includingPropertiesForKeys: nil)
-            
-            return contents.filter { url in
-                let plistURL = url.appendingPathComponent(PathConstants.devicePlist)
-                return fileManager.fileExists(atPath: plistURL.path)
-            }
+            basePath = try pathManager.resolveSimulatorRootURL()
+        } catch let error as SimulatorError {
+            throw error
         } catch {
             throw SimulatorError.cannotAccessDevicesFolder(underlyingError: error)
+        }
+
+        do {
+            let contents = try fileManager.contentsOfDirectory(
+                at: basePath,
+                includingPropertiesForKeys: nil
+            )
+
+            return contents.filter { url in
+                let plistURL = url.appendingPathComponent(
+                    PathConstants.devicePlist
+                )
+
+                return fileManager.fileExists(atPath: plistURL.path)
+            }
+
+        } catch {
+            throw SimulatorError.cannotAccessDevicesFolder(
+                underlyingError: error
+            )
         }
     }
     

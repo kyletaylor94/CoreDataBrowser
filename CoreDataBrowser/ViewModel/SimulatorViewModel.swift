@@ -28,6 +28,8 @@ class SimulatorViewModel {
     /// - Note: The `defer` statement ensures that the `isLoading` flag is reset to false regardless of whether the loading succeeds or fails.
     func loadSimulators() async {
         isLoading = true
+        currentError = nil
+        shouldShowError = false
         defer { isLoading = false }
         
         do {

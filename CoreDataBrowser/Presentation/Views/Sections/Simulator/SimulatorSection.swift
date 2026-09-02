@@ -15,6 +15,16 @@ struct SimulatorSection: View {
     var body: some View {
         if simulatorViewModel.isLoading {
             ProgressView()
+        } else if simulatorViewModel.devices.isEmpty, let error = simulatorViewModel.currentError {
+            ContentUnavailableView {
+                Label("Simulator Access Needed", systemImage: "lock.fill")
+            } description: {
+                Text(error.errorDescription ?? "An unknown error occurred.")
+            } actions: {
+                Button("Grant Access") {
+                    Task { await simulatorViewModel.loadSimulators() }
+                }
+            }
         } else if simulatorViewModel.devices.isEmpty && !simulatorViewModel.isLoading {
             ContentUnavailableView(
                 "No Simulators Found",

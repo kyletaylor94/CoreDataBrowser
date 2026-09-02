@@ -55,6 +55,11 @@ struct ContentView: View {
             if isLoadingRefresh {
                 return
             }
+            // Give the window a moment to become key/visible before we potentially
+            // present the Simulator "Devices" folder access panel (NSOpenPanel).
+            // Presenting it too early (before the window is on screen) can cause it
+            // to be dismissed immediately without the user ever seeing it.
+            try? await Task.sleep(for: .milliseconds(300))
             await refreshAllData()
         }
         .toolbar {
@@ -67,6 +72,11 @@ struct ContentView: View {
         .sheet(isPresented: .from(pathManager, keyPath: \.isSheetPresented)) {
             AppFolderSheet(pathManager: pathManager)
         }
+        .createAlert(
+            isPresented: .from(simulatorViewModel, keyPath: \.shouldShowError),
+            errorMessage: simulatorViewModel.currentError?.errorDescription,
+            onDismiss: { simulatorViewModel.shouldShowError = false }
+        )
     }
 }
 private extension ContentView {

@@ -39,7 +39,11 @@ struct AppFolderSheet: View {
                     .textFieldStyle(.roundedBorder)
                     .focused($focusedField, equals: field)
                 Button {
-                    pathManager.selectFolder(for: text)
+                    if field == .simulator {
+                        pathManager.selectSimulatorFolder(for: text)
+                    } else {
+                        pathManager.selectFolder(for: text)
+                    }
                 } label: {
                     Image(systemName: "folder")
                 }

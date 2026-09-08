@@ -19,52 +19,27 @@ struct AppFolderSheet: View {
             
             VStack(spacing: 16) {
                 ForEach(PathType.allCases, id: \.self) { pathType in
-                    pathRow(title: pathType.attributes.title, placeholder: pathType.attributes.placeholder, text: pathType.binding(from: pathManager), field: pathType)
+                    PathRow(pathManager: pathManager, text: pathType.binding(from: pathManager), title: pathType.attributes.title, placeholder: pathType.attributes.placeholder, field: pathType)
                 }
             }
-           buttonSection
+           //MARK: - Button sections
+            HStack {
+                Button("Reset to Defaults") {
+                    focusedField = nil
+                    pathManager.resetPaths()
+                }
+                Spacer()
+                Button("Cancel") {
+                    pathManager.isSheetPresented = false
+                }
+                .keyboardShortcut(.cancelAction)
+                Button("Save") {
+                    pathManager.isSheetPresented = false
+                }
+                .keyboardShortcut(.defaultAction)
+            }
         }
         .padding()
         .frame(width: 500)
-    }
-    @ViewBuilder
-    private func pathRow(title: String, placeholder: String, text: Binding<String>, field: PathType) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(title)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            
-            HStack {
-                TextField(placeholder, text: text)
-                    .textFieldStyle(.roundedBorder)
-                    .focused($focusedField, equals: field)
-                Button {
-                    if field == .simulator {
-                        pathManager.selectSimulatorFolder(for: text)
-                    } else {
-                        pathManager.selectFolder(for: text)
-                    }
-                } label: {
-                    Image(systemName: "folder")
-                }
-            }
-        }
-    }
-    var buttonSection: some View {
-        HStack {
-            Button("Reset to Defaults") {
-                focusedField = nil
-                pathManager.resetPaths()
-            }
-            Spacer()
-            Button("Cancel") {
-                pathManager.isSheetPresented = false
-            }
-            .keyboardShortcut(.cancelAction)
-            Button("Save") {
-                pathManager.isSheetPresented = false
-            }
-            .keyboardShortcut(.defaultAction)
-        }
     }
 }

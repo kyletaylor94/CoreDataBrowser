@@ -28,7 +28,7 @@ struct UserDefaultsTableView: View {
         }
         .overlay {
             if userDefaultsViewModel.isLoadingSheet {
-                createModifiedProgressView()
+                ModifiedProgressView()
             }
         }
         .sheet(isPresented: Binding.from(userDefaultsViewModel, keyPath: \.showDetailSheet)) {

@@ -36,16 +36,9 @@ final class SimulatorRepositoryImpl: SimulatorRepository {
         }
 
         do {
-            let contents = try fileManager.contentsOfDirectory(
-                at: basePath,
-                includingPropertiesForKeys: nil
-            )
-
+            let contents = try fileManager.contentsOfDirectory(at: basePath, includingPropertiesForKeys: nil)
             return contents.filter { url in
-                let plistURL = url.appendingPathComponent(
-                    PathConstants.devicePlist
-                )
-
+                let plistURL = url.appendingPathComponent(PathConstants.devicePlist)
                 return fileManager.fileExists(atPath: plistURL.path)
             }
 

@@ -30,7 +30,7 @@ struct DBDetailsView: View {
         }
         .overlay {
             if dbDataViewModel.checkIsSwiftDataContent(isSwiftDataContent: isSwiftDataContent) {
-                createModifiedProgressView()
+                ModifiedProgressView()
             }
         }
         .sheet(isPresented: Binding.from(dbDataViewModel, keyPath: \.isMoreDetailSheetPresented)) {

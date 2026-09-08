@@ -10,9 +10,10 @@ import Foundation
 protocol DBRepository {
     func getDatabaseFiles(for device: SimulatorDevice, fileExtension: String) throws -> [URL]
     func getTableNames(from databaseURL: URL) -> [String]
-    func getTableContent(from databaseURL: URL, table: String, limit: Int) -> (columns: [String], types: [String], rows: [[String]])
+    func getTableContent(from databaseURL: URL, table: String, limit: Int) -> (columns: [String], types: [String], rows: [[String]], nullability: [Bool])
     func getFileSize(at url: URL) -> Int64
     func executeCheckpoint(at url: URL)
+    func getForeignKeys(from databaseURL: URL, table: String) -> [DBForeignKey]
 }
 
 final class DBRepositoryImpl: DBRepository {
@@ -65,10 +66,11 @@ final class DBRepositoryImpl: DBRepository {
     ///   - table: The name of the table for which to retrieve content.
     ///   - limit: The maximum number of rows to retrieve from the table.
     ///   - Returns: A tuple containing three elements: an array of `String` representing the column names, an array of `String` representing the data types of each column, and a two-dimensional array of `String` representing the rows of data retrieved from the specified table. The method uses the `sqliteExecutor` to execute queries that fetch both the column information and the actual data rows, ensuring that it can handle any SQLite database file provided as input.
-    func getTableContent(from databaseURL: URL, table: String, limit: Int) -> (columns: [String], types: [String], rows: [[String]]) {
+    func getTableContent(from databaseURL: URL, table: String, limit: Int) -> (columns: [String], types: [String], rows: [[String]], nullability: [Bool]) {
         let (columns, types) = sqliteExecutor.fetchColumnsWithTypes(databaseURL: databaseURL, table: table)
+        let nullability = sqliteExecutor.fetchColumnNullability(databaseURL: databaseURL, table: table)
         let rows = sqliteExecutor.fetchRows(at: databaseURL, query: DatabaseConstants.databaseContentQuery(table: table, limit: limit))
-        return (columns, types, rows)
+        return (columns, types, rows, nullability)
     }
     
     /// Retrieves the file size of the specified database file.
@@ -82,6 +84,16 @@ final class DBRepositoryImpl: DBRepository {
     /// - Parameter url: The `URL` of the database file on which to execute the checkpoint. The method uses the `sqliteExecutor` to execute a checkpoint query on the specified database file, ensuring that it can handle any SQLite database file provided as input and performs the necessary operations to maintain the integrity of the database.
     func executeCheckpoint(at url: URL) {
         _ = sqliteExecutor.execute(at: url, query: DatabaseConstants.walCheckpointQuery) { _ in }
+    }
+    
+    /// Retrieves the foreign key constraints defined on a specified table, which describe the relationships
+    /// between Core Data entity tables (e.g. a to-one relationship column referencing another entity's primary key).
+    /// - Parameters:
+    ///  - databaseURL: The `URL` of the database file from which to fetch foreign key constraints.
+    ///  - table: The name of the table for which to retrieve foreign key constraints.
+    /// - Returns: An array of `DBForeignKey` describing each foreign key constraint found on the table.
+    func getForeignKeys(from databaseURL: URL, table: String) -> [DBForeignKey] {
+        sqliteExecutor.fetchForeignKeys(databaseURL: databaseURL, table: table)
     }
     
     /// Finds all data stores in the specified directories with the given file extension.

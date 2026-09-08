@@ -23,7 +23,8 @@ final class DIContainer {
             dbDataViewModel: makeDBDataViewModel(),
             userDefaultsViewModel: makeUserDefaultsViewModel(),
             searchViewModel: makeSearchViewModel(),
-            pathManager: pathManagerImpl
+            pathManager: pathManagerImpl,
+            schemaGraphViewModel: makeSchemaGraphViewModel()
         )
     }
     
@@ -49,5 +50,9 @@ final class DIContainer {
         let repo = SearchRepositoryImpl()
         let useCase = SearchUseCaseImpl(repository: repo)
         return SearchViewModel(useCase: useCase)
+    }
+    
+    private func makeSchemaGraphViewModel() -> SchemaGraphViewModel {
+        return SchemaGraphViewModel(tables: [])
     }
 }

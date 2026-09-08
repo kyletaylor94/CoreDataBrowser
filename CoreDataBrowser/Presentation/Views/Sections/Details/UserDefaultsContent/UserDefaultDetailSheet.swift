@@ -27,14 +27,11 @@ struct UserDefaultDetailSheet: View {
             .padding()
         }
         .navigationTitle("Value Details")
-        .toolbar { toolBarButton }
-    }
-    
-    @ToolbarContentBuilder
-    var toolBarButton: some ToolbarContent {
-        ToolbarItem(placement: .confirmationAction) {
-            Button("Done") {
-                dismiss()
+        .toolbar {
+            ToolbarItem(placement: .confirmationAction) {
+                Button("Done") {
+                    dismiss()
+                }
             }
         }
     }

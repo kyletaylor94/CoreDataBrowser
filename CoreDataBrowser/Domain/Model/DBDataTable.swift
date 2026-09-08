@@ -14,24 +14,29 @@ struct DBDataTable: Identifiable, Hashable {
     let rows: [[String]]
     let types: [String]
     let fileSize: Int64
+    /// The URL of the underlying SQLite database file this table was read from. Used to look up
+    /// additional metadata (e.g. foreign keys for the Schema Graph) without re-scanning the file system.
+    let fileURL: URL?
+    /// Whether each column (in the same order as `columns`/`types`) is nullable/optional, read from
+    /// SQLite's `PRAGMA table_info`. Used to mark optional attributes in the Schema Graph.
+    let isOptional: [Bool]
+    
+    init(name: String, columns: [String], rows: [[String]], types: [String], fileSize: Int64, fileURL: URL? = nil, isOptional: [Bool] = []) {
+        self.name = name
+        self.columns = columns
+        self.rows = rows
+        self.types = types
+        self.fileSize = fileSize
+        self.fileURL = fileURL
+        self.isOptional = isOptional
+    }
     
     /// Computed property to format columns with their types. Removes the "Z" prefix from column names if present and formats them as "ColumnName (Type)"
     /// Example: "ZNAME (TEXT)", "ZAGE (INTEGER)"
     var formattedColumns: [String] {
         zip(columns, types).map { column, type in
-            let cleanColumn = removeZPrefix(from: column)
+            let cleanColumn = FormattingHelper.removeZPrefix(from: column)
             return "\(cleanColumn) (\(type))"
         }
-    }
-    
-    /// Helper method to remove "Z" prefix from column names if it exists and is followed by an uppercase letter
-    /// Example: "ZNAME" becomes "NAME", but "Zname" remains "Zname"
-    private func removeZPrefix(from column: String) -> String {
-        guard column.count >= 2,
-              column.first == "Z",
-              column.dropFirst().first?.isUppercase == true else {
-            return column
-        }
-        return String(column.dropFirst())
     }
 }

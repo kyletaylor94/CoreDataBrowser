@@ -53,6 +53,44 @@ final class SQLiteExecutor {
         return (columns, types)
     }
     
+    /// Fetches whether each column of a specified table is nullable (i.e. NOT declared `NOT NULL`),
+    /// using SQLite's `PRAGMA table_info` introspection, in the same column order as
+    /// `fetchColumnsWithTypes`. Used to mark optional attributes in the Schema Graph.
+    /// - Parameters:
+    ///  - databaseURL: The URL of the SQLite database file.
+    ///  - table: The name of the table for which to fetch column nullability.
+    /// - Returns: An array of `Bool`, one per column, where `true` means the column is nullable/optional.
+    func fetchColumnNullability(databaseURL: URL, table: String) -> [Bool] {
+        executeMultiple(at: databaseURL, query: DatabaseConstants.fetchColumnTypeQuery(table: table)) { statement -> Bool in
+            // PRAGMA table_info columns: 0 cid, 1 name, 2 type, 3 notnull, 4 dflt_value, 5 pk
+            sqlite3_column_int(statement, 3) == 0
+        }
+    }
+    
+    /// Fetches the foreign key constraints defined on a specified table using SQLite's built-in
+    /// `PRAGMA foreign_key_list` introspection. Core Data's SQLite store encodes to-one relationships
+    /// as real foreign key constraints (e.g. a `ZBOOK` table having a `ZAUTHOR` column referencing
+    /// `ZAUTHOR(Z_PK)`), so this gives us an accurate way to reconstruct entity relationships without
+    /// needing access to the compiled `.momd` model.
+    /// - Parameters:
+    ///  - databaseURL: The URL of the SQLite database file.
+    ///  - table: The name of the table for which to fetch foreign key constraints.
+    /// - Returns: An array of `DBForeignKey` describing each foreign key constraint found on the table.
+    func fetchForeignKeys(databaseURL: URL, table: String) -> [DBForeignKey] {
+        executeMultiple(at: databaseURL, query: "PRAGMA foreign_key_list(\"\(table)\");") { statement -> DBForeignKey? in
+            guard let destinationTable = sqlite3_column_text(statement, 2),
+                  let fromColumn = sqlite3_column_text(statement, 3) else {
+                return nil
+            }
+            let toColumn = sqlite3_column_text(statement, 4).map { String(cString: $0) } ?? "Z_PK"
+            return DBForeignKey(
+                column: String(cString: fromColumn),
+                destinationTable: String(cString: destinationTable),
+                destinationColumn: toColumn
+            )
+        }.compactMap { $0 }
+    }
+    
     /// Fetches all rows of data from a specified table in the SQLite database.
     /// - Parameters:
     /// - databaseURL: The URL of the SQLite database file.

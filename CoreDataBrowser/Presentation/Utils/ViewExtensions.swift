@@ -8,21 +8,6 @@
 import Foundation
 import SwiftUI
 
-struct EnvironmentSetup: ViewModifier {
-    let simulatorViewModel: SimulatorViewModel?
-    let dbDataViewModel: DBDataViewModel?
-    let userDefaultsViewModel: UserDefaultsViewModel?
-    let searchVM: SearchViewModel?
-    
-    func body(content: Content) -> some View {
-        content
-            .environment(dbDataViewModel)
-            .environment(userDefaultsViewModel)
-            .environment(searchVM)
-            .environment(simulatorViewModel)
-    }
-}
-
 extension Notification.Name {
     static let tableDidRefresh = Notification.Name(AppConstants.tableDidRefresh)
 }
@@ -53,18 +38,6 @@ extension View {
             searchVM: searchViewModel
         ))
     }
-    
-    func createModifiedProgressView() -> some View {
-        ZStack {
-            Color.black.opacity(0.3)
-            ProgressView()
-                .progressViewStyle(.circular)
-                .scaleEffect(1.5)
-                .padding()
-                .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 10))
-        }
-        .ignoresSafeArea()
-    }
 }
 
 extension Binding {
@@ -75,5 +48,24 @@ extension Binding {
     ///  - Returns: A binding to the specified property.
     static func from<Root>(_ root: Root, keyPath: ReferenceWritableKeyPath<Root, Value>) -> Binding<Value> where Root: AnyObject {
         Binding(get: { root[keyPath: keyPath] }, set: { root[keyPath: keyPath] = $0 })
+    }
+}
+
+
+/// Helper for classifying a field's type name so the Schema Graph can color system/Apple-declared
+/// types (`nodeSwiftTypeColor`) differently from custom/user entity types (`nodeCustomObjectColor`).
+extension Color {
+    /// The set of storage/attribute type names this app can encounter that are actually declared by
+    /// Apple (Foundation attribute types, or raw SQLite storage classes Core Data maps them to).
+    private static let systemDeclaredTypeNames: Set<String> = [
+        "STRING", "INT", "INT16", "INT32", "INT64", "DECIMAL", "DOUBLE", "FLOAT", "BOOL", "BOOLEAN",
+        "DATE", "DATA", "UUID", "URL", "TRANSFORMABLE", "OBJECTID",
+        "INTEGER", "VARCHAR", "TIMESTAMP", "BLOB", "TEXT", "DATETIME", "NUMERIC", "CHAR", "CLOB", "REAL"
+    ]
+    /// Whether the given type name (ignoring an optional trailing `?`) is one Apple declares, as
+    /// opposed to a custom/user entity type.
+    static func isSystemDeclaredType(_ type: String) -> Bool {
+        let trimmed = type.hasSuffix("?") ? String(type.dropLast()) : type
+        return systemDeclaredTypeNames.contains(trimmed.uppercased())
     }
 }

@@ -14,15 +14,11 @@ struct TableRowView: View {
     let searchVM: SearchViewModel
     var body: some View {
         HStack {
-            tableNameText
+            showHighlight ? searchVM.highlightMatch(in: table.name) : Text(table.name)
             Spacer()
             Text(FormattingHelper.formattedFileSize(table.fileSize))
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
-    }
-    @ViewBuilder
-    private var tableNameText: some View {
-        showHighlight ? searchVM.highlightMatch(in: table.name) : Text(table.name)
     }
 }

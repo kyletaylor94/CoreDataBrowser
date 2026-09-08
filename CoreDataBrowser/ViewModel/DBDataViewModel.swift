@@ -17,6 +17,10 @@ class DBDataViewModel {
     var secondaryTable: DBDataTable? = nil
     var swiftDataTables: [DBDataTable] = []
     var coreDataTables: [DBDataTable] = []
+    /// Foreign key relationships for each `coreDataTables` entity, keyed by table name. Read directly from
+    /// each table's underlying SQLite file via `PRAGMA foreign_key_list`, so it reflects Core Data's real
+    /// relationship structure without needing the compiled `.momd` model.
+    var coreDataRelationships: [String: [DBForeignKey]] = [:]
     
     var isLoading = false
     var isLoadingSwiftData = false
@@ -60,16 +64,19 @@ class DBDataViewModel {
         
         do {
             coreDataTables = try useCase.executeCoreData(for: device)
+            coreDataRelationships = useCase.fetchRelationships(for: coreDataTables)
             hasError = false
             error = nil
         } catch let dbError as DBError {
             hasError = true
             error = dbError
             coreDataTables = []
+            coreDataRelationships = [:]
         } catch {
             hasError = true
             self.error = .queryFailed("Unknown error: \(error.localizedDescription)")
             coreDataTables = []
+            coreDataRelationships = [:]
         }
     }
     

@@ -8,52 +8,60 @@
 import Foundation
 import SwiftUI
 
+enum DetailType {
+    case coreData
+    case swiftData
+    case userDefaults
+    
+    var title: String {
+        switch self {
+        case .coreData:
+            "CoreData"
+        case .swiftData:
+            "SwiftData"
+        case .userDefaults:
+            "UserDefaults"
+        }
+    }
+    
+    var icon: String {
+        switch self {
+        case .coreData:
+            "cylinder.split.1x2"
+        case .swiftData:
+            "externaldrive.badge.checkmark"
+        case .userDefaults:
+            "gearshape.2"
+        }
+    }
+}
+
 struct DetailContentView: View {
     let table: DBDataTable
     let isLoading: Bool
-    let title: String
-    let icon: String
+    let type: DetailType
     @Binding var hasError: Bool
     let errorMessage: String?
     let onDismiss: () -> Void
     let onErrorDismiss: () -> Void
-    var isUserDefaultsDetail: Bool = false
-    var isSwiftDataContent: Bool = false
+    
     var body: some View {
-        if isLoading {
-            ProgressView()
-        } else {
-            chooseDetailView()
-                .createAlert(isPresented: $hasError, errorMessage: errorMessage, onDismiss: onErrorDismiss)
-        }
-    }
-    @ViewBuilder
-    private func chooseDetailView() -> some View {
-        if isUserDefaultsDetail {
-            sourceHeaderView(icon: "gearshape.2", title: "UserDefaults", action: onDismiss)
-            UserDefaultsTableView(table: table)
-        } else {
-            sourceHeaderView(icon: icon, title: title, action: onDismiss)
-            DBDetailsView(table: table, isSwiftDataContent: isSwiftDataContent)
-        }
-    }
-    @ViewBuilder
-    private func sourceHeaderView(icon: String, title: String, action: @escaping () -> Void) -> some View {
-        HStack {
-            Image(systemName: icon)
-                .font(.title2)
-                .foregroundStyle(.secondary)
-            Text(title)
-                .font(.largeTitle)
-                .fontWeight(.bold)
-            Button("Remove from the board") {
-                action()
+        Group {
+            if isLoading {
+                ProgressView()
+            } else {
+                SourceHeaderView(icon: type.icon, title: type.title, action: onDismiss)
+                switch type {
+                case .userDefaults:
+                    UserDefaultsTableView(table: table)
+                case .coreData:
+                    DBDetailsView(table: table, isSwiftDataContent: false)
+                case .swiftData:
+                    DBDetailsView(table: table, isSwiftDataContent: true)
+                }
             }
-            Spacer()
         }
-        .padding()
-        .background(Color(nsColor: .controlBackgroundColor))
-        Divider()
+        .createAlert(isPresented: $hasError, errorMessage: errorMessage, onDismiss: onErrorDismiss)
     }
 }
 

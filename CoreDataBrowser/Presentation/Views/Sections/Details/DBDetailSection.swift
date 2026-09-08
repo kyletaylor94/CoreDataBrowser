@@ -18,8 +18,7 @@ struct DBDetailSection: View {
                 DetailContentView(
                     table: coreDataTable,
                     isLoading: dbDataViewModel.isLoading,
-                    title: "Core Data",
-                    icon: "cylinder.split.1x2",
+                    type: .coreData,
                     hasError: Binding.from(dbDataViewModel, keyPath: \.hasError),
                     errorMessage: dbDataViewModel.error?.localizedDescription,
                     onDismiss: { dbDataViewModel.selectedTable = nil },
@@ -30,13 +29,11 @@ struct DBDetailSection: View {
                 DetailContentView(
                     table: swiftDataTable,
                     isLoading: dbDataViewModel.isLoadingSwiftData,
-                    title: "SwiftData",
-                    icon: "externaldrive.badge.checkmark",
+                    type: .swiftData,
                     hasError: Binding.from(dbDataViewModel, keyPath: \.hasError),
                     errorMessage: dbDataViewModel.error?.localizedDescription,
                     onDismiss: { dbDataViewModel.secondaryTable = nil },
-                    onErrorDismiss: { dbDataViewModel.hasError = false },
-                    isSwiftDataContent: true
+                    onErrorDismiss: { dbDataViewModel.hasError = false }
                 )
             }
             
@@ -44,13 +41,11 @@ struct DBDetailSection: View {
                 DetailContentView(
                     table: userDefaultTable,
                     isLoading: userDefaultsViewModel.isLoading,
-                    title: "User Defaults",
-                    icon: "gearshape.2",
+                    type: .userDefaults,
                     hasError: Binding.from(userDefaultsViewModel, keyPath: \.hasError),
                     errorMessage: userDefaultsViewModel.error?.localizedDescription,
                     onDismiss: { userDefaultsViewModel.selectedUserDefaultTable = nil },
-                    onErrorDismiss: { userDefaultsViewModel.hasError = false },
-                    isUserDefaultsDetail: true
+                    onErrorDismiss: { userDefaultsViewModel.hasError = false }
                 )
             }
         }

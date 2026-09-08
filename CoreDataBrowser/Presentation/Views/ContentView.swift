@@ -14,18 +14,22 @@ struct ContentView: View {
     @State private var searchViewModel: SearchViewModel
     @State private var pathManager: PathManagerImpl
     @State private var isLoadingRefresh: Bool = false
+    @State private var schemaGraphViewModel: SchemaGraphViewModel
+    
     init(
         simulatorViewModel: SimulatorViewModel,
         dbDataViewModel: DBDataViewModel,
         userDefaultsViewModel: UserDefaultsViewModel,
         searchViewModel: SearchViewModel,
-        pathManager: PathManagerImpl
+        pathManager: PathManagerImpl,
+        schemaGraphViewModel: SchemaGraphViewModel
     ) {
         _simulatorViewModel = State(wrappedValue: simulatorViewModel)
         _dbDataViewModel = State(wrappedValue: dbDataViewModel)
         _userDefaultsViewModel = State(wrappedValue: userDefaultsViewModel)
         _searchViewModel = State(wrappedValue: searchViewModel)
         _pathManager = State(wrappedValue: pathManager)
+        _schemaGraphViewModel = State(wrappedValue: schemaGraphViewModel)
     }
     
     var body: some View {
@@ -39,9 +43,18 @@ struct ContentView: View {
         } detail: {
             DBDetailSection()
         }
+        .onChange(of: dbDataViewModel.coreDataTables) { _, newTables in
+            updateSchemaGraph(tables: newTables)
+        }
+        .onChange(of: dbDataViewModel.selectedTable) { _, newTable in
+            schemaGraphViewModel.focusNode(named: newTable?.name)
+            if newTable != nil {
+                schemaGraphViewModel.isSchemaGraphPresented = true
+            }
+        }
         .overlay {
             if isLoadingRefresh {
-                createModifiedProgressView()
+                ModifiedProgressView()
             }
         }
         .appEnvironment(
@@ -63,8 +76,17 @@ struct ContentView: View {
             await refreshAllData()
         }
         .toolbar {
-            toolBarButton(placement: .navigation, icon: "arrow.trianglehead.2.clockwise") { Task { await refreshAllData() } }
-            toolBarButton(placement: .primaryAction, icon: "gearshape") { pathManager.isSheetPresented.toggle() }
+            CustomToolBarButton(placement: .navigation, icon: "arrow.trianglehead.2.clockwise") {
+                Task { await refreshAllData() }
+            }
+            
+            CustomToolBarButton(placement: .primaryAction, icon: "point.3.connected.trianglepath.dotted") {
+                schemaGraphViewModel.isSchemaGraphPresented.toggle()
+            }
+            
+            CustomToolBarButton(placement: .primaryAction, icon: "gearshape") {
+                pathManager.isSheetPresented.toggle()
+            }
         }
         .onReceive(NotificationCenter.default.publisher(for: .tableDidRefresh)) { notification in
             updateSelectedTables(notification: notification)
@@ -72,6 +94,11 @@ struct ContentView: View {
         .sheet(isPresented: .from(pathManager, keyPath: \.isSheetPresented)) {
             AppFolderSheet(pathManager: pathManager)
         }
+        .sheet(isPresented: .from(schemaGraphViewModel, keyPath: \.isSchemaGraphPresented), content: {
+            SchemaGraphView()
+                .environment(schemaGraphViewModel)
+                .frame(minWidth: 1000, idealWidth: 1300, minHeight: 700, idealHeight: 850)
+        })
         .createAlert(
             isPresented: .from(simulatorViewModel, keyPath: \.shouldShowError),
             errorMessage: simulatorViewModel.currentError?.errorDescription,
@@ -138,14 +165,13 @@ private extension ContentView {
         }
     }
     
-    @ToolbarContentBuilder
-    private func toolBarButton(placement: ToolbarItemPlacement, icon: String, action: @escaping () -> Void) -> some ToolbarContent {
-        ToolbarItem(placement: placement) {
-            Button {
-                action()
-            } label: {
-                Image(systemName: icon)
-            }
-        }
+    /// Rebuilds the Schema Graph from the currently loaded CoreData tables and their foreign key
+    /// relationships, keeping the currently selected entity (if any) highlighted.
+    private func updateSchemaGraph(tables: [DBDataTable]) {
+        schemaGraphViewModel.update(
+            tables: tables,
+            relationships: dbDataViewModel.coreDataRelationships,
+            focusedTableName: dbDataViewModel.selectedTable?.name
+        )
     }
 }

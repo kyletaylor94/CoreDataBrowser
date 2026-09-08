@@ -12,14 +12,7 @@ import SwiftUI
 /// exact relationship field row (like Xcode's Model Diagram viewer).
 struct SchemaGraphView: View {
     @Environment(SchemaGraphViewModel.self) var viewModel
-    private let connectorPalette: [Color] = [.blue, .teal, .purple, .orange, .pink, .indigo, .mint, .cyan]
     @Environment(\.dismiss) private var dismiss
-    
-    /// Maps a node's transient `id` (regenerated on every graph rebuild) back to its stable `name`,
-    /// which is what `nodePositions` is keyed by.
-    private var nameByNodeID: [UUID: String] {
-        Dictionary(uniqueKeysWithValues: viewModel.graph.nodes.map { ($0.id, $0.name) })
-    }
     
     var body: some View {
         let size = viewModel.contentSize()
@@ -31,8 +24,8 @@ struct SchemaGraphView: View {
                 ZStack(alignment: .topLeading) {
                    /// RelationshipLines
                     ForEach(Array(viewModel.graph.relationships.enumerated()), id: \.element.id) { index, relationship in
-                        if let points = viewModel.connectorPoints(for: relationship, nameByNodeID: nameByNodeID) {
-                            RelationshipConnector(points: points, color: connectorPalette[index % connectorPalette.count])
+                        if let points = viewModel.connectorPoints(for: relationship) {
+                            RelationshipConnector(points: points, color: viewModel.connectorPalette[index % viewModel.connectorPalette.count])
                         }
                     }
                     

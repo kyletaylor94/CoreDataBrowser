@@ -9,6 +9,12 @@ import Foundation
 import CoreData
 internal import CoreGraphics
 import Observation
+import SwiftUI
+
+enum GraphViewType {
+    case coreData
+    case swiftData
+}
 
 @Observable
 @MainActor
@@ -26,6 +32,19 @@ final class SchemaGraphViewModel {
     private(set) var focusedNodeID: UUID?
     
     var isSchemaGraphPresented: Bool = false
+    let connectorPalette: [Color] = [.blue, .teal, .purple, .orange, .pink, .indigo, .mint, .cyan]
+    
+    /// Maps a node's transient `id` (regenerated on every graph rebuild) back to its stable `name`,
+    /// which is what `nodePositions` is keyed by.
+    private var nameByNodeID: [UUID: String] {
+        Dictionary(uniqueKeysWithValues: graph.nodes.map { ($0.id, $0.name) })
+    }
+    
+    var disableGraphView: Bool {
+        return graph.nodes.isEmpty || graph.relationships.isEmpty
+    }
+    
+    var selectedGraphViewType: GraphViewType = .coreData
     
     init(entities: [NSEntityDescription]) {
         self.graph = Self.buildGraph(from: entities)
@@ -398,9 +417,9 @@ final class SchemaGraphViewModel {
     
     /// Computes an elbow-routed polyline connecting the exact field row that owns a relationship
     /// (on the source entity) to the edge of the destination entity's card.
-    func connectorPoints(for relationship: SchemaRelationship, nameByNodeID names: [UUID: String]) -> [CGPoint]? {
-        guard let sourceName = names[relationship.sourceNodeID],
-              let destinationName = names[relationship.destinationNodeID],
+    func connectorPoints(for relationship: SchemaRelationship) -> [CGPoint]? {
+        guard let sourceName = nameByNodeID[relationship.sourceNodeID],
+              let destinationName = nameByNodeID[relationship.destinationNodeID],
               let sourceNode = graph.nodes.first(where: { $0.name == sourceName }),
               let sourceFrame = frame(forNodeNamed: sourceName),
               let destinationFrame = frame(forNodeNamed: destinationName) else { return nil }

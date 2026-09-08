@@ -34,6 +34,13 @@ final class SimulatorRepositoryImpl: SimulatorRepository {
         } catch {
             throw SimulatorError.cannotAccessDevicesFolder(underlyingError: error)
         }
+        
+        let selfPlistURL = basePath.appendingPathComponent(PathConstants.devicePlist)
+        
+        if fileManager.fileExists(atPath: selfPlistURL.path) {
+            pathManager.invalidateSimulatorAccess()
+            throw SimulatorError.selectedSpecificSimulatorFolder
+        }
 
         do {
             let contents = try fileManager.contentsOfDirectory(at: basePath, includingPropertiesForKeys: nil)

@@ -12,6 +12,7 @@ enum SimulatorError: LocalizedError, Equatable {
     case cannotReadPlist(underlyingError: Error)
     case invalidPlistFormat
     case accessNotGranted
+    case selectedSpecificSimulatorFolder
     
     var errorDescription: String? {
         switch self {
@@ -23,6 +24,8 @@ enum SimulatorError: LocalizedError, Equatable {
             return "The device.plist file has an invalid format."
         case .accessNotGranted:
             return "Access to the Simulator devices folder was not granted. Please select the folder to continue."
+        case .selectedSpecificSimulatorFolder:
+            return "You selected a specific simulator's folder instead of the top-level “Devices” folder that contains all of them. Please grant access again and select “Devices” itself (Library/Developer/CoreSimulator/Devices), not one of the folders inside it."
         }
     }
     

@@ -21,6 +21,7 @@ protocol PathManager {
     /// Resolves the user-granted, security-scoped root URL for the Simulator "Devices" folder.
     /// Prompts the user with an `NSOpenPanel` to grant access if no valid bookmark exists yet.
     func resolveSimulatorRootURL() throws -> URL
+    func invalidateSimulatorAccess()
 }
 
 @MainActor
@@ -61,6 +62,10 @@ class PathManagerImpl: PathManager {
     
     init(fileManager: FileManager) {
         self.fileManager = fileManager
+    }
+    
+    func invalidateSimulatorAccess() {
+        clearSimulatorBookmark()
     }
     
     /// Resets all paths to their default values.
@@ -105,7 +110,7 @@ class PathManagerImpl: PathManager {
         accessPanel.canChooseDirectories = true
         accessPanel.allowsMultipleSelection = false
         accessPanel.canCreateDirectories = false
-        accessPanel.message = "CoreDataBrowser needs access to your Simulator devices to browse their app data. Please select the \u{201C}Devices\u{201D} folder."
+        accessPanel.message = "CoreDataBrowser needs access to your Simulator devices to browse their app data. Select the top-level “Devices” folder itself — do not open it and select one of the simulator folders inside."
         accessPanel.prompt = "Grant Access"
         accessPanel.directoryURL = fileManager.realHomeDirectoryForCurrentUser
             .appendingPathComponent(simulatorPath)

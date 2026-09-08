@@ -48,9 +48,6 @@ struct ContentView: View {
         }
         .onChange(of: dbDataViewModel.selectedTable) { _, newTable in
             schemaGraphViewModel.focusNode(named: newTable?.name)
-            if newTable != nil {
-                schemaGraphViewModel.isSchemaGraphPresented = true
-            }
         }
         .overlay {
             if isLoadingRefresh {

@@ -8,34 +8,6 @@
 import Foundation
 import SwiftUI
 
-enum DetailType {
-    case coreData
-    case swiftData
-    case userDefaults
-    
-    var title: String {
-        switch self {
-        case .coreData:
-            "CoreData"
-        case .swiftData:
-            "SwiftData"
-        case .userDefaults:
-            "UserDefaults"
-        }
-    }
-    
-    var icon: String {
-        switch self {
-        case .coreData:
-            "cylinder.split.1x2"
-        case .swiftData:
-            "externaldrive.badge.checkmark"
-        case .userDefaults:
-            "gearshape.2"
-        }
-    }
-}
-
 struct DetailContentView: View {
     let table: DBDataTable
     let isLoading: Bool

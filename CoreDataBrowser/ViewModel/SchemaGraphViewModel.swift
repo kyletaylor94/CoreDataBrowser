@@ -46,6 +46,11 @@ final class SchemaGraphViewModel {
     
     var selectedGraphViewType: GraphViewType = .coreData
     
+    var zoomScale: CGFloat = 1.0
+    let minZoom: CGFloat = 0.25
+    let maxZoom: CGFloat = 2.0
+    let zoomStep: CGFloat = 0.1
+    
     init(entities: [NSEntityDescription]) {
         self.graph = Self.buildGraph(from: entities)
         setupInitialPositions()
@@ -63,6 +68,18 @@ final class SchemaGraphViewModel {
         setupInitialPositions()
     }
 
+    func zoomIn() {
+        zoomScale = min(zoomScale + zoomStep, maxZoom)
+    }
+
+    func zoomOut() {
+        zoomScale = max(zoomScale - zoomStep, minZoom)
+    }
+
+    func resetZoom() {
+        zoomScale = 1.0
+    }
+    
     /// Rebuilds the graph from the current set of Core Data tables and their foreign key relationships.
     /// Existing node positions are preserved where possible so the layout doesn't jump around on refresh.
     /// - Parameters:

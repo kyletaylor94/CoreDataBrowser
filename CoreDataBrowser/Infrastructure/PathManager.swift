@@ -30,27 +30,27 @@ class PathManagerImpl: PathManager {
     var isSheetPresented: Bool = false
     
     /// Paths are stored as relative to the user's home directory for better readability and portability. When retrieving, they are converted back to absolute paths.
-    var simulatorPath: String = UserDefaults.standard.string(forKey: "simulatorPath") ?? PathConstants.simulatorPath {
+    var simulatorPath: String = UserDefaults.standard.string(forKey: UserDefaultsKeys.simulatorPath) ?? PathConstants.simulatorPath {
         didSet {
-            UserDefaults.standard.set(simulatorPath, forKey: "simulatorPath")
+            UserDefaults.standard.set(simulatorPath, forKey: UserDefaultsKeys.simulatorPath)
         }
     }
     
-    var coreDataPath: String = UserDefaults.standard.string(forKey: "coreDataPath") ?? PathConstants.libraryApplicationSupportPath {
+    var coreDataPath: String = UserDefaults.standard.string(forKey: UserDefaultsKeys.coreDataPath) ?? PathConstants.libraryApplicationSupportPath {
         didSet {
-            UserDefaults.standard.set(coreDataPath, forKey: "coreDataPath")
+            UserDefaults.standard.set(coreDataPath, forKey: UserDefaultsKeys.coreDataPath)
         }
     }
     
-    var swiftDataPath: String = UserDefaults.standard.string(forKey: "swiftDataPath") ?? PathConstants.libraryApplicationSupportPath {
+    var swiftDataPath: String = UserDefaults.standard.string(forKey: UserDefaultsKeys.swiftDataPath) ?? PathConstants.libraryApplicationSupportPath {
         didSet {
-            UserDefaults.standard.set(swiftDataPath, forKey: "swiftDataPath")
+            UserDefaults.standard.set(swiftDataPath, forKey: UserDefaultsKeys.swiftDataPath)
         }
     }
     
-    var userDefaultsPath: String = UserDefaults.standard.string(forKey: "userDefaultsPath") ?? PathConstants.libraryPreferencesPath {
+    var userDefaultsPath: String = UserDefaults.standard.string(forKey: UserDefaultsKeys.userDefaultsPath) ?? PathConstants.libraryPreferencesPath {
         didSet {
-            UserDefaults.standard.set(userDefaultsPath, forKey: "userDefaultsPath")
+            UserDefaults.standard.set(userDefaultsPath, forKey: UserDefaultsKeys.userDefaultsPath)
         }
     }
     

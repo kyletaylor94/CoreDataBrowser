@@ -25,7 +25,7 @@ struct DataSourceListView: View {
                 Button {
                     action(table)
                 } label: {
-                    TableRowView(table: table, showHighlight: showHighlight!, searchVM: searchVM)
+                    TableRowView(table: table, showHighlight: showHighlight!, searchVM: searchVM, isSelected: selectedTable?.id == table.id)
                 }
             }
         }

@@ -64,7 +64,6 @@ final class DBUseCaseImpl: DBUseCase {
                 result[table.name] = inferred
             }
         }
-        
         return result
     }
     

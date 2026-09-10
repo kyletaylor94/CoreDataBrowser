@@ -22,7 +22,7 @@ struct DetailContentView: View {
             if isLoading {
                 ProgressView()
             } else {
-                SourceHeaderView(icon: type.icon, title: type.title, action: onDismiss)
+                SourceHeaderView(displayedInfo: type.displayedInfo, action: onDismiss)
                 switch type {
                 case .userDefaults:
                     UserDefaultsTableView(table: table)

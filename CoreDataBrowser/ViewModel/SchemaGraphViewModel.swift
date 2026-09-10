@@ -11,11 +11,6 @@ internal import CoreGraphics
 import Observation
 import SwiftUI
 
-enum GraphViewType {
-    case coreData
-    case swiftData
-}
-
 @Observable
 @MainActor
 final class SchemaGraphViewModel {
@@ -50,6 +45,7 @@ final class SchemaGraphViewModel {
     let minZoom: CGFloat = 0.25
     let maxZoom: CGFloat = 2.0
     let zoomStep: CGFloat = 0.1
+    var gestureStartZoom: CGFloat = 1.0
     
     init(entities: [NSEntityDescription]) {
         self.graph = Self.buildGraph(from: entities)
@@ -243,7 +239,6 @@ final class SchemaGraphViewModel {
         }
 
         // MARK: Relationships
-
         for entity in entities {
             guard let sourceName = entity.name,
                   let sourceNodeID = nodeIDs[sourceName] else { continue }
@@ -280,7 +275,7 @@ final class SchemaGraphViewModel {
     /// Vertical space occupied by a single field row.
     private static let fieldRowHeight: CGFloat = 20
     /// Combined top/bottom card padding not accounted for by the header/field rows.
-    private static let verticalPadding: CGFloat = 26
+  //  private static let verticalPadding: CGFloat = 26
 
     private func setupInitialPositions(preserving previousPositions: [String: CGPoint] = [:]) {
         let columns = 3
@@ -319,7 +314,8 @@ final class SchemaGraphViewModel {
     /// Estimates the rendered height of a node card based on its field count, so rows can be spaced
     /// far enough apart to avoid vertical overlap regardless of how many attributes an entity has.
     private static func estimatedHeight(for node: SchemaNode) -> CGFloat {
-        headerHeight + verticalPadding + CGFloat(max(node.fields.count, 1)) * fieldRowHeight
+        let verticalPadding: CGFloat = 26
+        return headerHeight + verticalPadding + CGFloat(max(node.fields.count, 1)) * fieldRowHeight
     }
 
     /// The on-screen frame (position + estimated size) for the node with the given name, used to
@@ -429,7 +425,6 @@ final class SchemaGraphViewModel {
             return "Unknown"
         }
     }
-    
     
     
     /// Computes an elbow-routed polyline connecting the exact field row that owns a relationship

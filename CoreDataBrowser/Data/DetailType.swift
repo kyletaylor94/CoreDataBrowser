@@ -12,25 +12,14 @@ enum DetailType {
     case swiftData
     case userDefaults
     
-    var title: String {
+    var displayedInfo: (title: String, icon: String) {
         switch self {
         case .coreData:
-            "CoreData"
+            (title: "CoreData", icon: "cylinder.split.1x2")
         case .swiftData:
-            "SwiftData"
+            (title: "SwiftData", icon: "externaldrive.badge.checkmark")
         case .userDefaults:
-            "UserDefaults"
-        }
-    }
-    
-    var icon: String {
-        switch self {
-        case .coreData:
-            "cylinder.split.1x2"
-        case .swiftData:
-            "externaldrive.badge.checkmark"
-        case .userDefaults:
-            "gearshape.2"
+            (title: "UserDefaults", icon: "gearshape.2")
         }
     }
 }

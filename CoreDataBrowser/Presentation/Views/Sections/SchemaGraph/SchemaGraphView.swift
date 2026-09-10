@@ -13,7 +13,6 @@ import SwiftUI
 struct SchemaGraphView: View {
     @Environment(SchemaGraphViewModel.self) var viewModel
     @Environment(\.dismiss) private var dismiss
-    @State private var gestureStartZoom: CGFloat = 1.0
     var body: some View {
         let size = viewModel.contentSize()
         VStack(spacing: 0) {
@@ -47,7 +46,7 @@ struct SchemaGraphView: View {
                 .simultaneousGesture(
                     MagnifyGesture()
                         .onChanged { value in
-                            let newZoom = gestureStartZoom * value.magnification
+                            let newZoom = viewModel.gestureStartZoom * value.magnification
                             
                             viewModel.zoomScale = min(
                                 max(newZoom, viewModel.minZoom),
@@ -55,7 +54,7 @@ struct SchemaGraphView: View {
                             )
                         }
                         .onEnded { _ in
-                            gestureStartZoom = viewModel.zoomScale
+                            viewModel.gestureStartZoom = viewModel.zoomScale
                         }
                 )
             }
@@ -66,7 +65,7 @@ struct SchemaGraphView: View {
                 }
             }
             .overlay(alignment: .bottom) {
-                SchemaBottomButtonStack(gestureStartZoom: $gestureStartZoom)
+                SchemaBottomButtonStack(gestureStartZoom: .from(viewModel, keyPath: \.gestureStartZoom))
             }
         }
         .onExitCommand { dismiss() }

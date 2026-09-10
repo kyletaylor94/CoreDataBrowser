@@ -140,20 +140,20 @@ class DBDataViewModel {
     /// SwiftData (`true`) or CoreData (`false`). The method uses this parameter to determine which loading state variable to update and how to manage the presentation of the detail sheet after the simulated loading delay.
     /// - Note: The method uses `Task.sleep` to simulate a loading delay of 100 milliseconds, after which it updates the loading state and presents the detail sheet. This allows for a smoother user experience by providing visual feedback during the loading process.
     private func setLoadingStates(isSwiftDataContent: Bool) {
-        if isSwiftDataContent {
-            isLoadingSwiftDataSheet = true
-        } else {
-            isLoadingCoreDataSheet = true
-        }
+        setStateDataSheet(isSwiftDataContent, true)
         Task { [weak self] in
             guard let self else { return }
             try? await Task.sleep(nanoseconds: 100_000_000)
-            if isSwiftDataContent {
-                isLoadingSwiftDataSheet = false
-            } else {
-                isLoadingCoreDataSheet = false
-            }
+            setStateDataSheet(isSwiftDataContent, false)
             isMoreDetailSheetPresented = true
+        }
+    }
+    
+    private func setStateDataSheet(_ isSwiftDataContent: Bool, _ value: Bool) {
+        if isSwiftDataContent {
+            isLoadingSwiftDataSheet = value
+        } else {
+            isLoadingCoreDataSheet = value
         }
     }
 }

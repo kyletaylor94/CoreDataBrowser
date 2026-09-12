@@ -41,6 +41,20 @@ class DBDataViewModel {
         self.useCase = useCase
         self.copyPathManager = copyPathManager
     }
+    
+    func refreshCurrentTables() {
+        if let selectedTable {
+            if let updated = coreDataTables.first(where: { $0.name == selectedTable.name }) {
+                self.selectedTable = updated
+            }
+        }
+        
+        if let secondaryTable {
+            if let updated = swiftDataTables.first(where: { $0.name == secondaryTable.name }) {
+                self.secondaryTable = updated
+            }
+        }
+    }
         
     /// Checks if the content being displayed is from SwiftData or CoreData and whether the corresponding loading state for the detail sheet is active. This method returns a boolean indicating whether the loading state for the detail sheet matches the type of content being displayed, allowing the UI to show appropriate loading indicators based on the content type.
     /// - Parameter isSwiftDataContent: A `Bool` indicating whether the content being displayed is from SwiftData (`true`) or CoreData (`false`). The method uses this parameter to determine which loading state variable to check and returns `true` if the loading state for the detail sheet matches the content type, or `false` otherwise.
@@ -57,8 +71,7 @@ class DBDataViewModel {
         }
         guard let selectedDevice else { return }
         loadSimulatorApps(for: selectedDevice)
-        refreshCoreDataTables()
-        refreshSwiftDataTables()
+        refreshCurrentTables()
     }
     
 
@@ -103,16 +116,6 @@ class DBDataViewModel {
             self.error = .queryFailed("Unknown error: \(error.localizedDescription)")
             swiftDataTables = []
         }
-    }
-    
-    func refreshCoreDataTables() {
-        let refreshable = CoreDataTablesRefreshable(viewModel: self)
-        refreshable.refreshSelectedTable()
-    }
-    
-    func refreshSwiftDataTables() {
-        let refreshable = SwiftDataTablesRefreshable(viewModel: self)
-        refreshable.refreshSelectedTable()
     }
     
     /// Creates a binding for the row selection in the table. This method takes an array of `DBDataRow` and a boolean indicating whether the content is from SwiftData, and returns a `Binding<Set<UUID>>` that can be used to manage the selection state of the rows in the UI. The binding's getter transforms the currently selected row into a set of UUIDs, while the setter handles changes in the selection by updating the `selectedRow` property and setting the appropriate loading states for the detail sheet based on the content type.
@@ -162,46 +165,5 @@ class DBDataViewModel {
         } else {
             isLoadingCoreDataSheet = value
         }
-    }
-}
-
-protocol TableRefreshable {
-    var selectedTable: DBDataTable? { get }
-    var tables: [DBDataTable] { get set }
-}
-
-extension TableRefreshable {
-    func refreshSelectedTable() {
-        guard let selectedTable,
-              let updated = tables.first(where: { $0.name == selectedTable.name }) else {
-            return
-        }
-        NotificationCenter.default.post(name: .tableDidRefresh, object: updated)
-    }
-}
-
-private struct CoreDataTablesRefreshable: TableRefreshable {
-    let viewModel: DBDataViewModel
-    
-    var selectedTable: DBDataTable? {
-        viewModel.selectedTable
-    }
-    
-    var tables: [DBDataTable] {
-        get { viewModel.coreDataTables }
-        set { viewModel.coreDataTables = newValue }
-    }
-}
-
-private struct SwiftDataTablesRefreshable: TableRefreshable {
-    let viewModel: DBDataViewModel
-    
-    var selectedTable: DBDataTable? {
-        viewModel.secondaryTable
-    }
-    
-    var tables: [DBDataTable] {
-        get { viewModel.swiftDataTables }
-        set { viewModel.swiftDataTables = newValue }
     }
 }

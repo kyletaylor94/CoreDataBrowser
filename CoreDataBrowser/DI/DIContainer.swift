@@ -17,15 +17,26 @@ final class DIContainer {
     var pathManager: PathManager {
         pathManagerImpl
     }
-  
+    
     func makeContentView() -> ContentView {
-        ContentView(
-            simulatorViewModel: makeSimulatorViewModel(),
-            dbDataViewModel: makeDBDataViewModel(),
-            userDefaultsViewModel: makeUserDefaultsViewModel(),
+        let simulatorViewModel = makeSimulatorViewModel()
+        let dbDataViewModel = makeDBDataViewModel()
+        let userDefaultsViewModel = makeUserDefaultsViewModel()
+        
+        let contentViewModel = ContentViewModel(
+            simulatorViewModel: simulatorViewModel,
+            dbDataViewModel: dbDataViewModel,
+            userDefaultsViewModel: userDefaultsViewModel
+        )
+        
+        return ContentView(
+            simulatorViewModel: simulatorViewModel,
+            dbDataViewModel: dbDataViewModel,
+            userDefaultsViewModel: userDefaultsViewModel,
             searchViewModel: makeSearchViewModel(),
             pathManager: pathManagerImpl,
-            schemaGraphViewModel: makeSchemaGraphViewModel()
+            schemaGraphViewModel: makeSchemaGraphViewModel(),
+            contentViewModel: contentViewModel
         )
     }
     

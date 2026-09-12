@@ -8,7 +8,6 @@
 import Foundation
 
 enum AppConstants {
-    static let tableDidRefresh = "tableDidRefresh"
     static let runtimeReplacing = "com.apple.CoreSimulator.SimRuntime."
 }
 

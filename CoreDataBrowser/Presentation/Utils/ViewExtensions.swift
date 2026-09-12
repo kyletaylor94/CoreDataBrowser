@@ -8,10 +8,6 @@
 import Foundation
 import SwiftUI
 
-extension Notification.Name {
-    static let tableDidRefresh = Notification.Name(AppConstants.tableDidRefresh)
-}
-
 extension View {
     func createAlert(isPresented: Binding<Bool>, errorMessage: String?, onDismiss: @escaping () -> Void) -> some View {
         self.alert(isPresented: isPresented) {

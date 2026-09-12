@@ -11,7 +11,7 @@ import SwiftUI
 
 @MainActor
 @Observable
-final class UserDefaultsViewModel: TableRefreshable {
+final class UserDefaultsViewModel {
     var userDefaultsTable: [DBDataTable] = []
     var selectedUserDefaultTable: DBDataTable? = nil
     
@@ -40,8 +40,13 @@ final class UserDefaultsViewModel: TableRefreshable {
         set { userDefaultsTable = newValue }
     }
     
-    func refreshUserDefaults() {
-        refreshSelectedTable()
+    
+    func refreshCurrentTables() {
+        if let selectedUserDefaultTable {
+            if let updated = userDefaultsTable.first(where: { $0.name == selectedUserDefaultTable.name }) {
+                self.selectedUserDefaultTable = updated
+            }
+        }
     }
     
     /// Loads the user defaults for a given simulator device asynchronously. Sets the `isLoading` flag to true while loading and handles errors by updating the `error` and `hasError` properties.

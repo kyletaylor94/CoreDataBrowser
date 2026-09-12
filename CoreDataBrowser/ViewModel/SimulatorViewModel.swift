@@ -24,6 +24,10 @@ class SimulatorViewModel {
         self.useCase = useCase
     }
     
+    var shouldShowEmptyDeviceView: Bool {
+        devices.isEmpty && !isLoading
+    }
+    
     /// Loads the list of simulators asynchronously. Sets the `isLoading` flag to true while loading and handles errors by updating the `currentError` and `shouldShowError` properties.
     /// - Note: The `defer` statement ensures that the `isLoading` flag is reset to false regardless of whether the loading succeeds or fails.
     func loadSimulators() async {

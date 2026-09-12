@@ -8,9 +8,6 @@
 import Foundation
 import SwiftUI
 
-/// Draws a right-angle ("elbow") connector line through the given points, with an arrowhead at the
-/// final segment. Used to visually connect a specific relationship field row on one entity card to
-/// the entity card it references, similar to Xcode's Model Diagram viewer.
 struct RelationshipConnector: View {
     let points: [CGPoint]
     var color: Color = .secondary

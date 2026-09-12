@@ -29,7 +29,7 @@ struct SchemaGraphView: View {
                     }
                     
                     ForEach(viewModel.graph.nodes) { node in
-                        SchemaNodeView(node: node, isFocused: node.id == viewModel.focusedNodeID)
+                        SchemaNodeView(node: node, nodeWidth: viewModel.nodeWidth, isFocused: node.id == viewModel.focusedNodeID)
                             .position(viewModel.nodePositions[node.name] ?? .zero)
                             .gesture(
                                 DragGesture()

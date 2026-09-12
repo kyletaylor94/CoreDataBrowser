@@ -9,6 +9,7 @@ import Foundation
 import Observation
 import SQLite3
 import SwiftUI
+import AppKit
 
 @MainActor
 @Observable
@@ -21,6 +22,7 @@ class DBDataViewModel {
     /// each table's underlying SQLite file via `PRAGMA foreign_key_list`, so it reflects Core Data's real
     /// relationship structure without needing the compiled `.momd` model.
     var coreDataRelationships: [String: [DBForeignKey]] = [:]
+    var swiftDataRelationships: [String: [DBForeignKey]] = [:]
     
     var isLoading = false
     var isLoadingSwiftData = false
@@ -33,11 +35,13 @@ class DBDataViewModel {
     var isLoadingSwiftDataSheet = false
     
     private let useCase: DBUseCase
-    
-    init(useCase: DBUseCase) {
+    let copyPathManager: CopyPathManager
+        
+    init(useCase: DBUseCase, copyPathManager: CopyPathManager) {
         self.useCase = useCase
+        self.copyPathManager = copyPathManager
     }
-    
+        
     /// Checks if the content being displayed is from SwiftData or CoreData and whether the corresponding loading state for the detail sheet is active. This method returns a boolean indicating whether the loading state for the detail sheet matches the type of content being displayed, allowing the UI to show appropriate loading indicators based on the content type.
     /// - Parameter isSwiftDataContent: A `Bool` indicating whether the content being displayed is from SwiftData (`true`) or CoreData (`false`). The method uses this parameter to determine which loading state variable to check and returns `true` if the loading state for the detail sheet matches the content type, or `false` otherwise.
     func checkIsSwiftDataContent(isSwiftDataContent: Bool) -> Bool {
@@ -65,6 +69,7 @@ class DBDataViewModel {
         do {
             coreDataTables = try useCase.executeCoreData(for: device)
             coreDataRelationships = useCase.fetchRelationships(for: coreDataTables)
+            swiftDataRelationships = useCase.fetchRelationships(for: swiftDataTables)
             hasError = false
             error = nil
         } catch let dbError as DBError {
@@ -72,11 +77,13 @@ class DBDataViewModel {
             error = dbError
             coreDataTables = []
             coreDataRelationships = [:]
+            swiftDataRelationships = [:]
         } catch {
             hasError = true
             self.error = .queryFailed("Unknown error: \(error.localizedDescription)")
             coreDataTables = []
             coreDataRelationships = [:]
+            swiftDataRelationships = [:]
         }
     }
     

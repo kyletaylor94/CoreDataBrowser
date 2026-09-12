@@ -24,9 +24,11 @@ final class UserDefaultsViewModel: TableRefreshable {
     var isLoadingSheet: Bool = false
     
     private let useCase: UserDefaultsUseCase
+    let copyPathManager: CopyPathManager
     
-    init(useCase: UserDefaultsUseCase) {
+    init(useCase: UserDefaultsUseCase, copyPathManager: CopyPathManager) {
         self.useCase = useCase
+        self.copyPathManager = copyPathManager
     }
     
     var selectedTable: DBDataTable? {

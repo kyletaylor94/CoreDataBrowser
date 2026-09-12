@@ -22,7 +22,9 @@ struct DBDetailSection: View {
                     hasError: Binding.from(dbDataViewModel, keyPath: \.hasError),
                     errorMessage: dbDataViewModel.error?.localizedDescription,
                     onDismiss: { dbDataViewModel.selectedTable = nil },
-                    onErrorDismiss: { dbDataViewModel.hasError = false }
+                    onErrorDismiss: { dbDataViewModel.hasError = false },
+                    copyAction: { dbDataViewModel.copyPathManager.copyPath(for: coreDataTable, type: .coreData) },
+                    isCopied: dbDataViewModel.copyPathManager.copiedType == .coreData
                 )
             }
             if let swiftDataTable = dbDataViewModel.secondaryTable {
@@ -33,7 +35,9 @@ struct DBDetailSection: View {
                     hasError: Binding.from(dbDataViewModel, keyPath: \.hasError),
                     errorMessage: dbDataViewModel.error?.localizedDescription,
                     onDismiss: { dbDataViewModel.secondaryTable = nil },
-                    onErrorDismiss: { dbDataViewModel.hasError = false }
+                    onErrorDismiss: { dbDataViewModel.hasError = false },
+                    copyAction: { dbDataViewModel.copyPathManager.copyPath(for: swiftDataTable, type: .swiftData) },
+                    isCopied: dbDataViewModel.copyPathManager.copiedType == .swiftData
                 )
             }
             
@@ -45,7 +49,9 @@ struct DBDetailSection: View {
                     hasError: Binding.from(userDefaultsViewModel, keyPath: \.hasError),
                     errorMessage: userDefaultsViewModel.error?.localizedDescription,
                     onDismiss: { userDefaultsViewModel.selectedUserDefaultTable = nil },
-                    onErrorDismiss: { userDefaultsViewModel.hasError = false }
+                    onErrorDismiss: { userDefaultsViewModel.hasError = false },
+                    copyAction: { userDefaultsViewModel.copyPathManager.copyPath(for: userDefaultTable, type: .userDefaults) },
+                    isCopied: userDefaultsViewModel.copyPathManager.copiedType == .userDefaults
                 )
             }
         }

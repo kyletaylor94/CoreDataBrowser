@@ -10,6 +10,7 @@ import SwiftUI
 
 struct SchemaNodeView: View {
     let node: SchemaNode
+    let nodeWidth: CGFloat
     var isFocused: Bool = false
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -64,7 +65,7 @@ struct SchemaNodeView: View {
             }
             .padding(.horizontal, 10)
         }
-        .frame(width: SchemaGraphViewModel.nodeWidth, alignment: .leading)
+        .frame(width: nodeWidth, alignment: .leading)
         .fixedSize(horizontal: false, vertical: true)
         .background(Color("nodeAttributeBackgroundColor"), in: RoundedRectangle(cornerRadius: 0))
         .overlay {

@@ -30,7 +30,6 @@ final class UserDefaultsUseCaseImpl: UserDefaultsUseCase {
         for file in plistFiles {
             guard let dict = try? repository.readPlistFile(at: file) else { continue }
             let table = createTable(from: file, dict: dict)
-            
             if !tables.contains(where: { $0.name == table.name }) {
                 tables.append(table)
             }
@@ -52,7 +51,8 @@ final class UserDefaultsUseCaseImpl: UserDefaultsUseCase {
             columns: ["Key", "Value", "Type"],
             rows: rows,
             types: ["", "", ""],
-            fileSize: fileSize
+            fileSize: fileSize,
+            fileURL: file
         )
     }
     

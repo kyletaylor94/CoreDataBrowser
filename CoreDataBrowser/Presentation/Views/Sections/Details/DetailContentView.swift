@@ -16,13 +16,15 @@ struct DetailContentView: View {
     let errorMessage: String?
     let onDismiss: () -> Void
     let onErrorDismiss: () -> Void
+    let copyAction: () -> Void
+    let isCopied: Bool
     
     var body: some View {
         Group {
             if isLoading {
                 ProgressView()
             } else {
-                SourceHeaderView(displayedInfo: type.displayedInfo, action: onDismiss)
+                SourceHeaderView(displayedInfo: type.displayedInfo, action: onDismiss, copyAction: copyAction, isCopied: isCopied)
                 switch type {
                 case .userDefaults:
                     UserDefaultsTableView(table: table)

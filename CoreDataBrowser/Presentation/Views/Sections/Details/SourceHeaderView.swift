@@ -11,6 +11,8 @@ import SwiftUI
 struct SourceHeaderView: View {
     let displayedInfo: (title: String, icon: String)
     let action: () -> Void
+    let copyAction: () -> Void
+    let isCopied: Bool
     var body: some View {
         HStack {
             Image(systemName: displayedInfo.icon)
@@ -24,18 +26,12 @@ struct SourceHeaderView: View {
             }
             
             Spacer()
-
-            Button {
-                //TODO: - Needs to be implemented
-            } label: {
-                HStack{
-                    Text("Copy Path")
-                    
-                    Image(systemName: "doc.on.doc")
-                        .font(.title2)
-                        .foregroundStyle(.secondary)
-                }
+            
+            Button(action: copyAction) {
+                Label( isCopied ? "Copied" : "Copy Path", systemImage: isCopied ? "checkmark" : "doc.on.doc" )
             }
+            .animation(.easeInOut(duration: 0.15), value: isCopied)
+            
         }
         .padding()
         .background(Color(nsColor: .controlBackgroundColor))

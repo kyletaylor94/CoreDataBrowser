@@ -12,6 +12,7 @@ final class DIContainer {
     private lazy var pathManagerImpl = PathManagerImpl(fileManager: fileManager)
     private let blobDecoder = BlobDecoder()
     private lazy var sqliteExecutorImpl = SQLiteExecutor(blobDecoder: blobDecoder)
+    private let copyPathManager = CopyPathManager()
     
     var pathManager: PathManager {
         pathManagerImpl
@@ -37,13 +38,13 @@ final class DIContainer {
     private func makeDBDataViewModel() -> DBDataViewModel {
         let repo = DBRepositoryImpl(fileManager: fileManager, pathManager: pathManager, sqliteExecutor: sqliteExecutorImpl)
         let useCase = DBUseCaseImpl(repository: repo)
-        return DBDataViewModel(useCase: useCase)
+        return DBDataViewModel(useCase: useCase, copyPathManager: copyPathManager)
     }
     
     private func makeUserDefaultsViewModel() -> UserDefaultsViewModel {
         let repo = UserDefaultsRepositoryImpl(fileManager: fileManager)
         let useCase = UserDefaultsUseCaseImpl(repository: repo)
-        return UserDefaultsViewModel(useCase: useCase)
+        return UserDefaultsViewModel(useCase: useCase, copyPathManager: copyPathManager)
     }
     
     private func makeSearchViewModel() -> SearchViewModel {
@@ -53,6 +54,8 @@ final class DIContainer {
     }
     
     private func makeSchemaGraphViewModel() -> SchemaGraphViewModel {
-        return SchemaGraphViewModel(tables: [])
+        let repo = SchemaGraphRepositoryImpl()
+        let useCase = SchemaGraphUseCaseImpl(repository: repo)
+        return SchemaGraphViewModel(tables: [], usecase: useCase)
     }
 }

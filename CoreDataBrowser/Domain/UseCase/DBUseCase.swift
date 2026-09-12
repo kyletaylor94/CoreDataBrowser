@@ -95,13 +95,13 @@ final class DBUseCaseImpl: DBUseCase {
                 continue
             }
             
-            inferred.append(
-                DBForeignKey(
-                    column: column,
-                    destinationTable: matchedTable,
-                    destinationColumn: "Z_PK"
-                )
+            let dBForeignKey = DBForeignKey(
+                column: column,
+                destinationTable: matchedTable,
+                destinationColumn: "Z_PK"
             )
+            
+            inferred.append(dBForeignKey)
         }
         return inferred
     }

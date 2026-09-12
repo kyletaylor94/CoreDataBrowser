@@ -16,7 +16,7 @@ struct SchemaGraphEmptyStateView: View {
                 .foregroundStyle(.secondary)
             Text("No schema data available")
                 .font(.headline)
-            Text("Select a Core Data model to visualize its entities and relationships.")
+            Text("Select a booted simulator, then choose a CoreData or SwiftData data source to visualize its entities and relationships.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }

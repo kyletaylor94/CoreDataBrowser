@@ -27,11 +27,13 @@ final class SchemaGraphViewModel {
     var isSchemaGraphPresented: Bool = false
     let connectorPalette: [Color] = [.blue, .teal, .purple, .orange, .pink, .indigo, .mint, .cyan]
     
-    var disableGraphView: Bool {
-        return graph.nodes.isEmpty || graph.relationships.isEmpty
-    }
-    
+    var isLoadingContent: Bool = false
     var selectedGraphViewType: GraphViewType = .coreData
+
+    private var coreDataTables: [DBDataTable] = []
+    private var coreDataRelationships: [String: [DBForeignKey]] = [:]
+    private var swiftDataTables: [DBDataTable] = []
+    private var swiftDataRelationships: [String: [DBForeignKey]] = [:]
     
     var zoomScale: CGFloat = 1.0
     let minZoom: CGFloat = 0.25
@@ -39,13 +41,8 @@ final class SchemaGraphViewModel {
     let zoomStep: CGFloat = 0.1
     var gestureStartZoom: CGFloat = 1.0
     
-    let usecase: SchemaGraphUseCase
+    private let usecase: SchemaGraphUseCase
 
-    /// The fixed width used for every node card, sourced from the use case's layout engine.
-    var nodeWidth: CGFloat {
-        usecase.nodeWidth
-    }
-    
     init(entities: [NSEntityDescription], usecase: SchemaGraphUseCase) {
         self.usecase = usecase
         self.graph = usecase.buildGraph(from: entities)
@@ -64,7 +61,80 @@ final class SchemaGraphViewModel {
         self.graph = usecase.buildGraph(tables: tables, relationships: relationships)
         setupInitialPositions()
     }
+    
+    /// The fixed width used for every node card, sourced from the use case's layout engine.
+    var nodeWidth: CGFloat {
+        usecase.nodeWidth
+    }
+    
+    /// A convenience property that returns `true` if the graph has no nodes to display. This can be used to show an empty state view.
+    var shouldShowEmptyView: Bool {
+        return graph.nodes.isEmpty
+    }
+    
+    /// A convenience property that returns `true` if the graph is currently loading content or if it has no nodes to display. This can be used to disable UI elements  should not be interactive while the graph is in a loading state or empty.
+    var disableButtonStack: Bool {
+        isLoadingContent || shouldShowEmptyView
+    }
+    
+    func setGraphViewType(_ type: GraphViewType) {
+        guard selectedGraphViewType != type else { return }
 
+        selectedGraphViewType = type
+        updateGraph()
+    }
+    
+    func loadInitialContent() {
+        guard !isLoadingContent else { return }
+        isLoadingContent = true
+
+        Task { [weak self] in
+            try? await Task.sleep(for: .milliseconds(500))
+            self?.isLoadingContent = false
+        }
+    }
+    
+    private func updateGraph() {
+        let previousPositions = nodePositions
+        isLoadingContent = true
+
+        Task {
+            try? await Task.sleep(for: .milliseconds(300))
+
+            switch selectedGraphViewType {
+            case .coreData:
+                graph = usecase.buildGraph(
+                    tables: coreDataTables,
+                    relationships: coreDataRelationships
+                )
+
+            case .swiftData:
+                graph = usecase.buildGraph(
+                    tables: swiftDataTables,
+                    relationships: swiftDataRelationships
+                )
+            }
+            setupInitialPositions(preserving: previousPositions)
+            isLoadingContent = false
+        }
+    }
+    
+    func updateCoreData(tables: [DBDataTable], relationships: [String: [DBForeignKey]]) {
+        coreDataTables = tables
+        coreDataRelationships = relationships
+
+        guard selectedGraphViewType == .coreData else { return }
+        updateGraph()
+    }
+
+    func updateSwiftData(tables: [DBDataTable], relationships: [String: [DBForeignKey]]) {
+        swiftDataTables = tables
+        swiftDataRelationships = relationships
+
+        guard selectedGraphViewType == .swiftData else { return }
+        updateGraph()
+    }
+    
     func zoomIn() {
         zoomScale = min(zoomScale + zoomStep, maxZoom)
     }
@@ -77,20 +147,6 @@ final class SchemaGraphViewModel {
         zoomScale = 1.0
     }
     
-    /// Rebuilds the graph from the current set of Core Data tables and their foreign key relationships.
-    /// Existing node positions are preserved where possible so the layout doesn't jump around on refresh.
-    /// - Parameters:
-    ///   - tables: The entity tables to visualize.
-    ///   - relationships: Foreign keys for each table, keyed by table name.
-    ///   - focusedTableName: The name of the table (if any) that should be highlighted, e.g. the entity
-    ///     the user just selected in the CoreData table list.
-    func update(tables: [DBDataTable], relationships: [String: [DBForeignKey]], focusedTableName: String? = nil) {
-        let previousPositions = nodePositions
-        graph = usecase.buildGraph(tables: tables, relationships: relationships)
-        setupInitialPositions(preserving: previousPositions)
-        focusedNodeID = usecase.focusedNodeID(forRawName: focusedTableName, in: graph)
-    }
-
     /// Highlights the node matching the given raw table name (e.g. `"ZFRUITENTITY"`) without rebuilding
     /// the whole graph. The name is normalized the same way node names are displayed before matching.
     func focusNode(named tableName: String?) {

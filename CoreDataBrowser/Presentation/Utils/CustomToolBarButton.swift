@@ -9,6 +9,7 @@ import Foundation
 import SwiftUI
 
 struct CustomToolBarButton: ToolbarContent {
+    let helpText: String
     let placement: ToolbarItemPlacement
     var icon: String? = ""
     var text: String? = ""
@@ -25,6 +26,7 @@ struct CustomToolBarButton: ToolbarContent {
                     Image(systemName: icon!)
                 }
             }
+            .help(helpText)
         }
     }
 }

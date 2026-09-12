@@ -26,7 +26,7 @@ struct DBMoreDetailSheetView: View {
         }
         .navigationTitle("Row Details")
         .toolbar {
-            CustomToolBarButton(placement: .confirmationAction, text: "Done") {
+            CustomToolBarButton(helpText: "Dismiss the row details view",placement: .confirmationAction, text: "Done") {
                 dismiss()
             }
         }

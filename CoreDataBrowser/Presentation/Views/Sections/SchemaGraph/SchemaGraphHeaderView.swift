@@ -10,6 +10,7 @@ import SwiftUI
 
 struct SchemaGraphHeaderView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(SchemaGraphViewModel.self) var viewModel
     var body: some View {
         HStack {
             Image(systemName: "point.3.connected.trianglepath.dotted")
@@ -18,6 +19,20 @@ struct SchemaGraphHeaderView: View {
             Text("Schema Graph")
                 .font(.headline)
             
+            
+            Picker("", selection: Binding(
+                get: { viewModel.selectedGraphViewType },
+                set: { viewModel.setGraphViewType($0) }
+            )) {
+                Text("CoreData")
+                    .tag(GraphViewType.coreData)
+                
+                Text("SwiftData")
+                    .tag(GraphViewType.swiftData)
+            }
+            .pickerStyle(.segmented)
+            .fixedSize()
+                        
             Button {
                 dismiss()
             } label: {

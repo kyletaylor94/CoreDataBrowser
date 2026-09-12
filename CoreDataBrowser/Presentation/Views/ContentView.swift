@@ -44,7 +44,10 @@ struct ContentView: View {
             DBDetailSection()
         }
         .onChange(of: dbDataViewModel.coreDataTables) { _, newTables in
-            updateSchemaGraph(tables: newTables)
+            schemaGraphViewModel.updateCoreData(tables: newTables, relationships: dbDataViewModel.coreDataRelationships)
+        }
+        .onChange(of: dbDataViewModel.swiftDataTables) { _, newTables in
+            schemaGraphViewModel.updateSwiftData(tables: newTables, relationships: dbDataViewModel.swiftDataRelationships)
         }
         .onChange(of: dbDataViewModel.selectedTable) { _, newTable in
             schemaGraphViewModel.focusNode(named: newTable?.name)
@@ -73,15 +76,15 @@ struct ContentView: View {
             await refreshAllData()
         }
         .toolbar {
-            CustomToolBarButton(placement: .navigation, icon: "arrow.trianglehead.2.clockwise") {
+            CustomToolBarButton(helpText: "Refresh all data", placement: .navigation, icon: "arrow.trianglehead.2.clockwise") {
                 Task { await refreshAllData() }
             }
             
-            CustomToolBarButton(placement: .primaryAction, icon: "point.3.connected.trianglepath.dotted") {
+            CustomToolBarButton(helpText: "Toggle schema graph presentation", placement: .primaryAction, icon: "point.3.connected.trianglepath.dotted") {
                 schemaGraphViewModel.isSchemaGraphPresented.toggle()
             }
             
-            CustomToolBarButton(placement: .primaryAction, icon: "gearshape") {
+            CustomToolBarButton(helpText: "Open settings", placement: .primaryAction, icon: "gearshape") {
                 pathManager.isSheetPresented.toggle()
             }
         }
@@ -91,11 +94,11 @@ struct ContentView: View {
         .sheet(isPresented: .from(pathManager, keyPath: \.isSheetPresented)) {
             AppFolderSheet(pathManager: pathManager)
         }
-        .sheet(isPresented: .from(schemaGraphViewModel, keyPath: \.isSchemaGraphPresented), content: {
+        .sheet(isPresented: .from(schemaGraphViewModel, keyPath: \.isSchemaGraphPresented)) {
             SchemaGraphView()
                 .environment(schemaGraphViewModel)
                 .frame(minWidth: 1000, idealWidth: 1300, minHeight: 700, idealHeight: 850)
-        })
+        }
         .createAlert(
             isPresented: .from(simulatorViewModel, keyPath: \.shouldShowError),
             errorMessage: simulatorViewModel.currentError?.errorDescription,
@@ -160,15 +163,5 @@ private extension ContentView {
                 userDefaultsViewModel.selectedUserDefaultTable = updated
             }
         }
-    }
-    
-    /// Rebuilds the Schema Graph from the currently loaded CoreData tables and their foreign key
-    /// relationships, keeping the currently selected entity (if any) highlighted.
-    private func updateSchemaGraph(tables: [DBDataTable]) {
-        schemaGraphViewModel.update(
-            tables: tables,
-            relationships: dbDataViewModel.coreDataRelationships,
-            focusedTableName: dbDataViewModel.selectedTable?.name
-        )
     }
 }

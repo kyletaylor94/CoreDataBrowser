@@ -7,9 +7,9 @@
 
 import SwiftUI
 
-/// Displays the Core Data model as an interactive, draggable node graph.
+/// Displays the CoreData / SwiftData model as an interactive, draggable node graph.
 /// Nodes represent entities, connector lines represent relationships between them, routed from the
-/// exact relationship field row (like Xcode's Model Diagram viewer).
+/// exact relationship field row.
 struct SchemaGraphView: View {
     @Environment(SchemaGraphViewModel.self) var viewModel
     @Environment(\.dismiss) private var dismiss
@@ -18,10 +18,10 @@ struct SchemaGraphView: View {
         VStack(spacing: 0) {
             SchemaGraphHeaderView()
             Divider()
-            //MARK: - Canvas
+            
             ScrollView([.horizontal, .vertical]) {
                 ZStack(alignment: .topLeading) {
-                    /// RelationshipLines
+                    //MARK: - RelationshipLines
                     ForEach(Array(viewModel.graph.relationships.enumerated()), id: \.element.id) { index, relationship in
                         if let points = viewModel.connectorPoints(for: relationship) {
                             RelationshipConnector(points: points, color: viewModel.connectorPalette[index % viewModel.connectorPalette.count])
@@ -47,11 +47,7 @@ struct SchemaGraphView: View {
                     MagnifyGesture()
                         .onChanged { value in
                             let newZoom = viewModel.gestureStartZoom * value.magnification
-                            
-                            viewModel.zoomScale = min(
-                                max(newZoom, viewModel.minZoom),
-                                viewModel.maxZoom
-                            )
+                            viewModel.zoomScale = min(max(newZoom, viewModel.minZoom), viewModel.maxZoom)
                         }
                         .onEnded { _ in
                             viewModel.gestureStartZoom = viewModel.zoomScale
@@ -60,14 +56,21 @@ struct SchemaGraphView: View {
             }
             .background(Color(nsColor: .textBackgroundColor))
             .overlay {
-                if viewModel.graph.nodes.isEmpty {
+                if viewModel.shouldShowEmptyView {
                     SchemaGraphEmptyStateView()
+                }
+            }
+            .overlay {
+                if viewModel.isLoadingContent {
+                    ModifiedProgressView()
                 }
             }
             .overlay(alignment: .bottom) {
                 SchemaBottomButtonStack(gestureStartZoom: .from(viewModel, keyPath: \.gestureStartZoom))
+                    .disabled(viewModel.disableButtonStack)
             }
         }
         .onExitCommand { dismiss() }
+        .task { viewModel.loadInitialContent() }
     }
 }

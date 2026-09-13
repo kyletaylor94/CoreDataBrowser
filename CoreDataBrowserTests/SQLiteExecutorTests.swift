@@ -187,7 +187,7 @@ struct SQLiteExecutorTests {
         
         var stmt: OpaquePointer?
         sqlite3_prepare_v2(db, "INSERT INTO Files VALUES (1, ?);", -1, &stmt, nil)
-        blobData.withUnsafeBytes { ptr in
+        let _ = blobData.withUnsafeBytes { ptr in
             sqlite3_bind_blob(stmt, 1, ptr.baseAddress, Int32(blobData.count), unsafeBitCast(-1, to: sqlite3_destructor_type.self))
         }
         sqlite3_step(stmt)

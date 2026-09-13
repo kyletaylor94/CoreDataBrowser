@@ -237,7 +237,19 @@ final class MockPathManager: PathManager {
         // Mock implementation - not needed for SimulatorRepository tests
     }
     
+    func selectSimulatorFolder(for binding: Binding<String>) {
+        // Mock implementation - not needed for SimulatorRepository tests
+    }
+    
     func resetPaths() {
+        // Mock implementation - not needed for SimulatorRepository tests
+    }
+    
+    func resolveSimulatorRootURL() throws -> URL {
+        URL(fileURLWithPath: simulatorPath)
+    }
+    
+    func invalidateSimulatorAccess() {
         // Mock implementation - not needed for SimulatorRepository tests
     }
 }

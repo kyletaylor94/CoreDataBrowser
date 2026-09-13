@@ -1,0 +1,28 @@
+{
+  "configurations" : [
+    {
+      "id" : "AABBCCDD-0011-2233-4455-667788990011",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:CoreDataBrowser.xcodeproj",
+      "identifier" : "985280C92EB2A0A700F61A81",
+      "name" : "CoreDataBrowser"
+    }
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:CoreDataBrowser.xcodeproj",
+        "identifier" : "98F31A6B2F67409D0053A431",
+        "name" : "CoreDataBrowserTests"
+      }
+    }
+  ],
+  "version" : 1
+}

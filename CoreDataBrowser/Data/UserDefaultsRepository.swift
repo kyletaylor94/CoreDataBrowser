@@ -43,7 +43,7 @@ final class UserDefaultsRepositoryImpl: UserDefaultsRepository {
             
             let validPlistFiles = contents.filter {
                 $0.pathExtension == PathConstants.plistExtension &&
-                !$0.lastPathComponent.hasPrefix("com.apple.")
+                !$0.lastPathComponent.hasPrefix(DatabaseConstants.UserDefaults.dotComApple)
             }
             
             plistFiles.append(contentsOf: validPlistFiles)

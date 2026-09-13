@@ -32,6 +32,5 @@ final class CopyPathManager {
                 self?.copiedType = nil
             }
         }
-        print("Extracted path: \(fileURL.path)")
     }
 }

@@ -14,13 +14,13 @@ enum PathType: CaseIterable, Hashable {
     var attributes: (title: String, placeholder: String) {
         switch self {
         case .simulator:
-            return (title: "Simulators Path", placeholder: PathConstants.simulatorPath)
+            return (title: AppConstants.PathTypeStrings.simulator, placeholder: PathConstants.simulatorPath)
         case .coreData:
-            return (title: "CoreData Path", placeholder: PathConstants.libraryApplicationSupportPath)
+            return (title: AppConstants.PathTypeStrings.coreData, placeholder: PathConstants.libraryApplicationSupportPath)
         case .swiftData:
-            return (title: "SwiftData Path", placeholder: PathConstants.libraryApplicationSupportPath)
+            return (title: AppConstants.PathTypeStrings.swiftData, placeholder: PathConstants.libraryApplicationSupportPath)
         case .userDefaults:
-            return (title: "UserDefaults Path", placeholder: PathConstants.libraryPreferencesPath)
+            return (title: AppConstants.PathTypeStrings.userDefaults, placeholder: PathConstants.libraryPreferencesPath)
         }
     }
     func binding(from pathManager: PathManagerImpl) -> Binding<String> {

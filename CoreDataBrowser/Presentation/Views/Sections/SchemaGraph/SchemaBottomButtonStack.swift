@@ -17,9 +17,9 @@ struct SchemaBottomButtonStack: View {
                 viewModel.resetZoom()
                 gestureStartZoom = 1.0
             } label: {
-                Image(systemName: "arrow.trianglehead.counterclockwise")
+                Image(systemName: AppConstants.SchemaGraphIcons.resetZoom)
             }
-            .help("Reset Zoom")
+            .help(AppConstants.SchemaGraphStrings.resetZoom)
 
             Divider()
                 .frame(height: 18)
@@ -28,9 +28,9 @@ struct SchemaBottomButtonStack: View {
             Button {
                 viewModel.zoomOut()
             } label: {
-                Image(systemName: "minus.magnifyingglass")
+                Image(systemName: AppConstants.SchemaGraphIcons.zoomOut)
             }
-            .help("Zoom Out")
+            .help(AppConstants.SchemaGraphStrings.zoomOut)
 
             Text("\(Int(viewModel.zoomScale * 100))%")
                 .font(.system(size: 13, weight: .medium))
@@ -41,9 +41,9 @@ struct SchemaBottomButtonStack: View {
             Button {
                 viewModel.zoomIn()
             } label: {
-                Image(systemName: "plus.magnifyingglass")
+                Image(systemName: AppConstants.SchemaGraphIcons.zoomIn)
             }
-            .help("Zoom In")
+            .help(AppConstants.SchemaGraphStrings.zoomIn)
         }
         .buttonStyle(.borderless)
         .padding(.horizontal, 10)

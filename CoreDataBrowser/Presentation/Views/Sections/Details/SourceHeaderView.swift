@@ -21,14 +21,17 @@ struct SourceHeaderView: View {
             Text(displayedInfo.title)
                 .font(.largeTitle)
                 .fontWeight(.bold)
-            Button("Remove from the board") {
+            Button(AppConstants.SourceHeaderStrings.remove) {
                 action()
             }
             
             Spacer()
             
             Button(action: copyAction) {
-                Label( isCopied ? "Copied" : "Copy Path", systemImage: isCopied ? "checkmark" : "doc.on.doc" )
+                Label(
+                    isCopied ? AppConstants.SourceHeaderStrings.copied : AppConstants.SourceHeaderStrings.copyPath,
+                    systemImage: isCopied ? AppConstants.SourceHeaderIcons.checkmark : AppConstants.SourceHeaderIcons.docOnDoc
+                )
             }
             .animation(.easeInOut(duration: 0.15), value: isCopied)
             

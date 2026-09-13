@@ -32,7 +32,7 @@ struct PathRow: View {
                         pathManager.selectFolder(for: $text)
                     }
                 } label: {
-                    Image(systemName: "folder")
+                    Image(systemName: AppConstants.PathRowIcon.folder)
                 }
             }
         }

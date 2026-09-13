@@ -17,19 +17,19 @@ struct SimulatorSection: View {
             ProgressView()
         } else if simulatorViewModel.devices.isEmpty {
             ContentUnavailableView {
-                Label("Simulator Access Needed", systemImage: "lock.fill")
+                Label(AppConstants.SimulatorStrings.simulatorAccessNeeded, systemImage: AppConstants.SimulatorIcons.lock)
             } description: {
-                Text(simulatorViewModel.currentError?.errorDescription ?? "An unknown error occurred.")
+                Text(simulatorViewModel.currentError?.errorDescription ?? AppConstants.SimulatorStrings.unknownError)
             } actions: {
-                Button("Grant Access") {
+                Button(PathConstants.grantAccess) {
                     Task { await simulatorViewModel.loadSimulators() }
                 }
             }
         } else if simulatorViewModel.shouldShowEmptyDeviceView {
             ContentUnavailableView(
-                "No Simulators Found",
-                systemImage: "iphone.slash",
-                description: Text("No simulator devices are available. Please check your Xcode installation or start a simulator.")
+                AppConstants.SimulatorStrings.noSimulatorsFound,
+                systemImage: AppConstants.SimulatorIcons.iphoneSlash,
+                description: Text(AppConstants.SimulatorStrings.noSimulatorsFoundSubtitle)
             )
         } else {
             SimulatorListView()

@@ -56,7 +56,7 @@ class PathManagerImpl: PathManager {
     
     private let panel = NSOpenPanel()
     private let fileManager: FileManager
-    private let simulatorBookmarkKey = "simulatorRootBookmarkData"
+    private let simulatorBookmarkKey = PathConstants.simulatorBookMarkKey
     /// The currently active, security-scoped URL for the Simulator "Devices" folder, kept alive for the app's session so repeated file access doesn't need to re-resolve the bookmark every time.
     private var accessedSimulatorRootURL: URL?
     
@@ -110,8 +110,8 @@ class PathManagerImpl: PathManager {
         accessPanel.canChooseDirectories = true
         accessPanel.allowsMultipleSelection = false
         accessPanel.canCreateDirectories = false
-        accessPanel.message = "CoreDataBrowser needs access to your Simulator devices to browse their app data. Select the top-level “Devices” folder itself — do not open it and select one of the simulator folders inside."
-        accessPanel.prompt = "Grant Access"
+        accessPanel.message = PathConstants.accessPanelMessage
+        accessPanel.prompt = PathConstants.grantAccess
         accessPanel.directoryURL = fileManager.realHomeDirectoryForCurrentUser
             .appendingPathComponent(simulatorPath)
         

@@ -17,7 +17,7 @@ struct SchemaNodeView: View {
             HStack {
                 Text(node.name)
                     .font(.system(size: 13, weight: .semibold))
-                    .foregroundStyle(Color("nodeEntityColor"))
+                    .foregroundStyle(AppConstants.Colors.nodeEntityColor)
                     .lineLimit(1)
                     .truncationMode(.tail)
             }
@@ -25,7 +25,7 @@ struct SchemaNodeView: View {
             .padding(.horizontal, 10)
             .padding(.vertical, 7)
             .background(
-                Color("nodeEntityBackgroundColor"),
+                AppConstants.Colors.nodeEntityBackgroundColor,
                 in: UnevenRoundedRectangle(
                     topLeadingRadius: 5,
                     bottomLeadingRadius: 0,
@@ -38,20 +38,20 @@ struct SchemaNodeView: View {
                 ForEach(node.fields) { field in
                     HStack(spacing: 6) {
                         if field.isRelationship {
-                            Image(systemName: "arrowshape.turn.up.right.fill")
+                            Image(systemName: AppConstants.SchemaNodeIcons.arrowshapeTurnUpRightFill)
                                 .font(.system(size: 8))
                                 .foregroundStyle(Color.accentColor)
                         }
                         
                         Text(field.name)
                             .font(.system(size: 11, weight: .heavy, design: .monospaced))
-                            .foregroundStyle(Color("nodeAttributeColor"))
+                            .foregroundStyle(AppConstants.Colors.nodeAttributeColor)
                             .lineLimit(1)
                             .truncationMode(.tail)
                         
-                        Text(field.type + (field.isOptional ? "?" : ""))
+                        Text(field.type + (field.isOptional ? AppConstants.questionMark : AppConstants.emptyString))
                             .font(.system(size: 10, weight: .heavy, design: .monospaced))
-                            .foregroundStyle(Color.isSystemDeclaredType(field.type) ? Color("nodeSwiftTypeColor") : Color("nodeCustomObjectColor"))
+                            .foregroundStyle(Color.isSystemDeclaredType(field.type) ? AppConstants.Colors.nodeSwiftTypeColor : AppConstants.Colors.nodeCustomObjectColor)
                             .lineLimit(1)
                             .truncationMode(.tail)
                             .layoutPriority(1)
@@ -67,7 +67,7 @@ struct SchemaNodeView: View {
         }
         .frame(width: nodeWidth, alignment: .leading)
         .fixedSize(horizontal: false, vertical: true)
-        .background(Color("nodeAttributeBackgroundColor"), in: RoundedRectangle(cornerRadius: 0))
+        .background(AppConstants.Colors.nodeAttributeBackgroundColor, in: RoundedRectangle(cornerRadius: 0))
         .overlay {
             RoundedRectangle(cornerRadius: 5)
                 .stroke(isFocused ? Color.accentColor : .secondary.opacity(0.4), lineWidth: isFocused ? 2.5 : 1)

@@ -12,9 +12,9 @@ extension View {
     func createAlert(isPresented: Binding<Bool>, errorMessage: String?, onDismiss: @escaping () -> Void) -> some View {
         self.alert(isPresented: isPresented) {
             Alert(
-                title: Text("Error!"),
-                message: Text(errorMessage ?? "Unknown Error"),
-                dismissButton: .default(Text("OK"), action: onDismiss)
+                title: Text(AppConstants.error),
+                message: Text(errorMessage ?? AppConstants.unknownError),
+                dismissButton: .default(Text(AppConstants.ok), action: onDismiss)
             )
         }
     }
@@ -51,17 +51,10 @@ extension Binding {
 /// Helper for classifying a field's type name so the Schema Graph can color system/Apple-declared
 /// types (`nodeSwiftTypeColor`) differently from custom/user entity types (`nodeCustomObjectColor`).
 extension Color {
-    /// The set of storage/attribute type names this app can encounter that are actually declared by
-    /// Apple (Foundation attribute types, or raw SQLite storage classes Core Data maps them to).
-    private static let systemDeclaredTypeNames: Set<String> = [
-        "STRING", "INT", "INT16", "INT32", "INT64", "DECIMAL", "DOUBLE", "FLOAT", "BOOL", "BOOLEAN",
-        "DATE", "DATA", "UUID", "URL", "TRANSFORMABLE", "OBJECTID",
-        "INTEGER", "VARCHAR", "TIMESTAMP", "BLOB", "TEXT", "DATETIME", "NUMERIC", "CHAR", "CLOB", "REAL"
-    ]
     /// Whether the given type name (ignoring an optional trailing `?`) is one Apple declares, as
     /// opposed to a custom/user entity type.
     static func isSystemDeclaredType(_ type: String) -> Bool {
-        let trimmed = type.hasSuffix("?") ? String(type.dropLast()) : type
-        return systemDeclaredTypeNames.contains(trimmed.uppercased())
+        let trimmed = type.hasSuffix(AppConstants.questionMark) ? String(type.dropLast()) : type
+        return AppConstants.systemDeclaredTypeNames.contains(trimmed.uppercased())
     }
 }

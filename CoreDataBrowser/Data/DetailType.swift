@@ -15,11 +15,11 @@ enum DetailType {
     var displayedInfo: (title: String, icon: String) {
         switch self {
         case .coreData:
-            (title: "CoreData", icon: "cylinder.split.1x2")
+            (title: AppConstants.DataSourceName.coreData, icon: AppConstants.DataSourceIcons.coreData)
         case .swiftData:
-            (title: "SwiftData", icon: "externaldrive.badge.checkmark")
+            (title: AppConstants.DataSourceName.swiftData, icon: AppConstants.DataSourceIcons.swiftData)
         case .userDefaults:
-            (title: "UserDefaults", icon: "gearshape.2")
+            (title: AppConstants.DataSourceName.userDefaults, icon: AppConstants.DataSourceIcons.userDefaults)
         }
     }
 }

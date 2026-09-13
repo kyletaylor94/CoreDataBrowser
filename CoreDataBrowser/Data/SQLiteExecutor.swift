@@ -77,12 +77,12 @@ final class SQLiteExecutor {
     ///  - table: The name of the table for which to fetch foreign key constraints.
     /// - Returns: An array of `DBForeignKey` describing each foreign key constraint found on the table.
     func fetchForeignKeys(databaseURL: URL, table: String) -> [DBForeignKey] {
-        executeMultiple(at: databaseURL, query: "PRAGMA foreign_key_list(\"\(table)\");") { statement -> DBForeignKey? in
+        executeMultiple(at: databaseURL, query: DatabaseConstants.foreignKeyQuery(from: table)) { statement -> DBForeignKey? in
             guard let destinationTable = sqlite3_column_text(statement, 2),
                   let fromColumn = sqlite3_column_text(statement, 3) else {
                 return nil
             }
-            let toColumn = sqlite3_column_text(statement, 4).map { String(cString: $0) } ?? "Z_PK"
+            let toColumn = sqlite3_column_text(statement, 4).map { String(cString: $0) } ?? DatabaseConstants.zPK
             return DBForeignKey(
                 column: String(cString: fromColumn),
                 destinationTable: String(cString: destinationTable),
@@ -172,7 +172,7 @@ final class SQLiteExecutor {
             if let value = sqlite3_column_text(statement, index) {
                 return String(cString: value)
             }
-            return "NULL"
+            return DatabaseConstants.null
             
         case SQLITE_BLOB:
             let bytes = sqlite3_column_blob(statement, index)
@@ -183,12 +183,12 @@ final class SQLiteExecutor {
                 if let decoded = blobDecoder.decode(from: data) {
                     return decoded
                 }
-                return "BLOB (\(length) bytes)"
+                return DatabaseConstants.sqliteBlob(length: length)
             }
-            return "BLOB"
+            return DatabaseConstants.blob
             
         default:
-            return "NULL"
+            return DatabaseConstants.null
         }
     }
 }

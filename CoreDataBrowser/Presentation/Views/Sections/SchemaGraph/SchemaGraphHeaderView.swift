@@ -13,21 +13,20 @@ struct SchemaGraphHeaderView: View {
     @Environment(SchemaGraphViewModel.self) var viewModel
     var body: some View {
         HStack {
-            Image(systemName: "point.3.connected.trianglepath.dotted")
+            Image(systemName: AppConstants.SchemaGraphIcons.schemaGraph)
                 .foregroundStyle(.secondary)
             
-            Text("Schema Graph")
+            Text(AppConstants.SchemaGraphStrings.schemaGraph)
                 .font(.headline)
             
-            
-            Picker("", selection: Binding(
+            Picker(AppConstants.emptyString, selection: Binding(
                 get: { viewModel.selectedGraphViewType },
                 set: { viewModel.setGraphViewType($0) }
             )) {
-                Text("CoreData")
+                Text(AppConstants.SchemaGraphStrings.coreData)
                     .tag(GraphViewType.coreData)
                 
-                Text("SwiftData")
+                Text(AppConstants.SchemaGraphStrings.swiftData)
                     .tag(GraphViewType.swiftData)
             }
             .pickerStyle(.segmented)
@@ -36,14 +35,14 @@ struct SchemaGraphHeaderView: View {
             Button {
                 dismiss()
             } label: {
-                Image(systemName: "xmark.circle.fill")
+                Image(systemName: AppConstants.SchemaGraphIcons.dismiss)
                     .font(.system(size: 18))
                     .foregroundStyle(.secondary)
             }
             .frame(maxWidth: .infinity, alignment: .trailing)
             .buttonStyle(.plain)
             .keyboardShortcut(.cancelAction)
-            .help("Close")
+            .help(AppConstants.SchemaGraphStrings.close)
         }
         .padding(.horizontal)
         .padding(.vertical, 10)

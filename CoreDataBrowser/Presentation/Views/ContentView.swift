@@ -72,15 +72,15 @@ struct ContentView: View {
             await contentViewModel.loadInitialData()
         }
         .toolbar {
-            CustomToolBarButton(helpText: "Refresh all data", placement: .navigation, icon: "arrow.trianglehead.2.clockwise") {
+            CustomToolBarButton(helpText: AppConstants.ToolBarStrings.refresh, placement: .navigation, icon: AppConstants.ToolBarIcons.refresh) {
                 Task { await contentViewModel.refreshAllData() }
             }
             
-            CustomToolBarButton(helpText: "Toggle schema graph presentation", placement: .primaryAction, icon: "point.3.connected.trianglepath.dotted") {
+            CustomToolBarButton(helpText: AppConstants.ToolBarStrings.schemaGraph, placement: .primaryAction, icon: AppConstants.ToolBarIcons.schemaGraph) {
                 schemaGraphViewModel.isSchemaGraphPresented.toggle()
             }
             
-            CustomToolBarButton(helpText: "Open settings", placement: .primaryAction, icon: "gearshape") {
+            CustomToolBarButton(helpText: AppConstants.ToolBarStrings.settings, placement: .primaryAction, icon: AppConstants.ToolBarIcons.settings) {
                 pathManager.isSheetPresented.toggle()
             }
         }

@@ -124,9 +124,9 @@ final class UserDefaultsViewModel {
     func makeRows(from table: DBDataTable) -> [UserDefaultsRow] {
         table.rows.map { row in
             UserDefaultsRow(
-                key: row.count > 0 ? row[0] : "",
-                value: row.count > 1 ? row[1] : "",
-                type: row.count > 2 ? row[2] : ""
+                key: row.count > 0 ? row[0] : AppConstants.emptyString,
+                value: row.count > 1 ? row[1] : AppConstants.emptyString,
+                type: row.count > 2 ? row[2] : AppConstants.emptyString
             )
         }
     }

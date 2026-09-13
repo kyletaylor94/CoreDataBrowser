@@ -7,9 +7,23 @@
 
 import Foundation
 
-enum UserDefaultColumn: String, CaseIterable , Identifiable {
-    case key = "Key"
-    case value = "Value"
-    case type = "Type"
-    var id: String { return self.rawValue }
+enum UserDefaultColumn: CaseIterable, Identifiable {
+    case key
+    case value
+    case type
+
+    var id: String {
+        name
+    }
+
+    var name: String {
+        switch self {
+        case .key:
+            DatabaseConstants.UserDefaults.key
+        case .value:
+            DatabaseConstants.UserDefaults.value
+        case .type:
+            DatabaseConstants.UserDefaults.type
+        }
+    }
 }

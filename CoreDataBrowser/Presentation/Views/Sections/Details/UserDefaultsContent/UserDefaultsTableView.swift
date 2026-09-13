@@ -17,7 +17,7 @@ struct UserDefaultsTableView: View {
         let rows = userDefaultsViewModel.makeRows(from: table)
         Table(of: UserDefaultsRow.self, selection: userDefaultsViewModel.bindingRowSelection(rows: rows)) {
             TableColumnForEach(UserDefaultColumn.allCases) { column in
-                TableColumn(column.rawValue) { row in
+                TableColumn(column.name) { row in
                     searchViewModel.highlightMatch(in: userDefaultsViewModel.getText(for: column, from: row))
                 }
             }

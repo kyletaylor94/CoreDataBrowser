@@ -14,7 +14,7 @@ struct AppFolderSheet: View {
     
     var body: some View {
         VStack(spacing: 20) {
-            Text("Would you like to change the app folder paths?")
+            Text(AppConstants.AppFolderStrings.title)
                 .font(.headline)
             
             VStack(spacing: 16) {
@@ -24,16 +24,16 @@ struct AppFolderSheet: View {
             }
            //MARK: - Button sections
             HStack {
-                Button("Reset to Defaults") {
+                Button(AppConstants.AppFolderStrings.resetDefaults) {
                     focusedField = nil
                     pathManager.resetPaths()
                 }
                 Spacer()
-                Button("Cancel") {
+                Button(AppConstants.AppFolderStrings.cancel) {
                     pathManager.isSheetPresented = false
                 }
                 .keyboardShortcut(.cancelAction)
-                Button("Save") {
+                Button(AppConstants.AppFolderStrings.save) {
                     pathManager.isSheetPresented = false
                 }
                 .keyboardShortcut(.defaultAction)

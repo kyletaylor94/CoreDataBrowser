@@ -17,15 +17,15 @@ enum SimulatorError: LocalizedError, Equatable {
     var errorDescription: String? {
         switch self {
         case .cannotAccessDevicesFolder:
-            return "Could not access the Simulator devices folder."
+            return AppConstants.SimulatorStrings.cannotAccessDeviceFolder
         case .cannotReadPlist:
-            return "Could not read the simulator's device.plist file."
+            return AppConstants.SimulatorStrings.cannotReadPList
         case .invalidPlistFormat:
-            return "The device.plist file has an invalid format."
+            return AppConstants.SimulatorStrings.invalidPListFormat
         case .accessNotGranted:
-            return "Access to the Simulator devices folder was not granted. Please select the folder to continue."
+            return AppConstants.SimulatorStrings.accessNotGranted
         case .selectedSpecificSimulatorFolder:
-            return "You selected a specific simulator's folder instead of the top-level “Devices” folder that contains all of them. Please grant access again and select “Devices” itself (Library/Developer/CoreSimulator/Devices), not one of the folders inside it."
+            return AppConstants.SimulatorStrings.selectedSpecificSimulatorFolder
         }
     }
     

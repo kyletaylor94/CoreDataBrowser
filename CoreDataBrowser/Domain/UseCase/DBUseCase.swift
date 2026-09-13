@@ -78,7 +78,7 @@ final class DBUseCaseImpl: DBUseCase {
         var inferred: [DBForeignKey] = []
         
         for (column, type) in zip(table.columns, table.types) {
-            guard type.uppercased().contains("INT"),
+            guard type.uppercased().contains(DatabaseConstants.int),
                   !DatabaseConstants.excludedColumns.contains(column.uppercased()) else {
                 continue
             }
@@ -98,7 +98,7 @@ final class DBUseCaseImpl: DBUseCase {
             let dBForeignKey = DBForeignKey(
                 column: column,
                 destinationTable: matchedTable,
-                destinationColumn: "Z_PK"
+                destinationColumn: DatabaseConstants.zPK
             )
             
             inferred.append(dBForeignKey)

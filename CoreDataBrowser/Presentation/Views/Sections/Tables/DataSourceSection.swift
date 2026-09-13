@@ -15,21 +15,21 @@ struct DataSourceSection: View {
     var body: some View {
         HStack(spacing: 0) {
             if !dbDataVM.coreDataTables.isEmpty {
-                DataSourceListView(title: "CoreData", tables: dbDataVM.coreDataTables, selectedTable: dbDataVM.selectedTable) { table in
+                DataSourceListView(title: AppConstants.DataSourceName.coreData, tables: dbDataVM.coreDataTables, selectedTable: dbDataVM.selectedTable) { table in
                     dbDataVM.selectedTable = table
                 }
             }
             
             if !dbDataVM.swiftDataTables.isEmpty {
                 Divider()
-                DataSourceListView(title: "SwiftData", tables: dbDataVM.swiftDataTables, selectedTable: dbDataVM.secondaryTable) { table in
+                DataSourceListView(title: AppConstants.DataSourceName.swiftData, tables: dbDataVM.swiftDataTables, selectedTable: dbDataVM.secondaryTable) { table in
                     dbDataVM.secondaryTable = table
                 }
             }
             
             if !userDefaultsVM.userDefaultsTable.isEmpty {
                 Divider()
-                DataSourceListView(title: "UserDefaults", tables: userDefaultsVM.userDefaultsTable, selectedTable: userDefaultsVM.selectedUserDefaultTable, showHighlight: false) { table in
+                DataSourceListView(title: AppConstants.DataSourceName.userDefaults, tables: userDefaultsVM.userDefaultsTable, selectedTable: userDefaultsVM.selectedUserDefaultTable, showHighlight: false) { table in
                     userDefaultsVM.selectedUserDefaultTable = table
                 }
             }

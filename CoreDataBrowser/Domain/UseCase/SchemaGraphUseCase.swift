@@ -70,10 +70,10 @@ class SchemaGraphUseCaseImpl: SchemaGraphUseCase {
     func displayTypeName(for rawType: String) -> String {
         let normalized: String
         switch rawType.uppercased() {
-        case "VARCHAR":
-            normalized = "String"
-        case "INTEGER":
-            normalized = "Int"
+        case DatabaseConstants.varchar:
+            normalized = DatabaseConstants.string
+        case DatabaseConstants.integer:
+            normalized = DatabaseConstants.normalizedInt
         default:
             normalized = rawType
         }
@@ -83,39 +83,39 @@ class SchemaGraphUseCaseImpl: SchemaGraphUseCase {
     func displayTypeName(for attributeType: NSAttributeType) -> String {
          switch attributeType {
          case .undefinedAttributeType:
-             "Undefined"
+             DatabaseConstants.undefined
          case .integer16AttributeType:
-             "Int16"
+             DatabaseConstants.int16
          case .integer32AttributeType:
-             "Int32"
+             DatabaseConstants.int32
          case .integer64AttributeType:
-             "Int64"
+             DatabaseConstants.int64
          case .decimalAttributeType:
-             "Decimal"
+             DatabaseConstants.decimal
          case .doubleAttributeType:
-             "Double"
+             DatabaseConstants.double
          case .floatAttributeType:
-             "Float"
+             DatabaseConstants.float
          case .stringAttributeType:
-             "String"
+             DatabaseConstants.string
          case .booleanAttributeType:
-             "Bool"
+             DatabaseConstants.bool
          case .dateAttributeType:
-             "Date"
+             DatabaseConstants.date
          case .binaryDataAttributeType:
-             "Data"
+             DatabaseConstants.data
          case .UUIDAttributeType:
-             "UUID"
+             DatabaseConstants.uuid
          case .URIAttributeType:
-             "URL"
+             DatabaseConstants.url
          case .transformableAttributeType:
-             "Transformable"
+             DatabaseConstants.transformable
          case .objectIDAttributeType:
-             "ObjectID"
+             DatabaseConstants.objectID
          case .compositeAttributeType:
-             "Composite"
+             DatabaseConstants.composite
          @unknown default:
-             "Unknown"
+             DatabaseConstants.unknown
          }
      }
     

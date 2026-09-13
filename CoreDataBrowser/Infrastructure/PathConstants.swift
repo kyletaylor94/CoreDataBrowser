@@ -15,4 +15,7 @@ enum PathConstants {
     static let libraryApplicationSupportPath = "\(library)/Application Support"
     static let plistExtension = "plist"
     static let devicePlist = "device.\(plistExtension)"
+    static let grantAccess = "Grant Access"
+    static let accessPanelMessage = "CoreDataBrowser needs access to your Simulator devices to browse their app data. Select the top-level “Devices” folder itself — do not open it and select one of the simulator folders inside."
+    static let simulatorBookMarkKey = "simulatorRootBookmarkData"
 }

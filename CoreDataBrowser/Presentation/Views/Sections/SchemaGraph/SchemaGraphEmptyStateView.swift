@@ -11,12 +11,12 @@ import SwiftUI
 struct SchemaGraphEmptyStateView: View {
     var body: some View {
         VStack(spacing: 8) {
-            Image(systemName: "point.3.connected.trianglepath.dotted")
+            Image(systemName: AppConstants.SchemaGraphIcons.schemaGraph)
                 .font(.system(size: 36))
                 .foregroundStyle(.secondary)
-            Text("No schema data available")
+            Text(AppConstants.SchemaGraphStrings.dataNotAvailableTitle)
                 .font(.headline)
-            Text("Select a booted simulator, then choose a CoreData or SwiftData data source to visualize its entities and relationships.")
+            Text(AppConstants.SchemaGraphStrings.dataNotAvailableSubtitle)
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }

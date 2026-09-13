@@ -12,7 +12,34 @@ enum DatabaseConstants {
     static let sqlite = "sqlite"
     static let store = "store"
     static let documents = "Documents"
+    static let null = "NULL"
+    static let blob = "BLOB"
+    static let zPK = "Z_PK"
+    static let int = "INT"
+    static let varchar = "VARCHAR"
+    static let string = "String"
+    static let integer = "INTEGER"
+    static let normalizedInt = "Int"
+    static let undefined = "Undefined"
+    static let int16 = "Int16"
+    static let int32 = "Int32"
+    static let int64 = "Int64"
+    static let decimal = "Decimal"
+    static let double = "Double"
+    static let float = "Float"
+    static let bool = "Bool"
+    static let date = "Date"
+    static let data = "Data"
+    static let uuid = "UUID"
+    static let url = "URL"
+    static let transformable = "Transformable"
+    static let objectID = "ObjectID"
+    static let composite = "Composite"
+    static let unknown = "Unknown"
+    static let array = "Array"
+    static let dictionary = "Dictionary"
     
+ 
     /// A SQL query to retrieve the names of all tables in the SQLite database. This query is used to list the entities (tables) present in the database.
     static let entityQuery = "SELECT name FROM sqlite_master WHERE type='table';"
     
@@ -50,4 +77,22 @@ enum DatabaseConstants {
     ]
     
     static let excludedColumns = ["Z_PK", "Z_ENT", "Z_OPT"]
+    static func sqliteBlob(length: Int32) -> String {
+        return "BLOB (\(length) bytes)"
+    }
+    
+    static func foreignKeyQuery(from table: String) -> String {
+        return "PRAGMA foreign_key_list(\"\(table)\");"
+    }
+    
+    enum UserDefaults {
+        static let key = "Key"
+        static let value = "Value"
+        static let type = "Type"
+        static let dotComApple = "com.apple."
+        
+        static func formattedDataValue(data: Data) -> String {
+            return "Data (\(data.count) bytes): \(data.map { String(format: "%02x", $0) }.prefix(50).joined())\(data.count > 50 ? "..." : "")"
+        }
+    }
 }

@@ -20,11 +20,11 @@ enum FormattingHelper {
         let mb = bytesDouble / bytesPerMB
         
         if mb >= 1.0 {
-            return String(format: "%.2f MB", mb)
+            return String(format: AppConstants.FileSizeStringFormat.mb, mb)
         } else if kb >= 1.0 {
-            return String(format: "%.2f KB", kb)
+            return String(format: AppConstants.FileSizeStringFormat.kb, kb)
         } else {
-            return "\(bytes) bytes"
+            return "\(bytes) \(AppConstants.bytes)"
         }
     }
     
@@ -40,21 +40,6 @@ enum FormattingHelper {
         }
         return String(name.dropFirst())
     }
-    
-    /// A curated list of common, generic word fragments used to greedily split a fully-uppercased,
-    /// delimiter-less identifier (e.g. Core Data's SQLite column/table names, which are always
-    /// uppercased) back into a readable `camelCase` form. Only generic/common words are included
-    /// (not app-specific vocabulary) so this works reasonably well across different Core Data models.
-    private static let camelCaseWordFragments: [String] = [
-        "Entity", "Description", "Duration", "Currency", "Quantity", "Category", "Settings",
-        "Content", "Address", "Config", "Object", "Status", "Active", "Custom", "Height",
-        "Length", "Number", "Amount", "Default", "Enabled", "Visible", "Parent", "Source",
-        "Target", "Weight", "Version", "Percent", "Ratio", "Width", "Price", "Value", "Title",
-        "Image", "Color", "Count", "Array", "State", "Owner", "Child", "Group", "Start", "Total",
-        "Index", "Email", "Phone", "Text", "Time", "Rate", "Size", "Path", "Code", "Item", "Info",
-        "Meta", "List", "Type", "Data", "Name", "Icon", "Unit", "End", "Min", "Max", "Sum", "Key",
-        "Url", "Id", "At", "On", "In", "To"
-    ]
     
     /// Converts a fully-uppercased, delimiter-less identifier (like the ones Core Data generates for
     /// its SQLite tables/columns, e.g. `"CREATEDAT"` or `"FRUITENTITY"`) into a readable `camelCase`
@@ -72,7 +57,7 @@ enum FormattingHelper {
         
         var remaining = identifier.uppercased()
         var words: [String] = []
-        let sortedFragments = camelCaseWordFragments.sorted { $0.count > $1.count }
+        let sortedFragments = AppConstants.camelCaseWordFragments.sorted { $0.count > $1.count }
         
         var didStrip = true
         while didStrip, !remaining.isEmpty {
@@ -81,7 +66,7 @@ enum FormattingHelper {
                 let upperFragment = fragment.uppercased()
                 if remaining == upperFragment {
                     words.append(fragment)
-                    remaining = ""
+                    remaining = AppConstants.emptyString
                     didStrip = true
                     break
                 } else if remaining.count > upperFragment.count, remaining.hasSuffix(upperFragment) {

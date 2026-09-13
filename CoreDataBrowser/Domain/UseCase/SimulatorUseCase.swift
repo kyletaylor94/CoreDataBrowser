@@ -30,7 +30,7 @@ final class SimulatorUseCaseImpl: SimulatorUseCase {
                 let dict = try repository.readDevicePlist(at: deviceURL)
                 let (name, state, runtime) = parseDeviceInfo(from: dict)
                 
-                guard state == "Booted" else { continue }
+                guard state == AppConstants.SimulatorStrings.booted else { continue }
                 
                 devices.append(
                     SimulatorDevice(
@@ -54,16 +54,16 @@ final class SimulatorUseCaseImpl: SimulatorUseCase {
     /// - Note: The method handles both string and integer representations of the state, ensuring robust parsing.
     private func parseDeviceInfo(from dict: [String: Any]) -> (String, String, String) {
         let safeDict = dict.compactMapValues { $0 as? String }
-        let name = safeDict["name"] ?? "N/A"
-        let runtime = safeDict["runtime"] ?? "Unknown"
+        let name = safeDict[AppConstants.SimulatorStrings.name] ?? AppConstants.SimulatorStrings.na
+        let runtime = safeDict[AppConstants.SimulatorStrings.runtime] ?? AppConstants.SimulatorStrings.unknown
         
         let state: String
-        if let s = safeDict["state"] {
+        if let s = safeDict[AppConstants.SimulatorStrings.state] {
             state = s
-        } else if let n = dict["state"] as? Int {
-            state = (n == 1) ? "Shutdown" : "Booted"
+        } else if let n = dict[AppConstants.SimulatorStrings.state] as? Int {
+            state = (n == 1) ? AppConstants.SimulatorStrings.shutdown : AppConstants.SimulatorStrings.booted
         } else {
-            state = "Unknown"
+            state = AppConstants.SimulatorStrings.unknown
         }
         return (name, state, runtime)
     }

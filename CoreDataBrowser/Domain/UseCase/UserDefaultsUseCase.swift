@@ -47,8 +47,8 @@ final class UserDefaultsUseCaseImpl: UserDefaultsUseCase {
         let fileSize = repository.getFileSize(at: file)
         
         return DBDataTable(
-            name: "UserDefaults - \(file.deletingPathExtension().lastPathComponent)",
-            columns: ["Key", "Value", "Type"],
+            name: "\(AppConstants.DataSourceName.userDefaults) - \(file.deletingPathExtension().lastPathComponent)",
+            columns: [DatabaseConstants.UserDefaults.key, DatabaseConstants.UserDefaults.value, DatabaseConstants.UserDefaults.type],
             rows: rows,
             types: ["", "", ""],
             fileSize: fileSize,
@@ -70,17 +70,17 @@ final class UserDefaultsUseCaseImpl: UserDefaultsUseCase {
     /// - Returns: A string representing the type of the value, such as "String", "Int", "Bool", "Array", "Dictionary", etc.
     private func typeDescription(for value: Any) -> String {
         if let number = value as? NSNumber {
-            return CFGetTypeID(number) == CFBooleanGetTypeID() ? "Bool" : "Int"
+            return CFGetTypeID(number) == CFBooleanGetTypeID() ? DatabaseConstants.bool : DatabaseConstants.normalizedInt
         }
         
         switch value {
-        case is String: return "String"
-        case is Double: return "Double"
-        case is Float: return "Float"
-        case is Date: return "Date"
-        case is Data: return "Data"
-        case is [Any]: return "Array"
-        case is [String: Any]: return "Dictionary"
+        case is String: return DatabaseConstants.string
+        case is Double: return DatabaseConstants.double
+        case is Float: return DatabaseConstants.float
+        case is Date: return DatabaseConstants.date
+        case is Data: return DatabaseConstants.data
+        case is [Any]: return DatabaseConstants.array
+        case is [String: Any]: return DatabaseConstants.dictionary
         default: return String(describing: type(of: value))
         }
     }
@@ -138,6 +138,6 @@ final class UserDefaultsUseCaseImpl: UserDefaultsUseCase {
             return stringValue
         }
         
-        return "Data (\(data.count) bytes): \(data.map { String(format: "%02x", $0) }.prefix(50).joined())\(data.count > 50 ? "..." : "")"
+        return DatabaseConstants.UserDefaults.formattedDataValue(data: data)
     }
 }

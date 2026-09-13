@@ -15,7 +15,7 @@ struct UserDefaultDetailSheet: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 4) {
-                Text("Value")
+                Text(AppConstants.UserDefaultDetailSheetStrings.value)
                     .font(.headline)
                 Text(value)
                     .textSelection(.enabled)
@@ -26,10 +26,10 @@ struct UserDefaultDetailSheet: View {
             }
             .padding()
         }
-        .navigationTitle("Value Details")
+        .navigationTitle(AppConstants.UserDefaultDetailSheetStrings.navTitle)
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {
-                Button("Done") {
+                Button(AppConstants.UserDefaultDetailSheetStrings.done) {
                     dismiss()
                 }
             }

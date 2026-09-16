@@ -81,6 +81,9 @@ enum AppConstants {
         static let resetDefaults = "Reset to Defaults"
         static let cancel = "Cancel"
         static let save = "Save"
+        static let appID = "id6807113765"
+        static let feedBackUrl = "https://apps.apple.com/app/\(appID)?action=write-review"
+        static let feedback = "Give a Feedback"
     }
     
     enum PathRowIcon {

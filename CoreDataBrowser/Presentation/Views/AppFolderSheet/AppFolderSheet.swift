@@ -11,7 +11,6 @@ import SwiftUI
 struct AppFolderSheet: View {
     @Bindable var pathManager: PathManagerImpl
     @FocusState private var focusedField: PathType?
-    
     var body: some View {
         VStack(spacing: 20) {
             Text(AppConstants.AppFolderStrings.title)
@@ -22,17 +21,24 @@ struct AppFolderSheet: View {
                     PathRow(pathManager: pathManager, text: pathType.binding(from: pathManager), title: pathType.attributes.title, placeholder: pathType.attributes.placeholder, field: pathType)
                 }
             }
-           //MARK: - Button sections
+            
             HStack {
                 Button(AppConstants.AppFolderStrings.resetDefaults) {
                     focusedField = nil
                     pathManager.resetPaths()
                 }
+                
+                Button(AppConstants.AppFolderStrings.feedback) {
+                    openAppStoreFeedback()
+                }
+                
                 Spacer()
+                
                 Button(AppConstants.AppFolderStrings.cancel) {
                     pathManager.isSheetPresented = false
                 }
                 .keyboardShortcut(.cancelAction)
+                
                 Button(AppConstants.AppFolderStrings.save) {
                     pathManager.isSheetPresented = false
                 }
@@ -41,5 +47,12 @@ struct AppFolderSheet: View {
         }
         .padding()
         .frame(width: 500)
+    }
+}
+
+private extension AppFolderSheet {
+    func openAppStoreFeedback() {
+        guard let url = URL(string: AppConstants.AppFolderStrings.feedBackUrl) else { return }
+        NSWorkspace.shared.open(url)
     }
 }

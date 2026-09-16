@@ -110,11 +110,15 @@ enum AppConstants {
         static let remove = "Remove from the board"
         static let copied = "Copied"
         static let copyPath = "Copy Path"
+        static let exportJson = "Export JSON"
+        static let exportCsv = "Export CSV"
     }
     
     enum SourceHeaderIcons {
         static let checkmark = "checkmark"
         static let docOnDoc = "doc.on.doc"
+        static let exportJson = "curlybraces.square"
+        static let exportCsv = "tablecells"
     }
     
     enum SchemaGraphStrings {

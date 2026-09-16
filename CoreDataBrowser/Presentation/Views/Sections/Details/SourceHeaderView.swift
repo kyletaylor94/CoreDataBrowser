@@ -14,9 +14,11 @@ struct SourceHeaderView: View {
     let action: () -> Void
     let copyAction: () -> Void
     let isCopied: Bool
-    @State private var showExportOptions = false
-    @State private var showCSVExportOptions = false
     let table: DBDataTable
+    
+    @State private var jsonExportOption = false
+    @State private var csvExportOption = false
+    
     var body: some View {
         HStack {
             Image(systemName: displayedInfo.icon)
@@ -40,38 +42,37 @@ struct SourceHeaderView: View {
             .animation(.easeInOut(duration: 0.15), value: isCopied)
             
             Button {
-                showExportOptions.toggle()
+                jsonExportOption.toggle()
             } label: {
-                Label("Export JSON", systemImage: "curlybraces.square")
+                Label(AppConstants.SourceHeaderStrings.exportJson, systemImage: AppConstants.SourceHeaderIcons.exportJson)
             }
-            .fileExporter(isPresented: $showExportOptions, document: ExportDocument(table: table, format: .json), contentType: .json) { result in
-                switch result {
-                case .success(let url):
-                    print("Exported to \(url)")
-                case .failure(let error):
-                    print("Failed to export: \(error)")
-                }
+            .fileExporter(isPresented: $jsonExportOption, document: ExportDocument(table: table, format: .json), contentType: .json) { result in
+                debugPrint(result)
             }
             
             Button {
-                showCSVExportOptions.toggle()
+                csvExportOption.toggle()
             } label: {
-                Label("Export CSV", systemImage: "tablecells")
+                Label(AppConstants.SourceHeaderStrings.exportCsv, systemImage: AppConstants.SourceHeaderIcons.exportCsv)
             }
-            .fileExporter(
-                isPresented: $showCSVExportOptions,
-                document: ExportDocument(table: table, format: .commaSeparatedText),
+            .fileExporter(isPresented: $csvExportOption, document: ExportDocument(table: table, format: .commaSeparatedText),
                 contentType: .commaSeparatedText) { result in
-                    switch result {
-                    case .success(let url):
-                        print("Exported to \(url)")
-                    case .failure(let error):
-                        print("Failed to export: \(error)")
-                    }
+                    debugPrint(result)
                 }
         }
         .padding()
         .background(Color(nsColor: .controlBackgroundColor))
         Divider()
+    }
+}
+
+private extension SourceHeaderView {
+    func debugPrint(_ result: Result<URL, Error>) {
+        switch result {
+        case .success(let url):
+            print("Exported to \(url)")
+        case .failure(let error):
+            print("Failed to export: \(error)")
+        }
     }
 }

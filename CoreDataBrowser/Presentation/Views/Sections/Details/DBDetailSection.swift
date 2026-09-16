@@ -51,7 +51,7 @@ struct DBDetailSection: View {
                     onDismiss: { userDefaultsViewModel.selectedUserDefaultTable = nil },
                     onErrorDismiss: { userDefaultsViewModel.hasError = false },
                     copyAction: { userDefaultsViewModel.copyPathManager.copyPath(for: userDefaultTable, type: .userDefaults) },
-                    isCopied: userDefaultsViewModel.copyPathManager.copiedType == .userDefaults
+                    isCopied: userDefaultsViewModel.copyPathManager.copiedType == .userDefaults,
                 )
             }
         }

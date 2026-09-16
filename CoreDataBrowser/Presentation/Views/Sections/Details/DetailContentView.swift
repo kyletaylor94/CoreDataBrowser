@@ -24,7 +24,7 @@ struct DetailContentView: View {
             if isLoading {
                 ProgressView()
             } else {
-                SourceHeaderView(displayedInfo: type.displayedInfo, action: onDismiss, copyAction: copyAction, isCopied: isCopied)
+                SourceHeaderView(displayedInfo: type.displayedInfo, action: onDismiss, copyAction: copyAction, isCopied: isCopied, table: table)
                 switch type {
                 case .userDefaults:
                     UserDefaultsTableView(table: table)

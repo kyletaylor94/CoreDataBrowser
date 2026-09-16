@@ -8,7 +8,7 @@
 import Foundation
 
 struct DBDataTable: Identifiable, Hashable {
-    let id = UUID()
+    var id = UUID()
     let name: String
     let columns: [String]
     let rows: [[String]]

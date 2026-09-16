@@ -1,0 +1,9 @@
+{
+  "id" : "5ddd6d6b-9d31-4c2d-8f4a-b51a6bf7e3e1",
+  "targets" : [
+    {
+      "id" : "7E6B250C-1740-4500-B360-939666F89265",
+      "name" : "CoreDataBrowser"
+    }
+  ]
+}

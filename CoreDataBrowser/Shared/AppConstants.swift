@@ -81,9 +81,6 @@ enum AppConstants {
         static let resetDefaults = "Reset to Defaults"
         static let cancel = "Cancel"
         static let save = "Save"
-        static let appID = "id6807113765"
-        static let feedBackUrl = "https://apps.apple.com/app/\(appID)?action=write-review"
-        static let feedback = "Give a Feedback"
     }
     
     enum PathRowIcon {
@@ -166,12 +163,16 @@ enum AppConstants {
         static let refresh = "Refresh all data"
         static let schemaGraph = "Toggle schema graph presentation"
         static let settings = "Open settings"
+        static let appID = "id6807113765"
+        static let feedBackUrl = "https://apps.apple.com/app/\(appID)?action=write-review"
+        static let feedback = "Give a Feedback"
     }
     
     enum ToolBarIcons {
         static let refresh = "arrow.trianglehead.2.clockwise"
         static let schemaGraph = "point.3.connected.trianglepath.dotted"
         static let settings = "gearshape"
+        static let feedback = "star.bubble"
     }
 }
 

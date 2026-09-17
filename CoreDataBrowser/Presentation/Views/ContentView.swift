@@ -80,6 +80,12 @@ struct ContentView: View {
                 schemaGraphViewModel.isSchemaGraphPresented.toggle()
             }
             
+            CustomToolBarButton(helpText: AppConstants.ToolBarStrings.feedback, placement: .primaryAction, icon: AppConstants.ToolBarIcons.feedback) {
+                /// Open the feedback URL and navigate to the feedback form in appstore
+                guard let url = URL(string: AppConstants.ToolBarStrings.feedBackUrl) else { return }
+                NSWorkspace.shared.open(url)
+            }
+            
             CustomToolBarButton(helpText: AppConstants.ToolBarStrings.settings, placement: .primaryAction, icon: AppConstants.ToolBarIcons.settings) {
                 pathManager.isSheetPresented.toggle()
             }

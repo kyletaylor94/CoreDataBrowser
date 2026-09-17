@@ -28,10 +28,6 @@ struct AppFolderSheet: View {
                     pathManager.resetPaths()
                 }
                 
-                Button(AppConstants.AppFolderStrings.feedback) {
-                    openAppStoreFeedback()
-                }
-                
                 Spacer()
                 
                 Button(AppConstants.AppFolderStrings.cancel) {
@@ -47,12 +43,5 @@ struct AppFolderSheet: View {
         }
         .padding()
         .frame(width: 500)
-    }
-}
-
-private extension AppFolderSheet {
-    func openAppStoreFeedback() {
-        guard let url = URL(string: AppConstants.AppFolderStrings.feedBackUrl) else { return }
-        NSWorkspace.shared.open(url)
     }
 }
